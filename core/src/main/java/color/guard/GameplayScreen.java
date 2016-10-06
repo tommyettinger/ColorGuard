@@ -7,13 +7,15 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import squidpony.squidmath.StatefulRNG;
 
 /**
  * Gameplay screen of the application.
@@ -23,16 +25,21 @@ public class GameplayScreen implements Screen {
     public TextureAtlas atlas;
     public GameState state;
     private SpriteBatch batch;
-    private Sprite ocean, plains;
+    private TextureAtlas.AtlasRegion ocean, plains;
     private Texture palettes;
+    private Animation attack;
+
     private OrthographicCamera camera;
-    private PixelPerfectViewport viewport;
+    private Viewport viewport;
     private Color currentPalette;
     ObjectSet<Texture> textures;
 
     private char[][] map;
+    private TextureAtlas.AtlasSprite[][] spriteMap;
+    private Animation[][] animMap;
     private int mapWidth, mapHeight;
-
+    private float currentTime = 0f;
+    private StatefulRNG guiRandom;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -43,16 +50,19 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        camera = new OrthographicCamera(640f, 360f);
-        viewport = new PixelPerfectViewport(Scaling.fill, 640f, 360f, camera);
+        guiRandom = new StatefulRNG(0L);
+        viewport = new PixelPerfectViewport(Scaling.fill, 640f, 360f);
+        //viewport = new ScreenViewport();
+        viewport.getCamera().translate(0, 480f, 0f);
+        viewport.getCamera().update();
         palettes = new Texture("palettes.png");
-        currentPalette = new Color(209 / 256f, 1, 1, 1);
+        currentPalette = new Color(208 / 255f, 1, 1, 1);
 
         atlas = new TextureAtlas("micro.atlas");
         textures = atlas.getTextures();
-        ocean = atlas.createSprite("terrains/Ocean_Huge_face0_Normal", 0);
-        plains = atlas.createSprite("terrains/Plains_Huge_face0_Normal", 0);
-
+        ocean = atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0);
+        plains = atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0);
+        attack = new Animation(0.09f, atlas.createSprites("animation_frames/Tank/Tank_Large_face0_attack_0"), Animation.PlayMode.LOOP);
         String vertex = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
                 "attribute vec2 a_texCoord0;\n" +
@@ -84,19 +94,40 @@ public class GameplayScreen implements Screen {
                 "}\n";
         indexShader = new ShaderProgram(vertex, fragment);
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
+        spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
+        animMap = new Animation[mapWidth][mapHeight];
 
+        currentPalette.r = 208 / 255f;
+        for (int x = mapWidth - 1; x >= 0; x--) {
+            for (int y = mapHeight - 1; y >= 0; y--) {
+                if (map[x][y] == '~') {
+                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(ocean);
+                }
+                else
+                {
+                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(plains);
+                }
+                spriteMap[x][y].setPosition(32 * y - 32 * x, 16 * x + 16 * y);
+                spriteMap[x][y].setColor(currentPalette);
+            }
+        }
         batch = new SpriteBatch();
     }
 
     @Override
     public void render(float delta) {
+        currentTime += delta;
         Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        viewport.apply(false);
 
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        guiRandom.setState(0L);
 
         batch.setShader(indexShader);
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         batch.begin();
+        currentPalette.r = 208 / 255f;
         batch.setColor(currentPalette);
         palettes.bind(3);
 
@@ -106,7 +137,16 @@ public class GameplayScreen implements Screen {
 
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                batch.draw(map[x][y] == '~' ? ocean : plains, 32 * y - 32 * x + 360f, 16 * x + 16 * y - 180f);
+                spriteMap[x][y].draw(batch);
+            }
+        }
+        for (int x = mapWidth - 1; x >= 0; x--) {
+            for (int y = mapHeight - 1; y >= 0; y--) {
+                if(map[x][y] != '~') {
+                    currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
+                    batch.setColor(currentPalette);
+                    batch.draw(attack.getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
+                }
             }
         }
         batch.end();
@@ -115,7 +155,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // Resize your screen here. The parameters represent the new window size.
+        viewport.update(width, height, false);
     }
 
     @Override
