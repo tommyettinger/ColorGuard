@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -33,6 +34,7 @@ public class GameplayScreen implements Screen {
     private Viewport viewport;
     private Color currentPalette;
     ObjectSet<Texture> textures;
+    BitmapFont font;
 
     private char[][] map;
     private TextureAtlas.AtlasSprite[][] spriteMap;
@@ -60,6 +62,9 @@ public class GameplayScreen implements Screen {
 
         atlas = new TextureAtlas("micro.atlas");
         textures = atlas.getTextures();
+        font = new BitmapFont(Gdx.files.internal("NanoOK.fnt"), atlas.findRegion("font/NanoOK"));
+        font.getData().setScale(2f);
+        font.setColor(Color.BLACK);
         ocean = atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0);
         plains = atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0);
         attack = new Animation(0.09f, atlas.createSprites("animation_frames/Tank/Tank_Large_face0_attack_0"), Animation.PlayMode.LOOP);
@@ -72,7 +77,7 @@ public class GameplayScreen implements Screen {
                 "void main()\n" +
                 "{\n" +
                 "v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
-                "v_color.a = v_color.a * (256.0/255.0);\n" +
+                "v_color.a = v_color.a * 1.0039216;\n" + //* (256.0/255.0)
                 "v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
                 "gl_Position = u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
                 "}\n";
@@ -149,6 +154,7 @@ public class GameplayScreen implements Screen {
                 }
             }
         }
+        font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 640);
         batch.end();
 
     }

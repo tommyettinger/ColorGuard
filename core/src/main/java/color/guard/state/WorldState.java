@@ -6,6 +6,8 @@ import squidpony.squidgrid.mapping.SpillWorldMap;
 import squidpony.squidmath.GreasedRegion;
 import squidpony.squidmath.StatefulRNG;
 
+import java.util.ArrayList;
+
 /**
  * Created by Tommy Ettinger on 10/3/2016.
  */
@@ -45,6 +47,12 @@ public class WorldState {
             {
                 factions[i-'A'] = new Faction(i-'A', tempNation, th.randomLanguages.get(0), new GreasedRegion(worldMap, i));
             }
+        }
+        GreasedRegion land = new GreasedRegion(worldMap, '~').not(), tempCon;
+        ArrayList<GreasedRegion> continents = land.split();
+        int cc = continents.size();
+        for (int i = 0; i < cc; i++) {
+            tempCon = continents.get(i);
         }
     }
 }
