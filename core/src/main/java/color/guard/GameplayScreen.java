@@ -42,6 +42,7 @@ public class GameplayScreen implements Screen {
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
     private StatefulRNG guiRandom;
+    private String displayString;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -62,9 +63,10 @@ public class GameplayScreen implements Screen {
 
         atlas = new TextureAtlas("micro.atlas");
         textures = atlas.getTextures();
-        font = new BitmapFont(Gdx.files.internal("NanoOK.fnt"), atlas.findRegion("font/NanoOK"));
+        font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("font/NanoOKExtended"));
         font.getData().setScale(2f);
         font.setColor(Color.BLACK);
+        displayString = state.world.mapGen.atlas.getAt(state.masterRandom.between(2, 26));
         ocean = atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0);
         plains = atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0);
         attack = new Animation(0.09f, atlas.createSprites("animation_frames/Tank/Tank_Large_face0_attack_0"), Animation.PlayMode.LOOP);
@@ -122,7 +124,9 @@ public class GameplayScreen implements Screen {
     @Override
     public void render(float delta) {
         currentTime += delta;
-        Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1);
+        if(currentTime % 1.8f < 0.001f)
+            displayString = state.world.mapGen.atlas.getAt(state.masterRandom.between(2, 26));
+        Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         viewport.apply(false);
 
@@ -155,6 +159,7 @@ public class GameplayScreen implements Screen {
             }
         }
         font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 640);
+        font.draw(batch, displayString, -300, 560); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         batch.end();
 
     }
