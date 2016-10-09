@@ -14,6 +14,6 @@ public class GameState {
     public GameState(long seed)
     {
         masterRandom = new StatefulRNG(seed);
-        world = new WorldState(60, 60, masterRandom.nextLong());
+        world = new WorldState(128, 128, masterRandom.nextLong());
     }
 }

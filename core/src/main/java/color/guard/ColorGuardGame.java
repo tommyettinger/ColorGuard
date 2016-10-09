@@ -13,7 +13,7 @@ public class ColorGuardGame extends Game {
         storage = new SquidStorage("ColorGuard");
         state = storage.get("save0", "state", GameState.class);
         if(state == null)
-            state = new GameState(0x1337BEEFBAFFL);
+            state = new GameState(42L);
         setScreen(new GameplayScreen(state));
     }
 }

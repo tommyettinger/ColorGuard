@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.squidmath.StatefulRNG;
 
@@ -26,7 +27,7 @@ public class GameplayScreen implements Screen {
     public TextureAtlas atlas;
     public GameState state;
     private SpriteBatch batch;
-    private TextureAtlas.AtlasRegion ocean, plains;
+    private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
     private Animation attack;
 
@@ -36,7 +37,7 @@ public class GameplayScreen implements Screen {
     ObjectSet<Texture> textures;
     BitmapFont font;
 
-    private char[][] map;
+    private int[][] map;
     private TextureAtlas.AtlasSprite[][] spriteMap;
     private Animation[][] animMap;
     private int mapWidth, mapHeight;
@@ -55,8 +56,8 @@ public class GameplayScreen implements Screen {
     public void show() {
         guiRandom = new StatefulRNG(0L);
         viewport = new PixelPerfectViewport(Scaling.fill, 640f, 360f);
-        //viewport = new ScreenViewport();
-        viewport.getCamera().translate(0, 480f, 0f);
+        viewport = new ScreenViewport();
+        viewport.getCamera().translate(0, 1080f, 0f);
         viewport.getCamera().update();
         palettes = new Texture("palettes.png");
         currentPalette = new Color(208 / 255f, 1, 1, 1);
@@ -66,9 +67,64 @@ public class GameplayScreen implements Screen {
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("font/NanoOKExtended"));
         font.getData().setScale(2f);
         font.setColor(Color.BLACK);
-        displayString = state.world.mapGen.atlas.getAt(state.masterRandom.between(2, 26));
-        ocean = atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0);
-        plains = atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0);
+        displayString = state.world.mapGen.atlas.getAt(2);
+        terrains = new TextureAtlas.AtlasRegion[]{
+                //0 0
+                atlas.findRegion("terrains/Road_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Road_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Road_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Road_Huge_face3_Normal", 0),
+                //1 4
+                atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Plains_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Plains_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Plains_Huge_face3_Normal", 0),
+                //2 8
+                atlas.findRegion("terrains/Forest_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Forest_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Forest_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Forest_Huge_face3_Normal", 0),
+                //3 12
+                atlas.findRegion("terrains/Jungle_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Jungle_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Jungle_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Jungle_Huge_face3_Normal", 0),
+                //4 16
+                atlas.findRegion("terrains/Hill_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Hill_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Hill_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Hill_Huge_face3_Normal", 0),
+                //5 20
+                atlas.findRegion("terrains/Mountain_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Mountain_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Mountain_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Mountain_Huge_face3_Normal", 0),
+                //6 24
+                atlas.findRegion("terrains/Ruins_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Ruins_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Ruins_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Ruins_Huge_face3_Normal", 0),
+                //7 28
+                atlas.findRegion("terrains/Desert_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Desert_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Desert_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Desert_Huge_face3_Normal", 0),
+                //8 32
+                atlas.findRegion("terrains/Tundra_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Tundra_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Tundra_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Tundra_Huge_face3_Normal", 0),
+                //9 36
+                atlas.findRegion("terrains/River_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/River_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/River_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/River_Huge_face3_Normal", 0),
+                //10 40
+                atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0),
+                atlas.findRegion("terrains/Ocean_Huge_face1_Normal", 0),
+                atlas.findRegion("terrains/Ocean_Huge_face2_Normal", 0),
+                atlas.findRegion("terrains/Ocean_Huge_face3_Normal", 0),
+        };
         attack = new Animation(0.09f, atlas.createSprites("animation_frames/Tank/Tank_Large_face0_attack_0"), Animation.PlayMode.LOOP);
         String vertex = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
@@ -107,13 +163,16 @@ public class GameplayScreen implements Screen {
         currentPalette.r = 208 / 255f;
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
+                spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[map[x][y] * 4 + guiRandom.next(2)]);
+                /*
                 if (map[x][y] == '~') {
-                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(ocean);
+                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[guiRandom.between(40, 44)]);
                 }
                 else
                 {
-                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(plains);
+                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[Math.min(guiRandom.between(4, 24), guiRandom.between(4, 24))]);
                 }
+                */
                 spriteMap[x][y].setPosition(32 * y - 32 * x, 16 * x + 16 * y);
                 spriteMap[x][y].setColor(currentPalette);
             }
@@ -124,8 +183,8 @@ public class GameplayScreen implements Screen {
     @Override
     public void render(float delta) {
         currentTime += delta;
-        if(currentTime % 1.8f < 0.001f)
-            displayString = state.world.mapGen.atlas.getAt(state.masterRandom.between(2, 26));
+
+        displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);
         Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         viewport.apply(false);
@@ -149,17 +208,18 @@ public class GameplayScreen implements Screen {
                 spriteMap[x][y].draw(batch);
             }
         }
+
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(map[x][y] != '~') {
+                if(map[x][y] < 9) {
                     currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
                     batch.setColor(currentPalette);
                     batch.draw(attack.getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
                 }
             }
         }
-        font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 640);
-        font.draw(batch, displayString, -300, 560); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
+        font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 1200);
+        font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         batch.end();
 
     }
