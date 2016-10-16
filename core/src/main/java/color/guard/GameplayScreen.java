@@ -1,8 +1,7 @@
 package color.guard;
 
 import color.guard.state.GameState;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
@@ -44,6 +44,9 @@ public class GameplayScreen implements Screen {
     private float currentTime = 0f;
     private StatefulRNG guiRandom;
     private String displayString;
+    private InputMultiplexer input;
+    private InputProcessor proc;
+    private Vector3 tempVector3;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -59,6 +62,7 @@ public class GameplayScreen implements Screen {
         viewport = new ScreenViewport();
         viewport.getCamera().translate(0, 1080f, 0f);
         viewport.getCamera().update();
+        tempVector3 = new Vector3();
         palettes = new Texture("palettes.png");
         currentPalette = new Color(208 / 255f, 1, 1, 1);
 
@@ -178,6 +182,16 @@ public class GameplayScreen implements Screen {
             }
         }
         batch = new SpriteBatch();
+        proc = new InputAdapter(){
+            @Override
+            public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                tempVector3.set(screenX, screenY, 0);
+                viewport.unproject(tempVector3);
+                viewport.getCamera().position.set(tempVector3);
+                return true;
+            }
+        };
+        Gdx.input.setInputProcessor(proc);
     }
 
     @Override
@@ -211,7 +225,7 @@ public class GameplayScreen implements Screen {
 
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(map[x][y] < 9) {
+                if(map[x][y] < 9 && guiRandom.next(4) == 0) {
                     currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
                     batch.setColor(currentPalette);
                     batch.draw(attack.getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
