@@ -1,5 +1,6 @@
 package color.guard;
 
+import color.guard.rules.PieceKind;
 import color.guard.state.GameState;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
 
 /**
@@ -29,7 +31,10 @@ public class GameplayScreen implements Screen {
     private SpriteBatch batch;
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
-    private Animation attack;
+    private OrderedMap<String, Animation[]> standing = new OrderedMap<String, Animation[]>(64),
+            acting0 = new OrderedMap<String, Animation[]>(64),
+            acting1 = new OrderedMap<String, Animation[]>(64),
+            dying = new OrderedMap<String, Animation[]>(64);
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -39,7 +44,6 @@ public class GameplayScreen implements Screen {
 
     private int[][] map;
     private TextureAtlas.AtlasSprite[][] spriteMap;
-    private Animation[][] animMap;
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
     private StatefulRNG guiRandom;
@@ -129,7 +133,43 @@ public class GameplayScreen implements Screen {
                 atlas.findRegion("terrains/Ocean_Huge_face2_Normal", 0),
                 atlas.findRegion("terrains/Ocean_Huge_face3_Normal", 0),
         };
-        attack = new Animation(0.09f, atlas.createSprites("animation_frames/Tank/Tank_Large_face0_attack_0"), Animation.PlayMode.LOOP);
+        int pieceCount = PieceKind.kinds.size();
+        PieceKind p;
+        String s;
+        for (int i = 0; i < pieceCount; i++) {
+            p = PieceKind.kinds.getAt(i);
+            s = "standing_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            standing.put(p.name, new Animation[]{
+                    new Animation(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
+            });
+            s = "animation_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            if((p.weapons & 2) != 0) {
+                acting0.put(p.name, new Animation[]{
+                        new Animation(0.09f, atlas.createSprites(s + 0 + "_attack_0")),
+                        new Animation(0.09f, atlas.createSprites(s + 1 + "_attack_0")),
+                        new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_0")),
+                        new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_0"))
+                });
+            }
+            if((p.weapons & 1) != 0)
+            {
+                acting1.put(p.name, new Animation[]{
+                        new Animation(0.09f, atlas.createSprites(s + 0 + "_attack_1")),
+                        new Animation(0.09f, atlas.createSprites(s + 1 + "_attack_1")),
+                        new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_1")),
+                        new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_1"))
+                });
+            }
+            dying.put(p.name, new Animation[]{
+                    new Animation(0.09f, atlas.createSprites(s + 0 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 1 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 2 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
+            });
+        }
         String vertex = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
                 "attribute vec2 a_texCoord0;\n" +
@@ -162,7 +202,6 @@ public class GameplayScreen implements Screen {
         indexShader = new ShaderProgram(vertex, fragment);
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
         spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
-        animMap = new Animation[mapWidth][mapHeight];
 
         currentPalette.r = 208 / 255f;
         for (int x = mapWidth - 1; x >= 0; x--) {
@@ -228,7 +267,7 @@ public class GameplayScreen implements Screen {
                 if(map[x][y] < 9 && guiRandom.next(4) == 0) {
                     currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
                     batch.setColor(currentPalette);
-                    batch.draw(attack.getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
+                    batch.draw(standing.randomValue(guiRandom)[guiRandom.next(2)].getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
                 }
             }
         }
