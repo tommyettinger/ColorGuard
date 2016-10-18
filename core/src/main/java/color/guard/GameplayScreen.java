@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
@@ -42,7 +41,7 @@ public class GameplayScreen implements Screen {
     ObjectSet<Texture> textures;
     BitmapFont font;
 
-    private int[][] map;
+    private int[][] map, pieces;
     private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
@@ -63,7 +62,7 @@ public class GameplayScreen implements Screen {
     public void show() {
         guiRandom = new StatefulRNG(0L);
         viewport = new PixelPerfectViewport(Scaling.fill, 640f, 360f);
-        viewport = new ScreenViewport();
+        //viewport = new ScreenViewport();
         viewport.getCamera().translate(0, 1080f, 0f);
         viewport.getCamera().update();
         tempVector3 = new Vector3();
@@ -170,6 +169,25 @@ public class GameplayScreen implements Screen {
                     new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
             });
         }
+        pieces = new int[mapWidth][mapHeight];
+        int[] tempOrdering = new int[pieceCount];
+        for (int x = mapWidth - 1; x >= 0; x--) {
+            CELL_WISE:
+            for (int y = mapHeight - 1; y >= 0; y--) {
+                if(guiRandom.next(4) == 0) {
+                    guiRandom.randomOrdering(pieceCount, tempOrdering);
+                    for (int i = 0; i < pieceCount; i++) {
+                        if(PieceKind.kinds.getAt(tempOrdering[i]).mobilities[map[x][y]] < 6)
+                        {
+                            pieces[x][y] = tempOrdering[i] << 2 | guiRandom.next(2);
+                            continue CELL_WISE;
+                        }
+                    }
+                }
+                pieces[x][y] = -1;
+            }
+        }
+
         String vertex = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
                 "attribute vec2 a_texCoord0;\n" +
@@ -264,10 +282,10 @@ public class GameplayScreen implements Screen {
 
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(map[x][y] < 9 && guiRandom.next(4) == 0) {
+                if(pieces[x][y] >= 0) {
                     currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
                     batch.setColor(currentPalette);
-                    batch.draw(standing.randomValue(guiRandom)[guiRandom.next(2)].getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
+                    batch.draw(standing.getAt(pieces[x][y] >>> 2)[pieces[x][y] & 3].getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
                 }
             }
         }
