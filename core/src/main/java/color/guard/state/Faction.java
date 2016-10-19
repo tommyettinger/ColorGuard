@@ -1,10 +1,7 @@
 package color.guard.state;
 
 import squidpony.FakeLanguageGen;
-import squidpony.squidmath.Coord;
-import squidpony.squidmath.CrossHash;
-import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.StatefulRNG;
+import squidpony.squidmath.*;
 
 /**
  * Created by Tommy Ettinger on 10/3/2016.
@@ -109,6 +106,8 @@ public class Faction {
 
     public Coord capital;
 
+    public Coord[] cities;
+
     public StatefulRNG rng;
 
     public Faction()
@@ -147,6 +146,7 @@ public class Faction {
         if(territory.isEmpty())
         {
             capital = Coord.get(-1, -1);
+            cities = new Coord[0];
         }
         else {
             GreasedRegion[] retractions = territory.retractSeries(4);
@@ -162,6 +162,15 @@ public class Faction {
                     break;
                 }
             }
+            cities = territory.randomSeparated(0.05, rng, 8);
         }
+    }
+    public static Faction whoOwns(int x, int y, RNG random, Faction[] factions)
+    {
+        for (int i = 0; i < factions.length; i++) {
+            if(factions[i].territory.contains(x, y))
+                return factions[i];
+        }
+        return factions[random.nextIntHasty(factions.length)];
     }
 }

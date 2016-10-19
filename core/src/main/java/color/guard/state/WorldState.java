@@ -50,15 +50,7 @@ public class WorldState {
         th.addKnownCategories();
         factions = new Faction[24];
         String tempNation;
-        for (char i = 'A'; i <= 'X'; i++) {
-            tempNation = th.makeNationName();
-            mapGen.atlas.put(i, tempNation);
-            if (th.randomLanguages.isEmpty()) {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, FakeLanguageGen.randomLanguage(worldRandom.nextLong()), new GreasedRegion(politicalMap, i));
-            } else {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), new GreasedRegion(politicalMap, i));
-            }
-        }
+
         worldMap = GwtCompatibility.fill2D(10, worldWidth, worldHeight);
         worldMap = land.writeInts(worldMap, 1);
         ArrayList<GreasedRegion> continents = land.split(), tempRings;
@@ -111,13 +103,20 @@ public class WorldState {
                     else
                         worldMap = tempCon.writeInts(worldMap, 2);
                     worldMap = tempCon.fringe8way().writeInts(worldMap, 1);
+                    starter = tempCon.singleRandom(worldRandom);
+                    tempCon.not().mask(politicalMap, politicalMap[starter.x][starter.y]);
                 } else {
                     worldMap = tempCon.writeInts(worldMap, 9);
-                    worldMap = tempCon.fringe8way().writeInts(worldMap, 1);
+                    starter = tempCon.singleRandom(worldRandom);
+                    char glyph = politicalMap[starter.x][starter.y];
+                    tempCon.not().mask(politicalMap, '~');
+                    worldMap = tempCon.not().fringe8way().writeInts(worldMap, 1);
+                    tempCon.not().mask(politicalMap, glyph);
+
                     if(worldRandom.next(3) > 4)
-                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 7);
+                        worldMap = tempCon.removeSeveral(tempCon.not().randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 7);
                     else
-                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 2);
+                        worldMap = tempCon.removeSeveral(tempCon.not().randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 2);
                 }
             }
         }
@@ -131,6 +130,16 @@ public class WorldState {
                 }
                 else if (worldMap[x][y] == 2 && Math.abs(x + y - wmax) < tropicLimit)
                     worldMap[x][y] = 3;
+            }
+        }
+        worldMap = land.fringe8way().writeInts(worldMap, 9);
+        for (char i = 'A'; i <= 'X'; i++) {
+            tempNation = th.makeNationName();
+            mapGen.atlas.put(i, tempNation);
+            if (th.randomLanguages.isEmpty()) {
+                factions[i - 'A'] = new Faction(i - 'A', tempNation, FakeLanguageGen.randomLanguage(worldRandom.nextLong()), new GreasedRegion(politicalMap, i));
+            } else {
+                factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), new GreasedRegion(politicalMap, i));
             }
         }
     }

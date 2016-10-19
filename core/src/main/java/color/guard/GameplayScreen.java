@@ -1,6 +1,7 @@
 package color.guard;
 
 import color.guard.rules.PieceKind;
+import color.guard.state.Faction;
 import color.guard.state.GameState;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import squidpony.squidmath.Coord;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
 
@@ -132,7 +134,7 @@ public class GameplayScreen implements Screen {
                 atlas.findRegion("terrains/Ocean_Huge_face2_Normal", 0),
                 atlas.findRegion("terrains/Ocean_Huge_face3_Normal", 0),
         };
-        int pieceCount = PieceKind.kinds.size();
+        int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
         String s;
         for (int i = 0; i < pieceCount; i++) {
@@ -169,6 +171,23 @@ public class GameplayScreen implements Screen {
                     new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
             });
         }
+        for (int i = 0; i < facilityCount; i++) {
+            p = PieceKind.facilities.getAt(i);
+            s = "standing_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            standing.put(p.name, new Animation[]{
+                    new Animation(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
+                    new Animation(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
+            });
+            s = "animation_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            dying.put(p.name, new Animation[]{
+                    new Animation(0.09f, atlas.createSprites(s + 0 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 1 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 2 + "_death")),
+                    new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
+            });
+        }
         pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
         for (int x = mapWidth - 1; x >= 0; x--) {
@@ -186,6 +205,16 @@ public class GameplayScreen implements Screen {
                 }
                 pieces[x][y] = -1;
             }
+        }
+        int factionCount = state.world.factions.length;
+        Coord city;
+        for (int i = 0; i < factionCount; i++) {
+            for (int j = 0; j < state.world.factions[i].cities.length; j++) {
+                city = state.world.factions[i].cities[j];
+                pieces[city.x][city.y] = pieceCount << 2 | guiRandom.next(2);
+            }
+            city = state.world.factions[i].capital;
+            pieces[city.x][city.y] = (pieceCount + 2) << 2 | guiRandom.next(2);
         }
 
         String vertex = "attribute vec4 a_position;\n" +
@@ -279,13 +308,18 @@ public class GameplayScreen implements Screen {
                 spriteMap[x][y].draw(batch);
             }
         }
-
+        int currentPiece;
+        Faction faction;
+        TextureAtlas.AtlasSprite sprite;
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(pieces[x][y] >= 0) {
-                    currentPalette.r = guiRandom.nextIntHasty(208) / 255f;
-                    batch.setColor(currentPalette);
-                    batch.draw(standing.getAt(pieces[x][y] >>> 2)[pieces[x][y] & 3].getKeyFrame(currentTime, true), 32 * y - 32 * x + 48f, 16 * x + 16 * y + 32f);
+                if((currentPiece = pieces[x][y]) >= 0) {
+                    faction = Faction.whoOwns(x, y, guiRandom, state.world.factions);
+                    currentPalette.r = faction.palettes[guiRandom.nextIntHasty(faction.palettes.length)] / 255f;
+                    sprite = (TextureAtlas.AtlasSprite) standing.getAt(currentPiece >>> 2)[currentPiece & 3].getKeyFrame(currentTime, true);
+                    sprite.setColor(currentPalette);
+                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * x + 16 * y + 8f);
+                    sprite.draw(batch);
                 }
             }
         }

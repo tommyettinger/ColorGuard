@@ -20,13 +20,40 @@ public class PieceKind {
 
     }
 
-    public PieceKind(String name, String visual, int weapons)
+    /**
+     * Facility constructor.
+     * "City", new PieceKind("City", "City", "CIT", "A medium-sized city that can give troops to its favored army.", 8, 60, false),
+     * @param name
+     * @param visual
+     * @param abbreviation
+     * @param description
+     * @param armor
+     * @param wounds
+     */
+    public PieceKind(String name, String visual, String abbreviation, String description, int armor, int wounds,
+                     boolean aquatic)
     {
         this.name = name;
         this.visual = visual;
-        this.weapons = weapons;
-        this.abbreviation = "NON";
-        this.group = "GR";
+        this.abbreviation = abbreviation;
+        this.group = "FA";
+        this.description = description;
+        this.action = "";
+        this.skill = "";
+        this.features = new String[0];
+        this.weaknesses = new String[0];
+        this.ammo = new String[0];
+        this.category = STRU;
+        this.weapons = 0;
+        this.power = 0;
+        this.armor = armor;
+        this.wounds = wounds;
+        this.dodge = 0;
+        this.speed = 0;
+        this.cost = 9000;
+        this.mobilities = (aquatic)
+                ? new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8,}
+                : new int[]{1, 2, 4, 6, 6, 8, 8, 4, 4, 8, 8,};
     }
 
     public PieceKind(String name, String visual, String group, String abbreviation, int category, String description,
@@ -94,5 +121,10 @@ public class PieceKind {
             "Patrol Boat", new PieceKind("Patrol Boat", "Boat", "BT", "PBT", NAVA, "A boat that can attack all kinds of unit, but isn't too strong.", "Indirect (1,3)", new String[]{"Retaliate","Seek","Anti-Aerial",}, new String[]{"Rotation","Power"}, "Spotter", 2, new String[]{"Assault",""}, 17, 5, 18, 0, 9, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 1,}, 272),
             "Cruiser", new PieceKind("Cruiser", "Boat_S", "BT", "CRU", NAVA, "A fast boat that can devastate aerial and naval units.", "Indirect (3,4)", new String[]{"Mobile","Anti-Aerial","Torpedo",}, new String[]{"Rotation","Choice"}, "Rush", 1, new String[]{"","Missile"}, 26, 7, 19, 0, 15, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 1,}, 340),
             "Battleship", new PieceKind("Battleship", "Boat_P", "BT", "BSP", NAVA, "A long-range boat with a set of huge anti-armor cannons.", "Indirect (1,4)", new String[]{"Retaliate","Anti-Heavy","Anti-Structure",}, new String[]{"Rotation","Speed"}, "Long Shot", 2, new String[]{"Cannon",""}, 30, 7, 23, 0, 7, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 1,}, 340)
+    ),
+    facilities = Maker.makeOM(
+            "City", new PieceKind("City", "City", "CIT", "A medium-sized city that can give troops to its favored army.", 8, 60, false),
+            "Dock", new PieceKind("Dock", "Dock", "DOK", "A port town that can rarely give boats to its favored army.", 8, 60, true),
+            "Castle", new PieceKind("Castle", "Castle", "CSL", "A vital fortress that serves as a command center for an army.", 12, 100, false)
     );
 }
