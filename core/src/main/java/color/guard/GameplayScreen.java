@@ -3,6 +3,7 @@ package color.guard;
 import color.guard.rules.PieceKind;
 import color.guard.state.Faction;
 import color.guard.state.GameState;
+import color.guard.state.WorldState;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.squidmath.Coord;
+import squidpony.squidmath.GreasedRegion;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
 
@@ -74,69 +76,19 @@ public class GameplayScreen implements Screen {
         atlas = new TextureAtlas("micro.atlas");
         textures = atlas.getTextures();
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("font/NanoOKExtended"));
-        font.getData().setScale(2f);
+        //font.getData().setScale(2f);
         font.setColor(Color.BLACK);
-        displayString = state.world.mapGen.atlas.getAt(2);
-        terrains = new TextureAtlas.AtlasRegion[]{
-                //0 0
-                atlas.findRegion("terrains/Road_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Road_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Road_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Road_Huge_face3_Normal", 0),
-                //1 4
-                atlas.findRegion("terrains/Plains_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Plains_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Plains_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Plains_Huge_face3_Normal", 0),
-                //2 8
-                atlas.findRegion("terrains/Forest_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Forest_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Forest_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Forest_Huge_face3_Normal", 0),
-                //3 12
-                atlas.findRegion("terrains/Jungle_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Jungle_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Jungle_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Jungle_Huge_face3_Normal", 0),
-                //4 16
-                atlas.findRegion("terrains/Hill_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Hill_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Hill_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Hill_Huge_face3_Normal", 0),
-                //5 20
-                atlas.findRegion("terrains/Mountain_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Mountain_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Mountain_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Mountain_Huge_face3_Normal", 0),
-                //6 24
-                atlas.findRegion("terrains/Ruins_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Ruins_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Ruins_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Ruins_Huge_face3_Normal", 0),
-                //7 28
-                atlas.findRegion("terrains/Desert_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Desert_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Desert_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Desert_Huge_face3_Normal", 0),
-                //8 32
-                atlas.findRegion("terrains/Tundra_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Tundra_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Tundra_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Tundra_Huge_face3_Normal", 0),
-                //9 36
-                atlas.findRegion("terrains/River_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/River_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/River_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/River_Huge_face3_Normal", 0),
-                //10 40
-                atlas.findRegion("terrains/Ocean_Huge_face0_Normal", 0),
-                atlas.findRegion("terrains/Ocean_Huge_face1_Normal", 0),
-                atlas.findRegion("terrains/Ocean_Huge_face2_Normal", 0),
-                atlas.findRegion("terrains/Ocean_Huge_face3_Normal", 0),
+        displayString = state.world.mapGen.atlas.getAt(0);
+        String s;
+        terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
+        for (int i = 0; i < terrains.length >> 2; i++) {
+            terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0_Normal", 0);
+            terrains[i * 4 + 1] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face1_Normal", 0);
+            terrains[i * 4 + 2] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face2_Normal", 0);
+            terrains[i * 4 + 3] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face3_Normal", 0);
         };
         int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
-        String s;
         for (int i = 0; i < pieceCount; i++) {
             p = PieceKind.kinds.getAt(i);
             s = "standing_frames/" + p.visual + "/" + p.visual + "_Large_face";
@@ -208,10 +160,20 @@ public class GameplayScreen implements Screen {
         }
         int factionCount = state.world.factions.length;
         Coord city;
+        Coord[] cities;
+        GreasedRegion tempRegion = new GreasedRegion(mapWidth, mapHeight);
         for (int i = 0; i < factionCount; i++) {
-            for (int j = 0; j < state.world.factions[i].cities.length; j++) {
-                city = state.world.factions[i].cities[j];
+            tempRegion.remake(state.world.factions[i].territory);
+            cities = tempRegion.randomSeparated(0.04, state.world.worldRandom, 8);
+            for (int j = 0; j < cities.length; j++) {
+                city = cities[j];
                 pieces[city.x][city.y] = pieceCount << 2 | guiRandom.next(2);
+            }
+            tempRegion.surface().and(new GreasedRegion(state.world.worldMap, 9).fringe());
+            cities = tempRegion.randomSeparated(0.03, state.world.worldRandom, 3);
+            for (int j = 0; j < cities.length; j++) {
+                city = cities[j];
+                pieces[city.x][city.y] = (pieceCount + 1) << 2 | guiRandom.next(2);
             }
             city = state.world.factions[i].capital;
             pieces[city.x][city.y] = (pieceCount + 2) << 2 | guiRandom.next(2);

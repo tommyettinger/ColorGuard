@@ -162,7 +162,10 @@ public class Faction {
                     break;
                 }
             }
-            cities = territory.randomSeparated(0.05, rng, 8);
+            cities = new Coord[8];
+            for (int i = 0; i < 8; i++) {
+                cities[i] = Coord.get(-1,-1);
+            }
         }
     }
     public static Faction whoOwns(int x, int y, RNG random, Faction[] factions)

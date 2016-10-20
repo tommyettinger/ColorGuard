@@ -2,11 +2,13 @@ package color.guard.state;
 
 import squidpony.FakeLanguageGen;
 import squidpony.GwtCompatibility;
+import squidpony.Maker;
 import squidpony.Thesaurus;
 import squidpony.squidgrid.mapping.DungeonUtility;
 import squidpony.squidgrid.mapping.SpillWorldMap;
 import squidpony.squidmath.Coord;
 import squidpony.squidmath.GreasedRegion;
+import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
 
 import java.util.ArrayList;
@@ -21,6 +23,18 @@ public class WorldState {
     public SpillWorldMap mapGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
+    public static final OrderedMap<String, String> terrains = Maker.makeOM(
+            "Road", "Road",
+            "Plains", "Plains",
+            "Forest", "Forest",
+            "Jungle", "Jungle",
+            "Hill", "Hill",
+            "Mountain", "Mountain",
+            "Ruins", "Ruins",
+            "Sand", "Desert",
+            "Ice", "Tundra",
+            "River", "River",
+            "Ocean", "Ocean");
     String worldName;
 
     public WorldState() {
@@ -136,10 +150,11 @@ public class WorldState {
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = th.makeNationName();
             mapGen.atlas.put(i, tempNation);
+            GreasedRegion territory = new GreasedRegion(politicalMap, i);
             if (th.randomLanguages.isEmpty()) {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, FakeLanguageGen.randomLanguage(worldRandom.nextLong()), new GreasedRegion(politicalMap, i));
+                factions[i - 'A'] = new Faction(i - 'A', tempNation, FakeLanguageGen.randomLanguage(worldRandom.nextLong()), territory);
             } else {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), new GreasedRegion(politicalMap, i));
+                factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), territory);
             }
         }
     }
