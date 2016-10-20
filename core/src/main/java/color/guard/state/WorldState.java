@@ -111,12 +111,12 @@ public class WorldState {
                     char glyph = politicalMap[starter.x][starter.y];
                     tempCon.not().mask(politicalMap, '~');
                     worldMap = tempCon.not().fringe8way().writeInts(worldMap, 1);
-                    tempCon.not().mask(politicalMap, glyph);
+                    //tempCon.not().mask(politicalMap, glyph);
 
                     if(worldRandom.next(3) > 4)
-                        worldMap = tempCon.removeSeveral(tempCon.not().randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 7);
+                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 7);
                     else
-                        worldMap = tempCon.removeSeveral(tempCon.not().randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 2);
+                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 2);
                 }
             }
         }

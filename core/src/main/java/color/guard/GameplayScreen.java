@@ -318,7 +318,7 @@ public class GameplayScreen implements Screen {
                     currentPalette.r = faction.palettes[guiRandom.nextIntHasty(faction.palettes.length)] / 255f;
                     sprite = (TextureAtlas.AtlasSprite) standing.getAt(currentPiece >>> 2)[currentPiece & 3].getKeyFrame(currentTime, true);
                     sprite.setColor(currentPalette);
-                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * x + 16 * y + 8f);
+                    sprite.setPosition(32 * y - 32 * x + 40f, 16 * x + 16 * y + 24f);
                     sprite.draw(batch);
                 }
             }
