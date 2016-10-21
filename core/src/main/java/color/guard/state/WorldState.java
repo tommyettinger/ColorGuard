@@ -14,6 +14,7 @@ import squidpony.squidmath.StatefulRNG;
 import java.util.ArrayList;
 
 /**
+ * Really important class that calculates and stores a world map and the factions it holds.
  * Created by Tommy Ettinger on 10/3/2016.
  */
 public class WorldState {

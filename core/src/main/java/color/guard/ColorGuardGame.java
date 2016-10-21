@@ -4,7 +4,9 @@ import color.guard.state.GameState;
 import com.badlogic.gdx.Game;
 import squidpony.SquidStorage;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+/**
+ * Entry
+ */
 public class ColorGuardGame extends Game {
     GameState state;
     SquidStorage storage;

@@ -4,6 +4,7 @@ import squidpony.Maker;
 import squidpony.squidmath.OrderedMap;
 
 /**
+ * The listing of pieces we have graphics and stats for. The stats aren't used much yet.
  * Created by Tommy Ettinger on 10/6/2016.
  */
 public class PieceKind {

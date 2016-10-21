@@ -2,7 +2,10 @@ package color.guard;
 
 import com.badlogic.gdx.Screen;
 
-/** First screen of the application. Displayed after the application is created. */
+/**
+ * First screen of the application. Displayed after the application is created.
+ * Currently unused, should be soon.
+ */
 public class OpeningScreen implements Screen {
     @Override
     public void show() {

@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 /**
  * A viewport that scales the world using {@link Scaling}, but limits the scaling to integer multiples or simple halving
- * if the zoom would be 0x.
+ * if the zoom would be 0x. Handy for keeping a pixelated look on high-DPI screens.
  * <p>
  * {@link Scaling#fit} keeps the aspect ratio by scaling the world up to fit the screen, adding black bars (letterboxing) for the
  * remaining space.

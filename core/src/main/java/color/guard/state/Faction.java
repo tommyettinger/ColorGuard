@@ -4,6 +4,10 @@ import squidpony.FakeLanguageGen;
 import squidpony.squidmath.*;
 
 /**
+ * A faction in the game world; stores territory, a spoken language, the positions of the
+ * capital and cities, some visual info for palettes, and the relationships this Faction has
+ * with the other 23 Factions (currently there are 24, hard-coded).
+ *
  * Created by Tommy Ettinger on 10/3/2016.
  */
 public class Faction {

@@ -26,6 +26,7 @@ import squidpony.squidmath.StatefulRNG;
 
 /**
  * Gameplay screen of the application.
+ * The majority of the code is here currently, and should be moved around to fit better.
  */
 public class GameplayScreen implements Screen {
     public ShaderProgram indexShader;
