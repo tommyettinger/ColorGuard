@@ -47,7 +47,7 @@ public class GameplayScreen implements Screen {
     BitmapFont font;
 
     private int[][] map, pieces;
-    private TextureAtlas.AtlasSprite[][] spriteMap;
+    //private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
     private StatefulRNG guiRandom;
@@ -211,23 +211,12 @@ public class GameplayScreen implements Screen {
                 "}\n";
         indexShader = new ShaderProgram(vertex, fragment);
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
-        spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
+        //spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
 
         currentPalette.r = 208 / 255f;
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[map[x][y] * 4 + guiRandom.next(2)]);
-                /*
-                if (map[x][y] == '~') {
-                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[guiRandom.between(40, 44)]);
-                }
-                else
-                {
-                    spriteMap[x][y] = new TextureAtlas.AtlasSprite(terrains[Math.min(guiRandom.between(4, 24), guiRandom.between(4, 24))]);
-                }
-                */
-                spriteMap[x][y].setPosition(32 * y - 32 * x, 16 * x + 16 * y);
-                spriteMap[x][y].setColor(currentPalette);
+                map[x][y] = map[x][y] * 4 + guiRandom.next(2);
             }
         }
         batch = new SpriteBatch();
@@ -268,7 +257,7 @@ public class GameplayScreen implements Screen {
 
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                spriteMap[x][y].draw(batch);
+                batch.draw(terrains[map[x][y]], 32 * y - 32 * x, 16 * x + 16 * y);
             }
         }
         int currentPiece;
@@ -286,7 +275,7 @@ public class GameplayScreen implements Screen {
                 }
             }
         }
-        font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 1200);
+        //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 1200);
         font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         batch.end();
 

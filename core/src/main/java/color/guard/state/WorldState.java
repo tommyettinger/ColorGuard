@@ -4,7 +4,6 @@ import squidpony.FakeLanguageGen;
 import squidpony.GwtCompatibility;
 import squidpony.Maker;
 import squidpony.Thesaurus;
-import squidpony.squidgrid.mapping.DungeonUtility;
 import squidpony.squidgrid.mapping.SpillWorldMap;
 import squidpony.squidmath.Coord;
 import squidpony.squidmath.GreasedRegion;
@@ -56,7 +55,7 @@ public class WorldState {
 
         politicalMap = land.mask(politicalMap, '~');
 
-        DungeonUtility.debugPrint(politicalMap);
+        //DungeonUtility.debugPrint(politicalMap);
 
         mapGen.atlas.clear();
         mapGen.atlas.put('~', "Water");
