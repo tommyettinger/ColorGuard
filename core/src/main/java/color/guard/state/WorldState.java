@@ -25,6 +25,19 @@ public class WorldState {
     public StatefulRNG worldRandom;
     public static final OrderedMap<String, String> terrains = Maker.makeOM(
             "Road", "Road",
+            "Plains", "Hill",
+            "Forest", "Hill",
+            "Jungle", "Hill",
+            "Hill", "Hill",
+            "Mountain", "Hill",
+            "Ruins", "Hill",
+            "Sand", "Hill",
+            "Ice", "Hill",
+            "River", "River",
+            "Ocean", "Ocean",
+            "Warning", "Hill"
+/*
+            "Road", "Road",
             "Plains", "Plains",
             "Forest", "Forest",
             "Jungle", "Jungle",
@@ -34,7 +47,10 @@ public class WorldState {
             "Sand", "Desert",
             "Ice", "Tundra",
             "River", "River",
-            "Ocean", "Ocean");
+            "Ocean", "Ocean"
+
+ */
+    );
     String worldName;
 
     public WorldState() {

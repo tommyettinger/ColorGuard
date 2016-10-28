@@ -20,8 +20,8 @@ public class DesktopLauncher {
         configuration.title = "ColorGuard";
         configuration.width = 640;
         configuration.height = 360;
-        configuration.vSyncEnabled = true;
-        configuration.foregroundFPS = 30;
+        configuration.vSyncEnabled = false;
+        configuration.foregroundFPS = 0;
         for (int size : new int[] { 128, 64, 32, 16 }) {
             configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
         }

@@ -9,12 +9,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
@@ -234,6 +232,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
 
         displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);
@@ -254,29 +253,36 @@ public class GameplayScreen implements Screen {
         indexShader.setUniformi("u_texPalette", 3);
         textures.first().bind(2);
         indexShader.setUniformi("u_texture", 2);
+        int currentPiece;
 
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                batch.draw(terrains[map[x][y]], 32 * y - 32 * x, 16 * x + 16 * y);
+                currentPiece = map[x][y];
+                currentPalette.r = (208 + (currentPiece >>> 2)) / 255f;
+                batch.setColor(currentPalette);
+                batch.draw(terrains[currentPiece], 32 * y - 32 * x, 16 * x + 16 * y);
             }
         }
-        int currentPiece;
         Faction faction;
-        TextureAtlas.AtlasSprite sprite;
+        Sprite sprite;
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
                 if((currentPiece = pieces[x][y]) >= 0) {
                     faction = Faction.whoOwns(x, y, guiRandom, state.world.factions);
                     currentPalette.r = faction.palettes[guiRandom.nextIntHasty(faction.palettes.length)] / 255f;
-                    sprite = (TextureAtlas.AtlasSprite) standing.getAt(currentPiece >>> 2)[currentPiece & 3].getKeyFrame(currentTime, true);
+                    sprite = (Sprite) standing.getAt(currentPiece >>> 2)[currentPiece & 3].getKeyFrame(currentTime, true);
                     sprite.setColor(currentPalette);
-                    sprite.setPosition(32 * y - 32 * x + 40f, 16 * x + 16 * y + 24f);
+                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * x + 16 * y + 4f);
                     sprite.draw(batch);
+                    if(currentPiece >>> 2 == standing.size() - 1)
+                    {
+                        font.draw(batch, faction.name, 32 * y - 32 * x - 32f, 16 * x + 16 * y + 80f, 128f, Align.center, true);
+                    }
                 }
             }
         }
         //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 1200);
-        font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
+        //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         batch.end();
 
     }
