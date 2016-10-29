@@ -3,6 +3,7 @@ package color.guard;
 import color.guard.rules.PieceKind;
 import color.guard.state.Faction;
 import color.guard.state.GameState;
+import color.guard.state.Piece;
 import color.guard.state.WorldState;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
@@ -18,7 +19,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.squidmath.Coord;
-import squidpony.squidmath.GreasedRegion;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
 
@@ -44,7 +44,7 @@ public class GameplayScreen implements Screen {
     ObjectSet<Texture> textures;
     BitmapFont font;
 
-    private int[][] map, pieces;
+    private int[][] map;
     //private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
@@ -53,6 +53,7 @@ public class GameplayScreen implements Screen {
     private InputMultiplexer input;
     private InputProcessor proc;
     private Vector3 tempVector3;
+    private static final float visualWidth = 640f, visualHeight = 360f;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -64,7 +65,7 @@ public class GameplayScreen implements Screen {
     @Override
     public void show() {
         guiRandom = new StatefulRNG(0L);
-        viewport = new PixelPerfectViewport(Scaling.fill, 640f, 360f);
+        viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         viewport.getCamera().translate(0, 1080f, 0f);
         viewport.getCamera().update();
@@ -139,7 +140,10 @@ public class GameplayScreen implements Screen {
                     new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
             });
         }
-        pieces = new int[mapWidth][mapHeight];
+
+        state.world.startBattle(state.world.factions);
+
+        /*pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
@@ -157,27 +161,7 @@ public class GameplayScreen implements Screen {
                 pieces[x][y] = -1;
             }
         }
-        int factionCount = state.world.factions.length;
-        Coord city;
-        Coord[] cities;
-        GreasedRegion tempRegion = new GreasedRegion(mapWidth, mapHeight);
-        for (int i = 0; i < factionCount; i++) {
-            tempRegion.remake(state.world.factions[i].territory);
-            cities = tempRegion.randomSeparated(0.04, state.world.worldRandom, 8);
-            for (int j = 0; j < cities.length; j++) {
-                city = cities[j];
-                pieces[city.x][city.y] = pieceCount << 2 | guiRandom.next(2);
-            }
-            tempRegion.surface().and(new GreasedRegion(state.world.worldMap, 9).fringe());
-            cities = tempRegion.randomSeparated(0.03, state.world.worldRandom, 3);
-            for (int j = 0; j < cities.length; j++) {
-                city = cities[j];
-                pieces[city.x][city.y] = (pieceCount + 1) << 2 | guiRandom.next(2);
-            }
-            city = state.world.factions[i].capital;
-            pieces[city.x][city.y] = (pieceCount + 2) << 2 | guiRandom.next(2);
-        }
-
+        */
         String vertex = "attribute vec4 a_position;\n" +
                 "attribute vec4 a_color;\n" +
                 "attribute vec2 a_texCoord0;\n" +
@@ -241,7 +225,6 @@ public class GameplayScreen implements Screen {
         viewport.apply(false);
 
         batch.setProjectionMatrix(viewport.getCamera().combined);
-        guiRandom.setState(0L);
 
         batch.setShader(indexShader);
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
@@ -253,31 +236,39 @@ public class GameplayScreen implements Screen {
         indexShader.setUniformi("u_texPalette", 3);
         textures.first().bind(2);
         indexShader.setUniformi("u_texture", 2);
-        int currentPiece;
+        int currentKind;
+        Piece currentPiece;
 
-        for (int x = mapWidth - 1; x >= 0; x--) {
-            for (int y = mapHeight - 1; y >= 0; y--) {
-                currentPiece = map[x][y];
-                currentPalette.r = (208 + (currentPiece >>> 2)) / 255f;
+        Vector3 position = viewport.getCamera().position;
+        int centerX = -(int)((position.x - 8) - 2 * (position.y - 4)) >> 6,
+                centerY = (int)((position.x - 8) + 2 * (position.y - 4)) >> 6,
+                minX = Math.max(0, centerX - 12), maxX = Math.min(centerX + 12, mapWidth - 1),
+                minY = Math.max(0, centerY - 12), maxY = Math.min(centerY + 12, mapHeight - 1);
+
+        for (int x = maxX; x >= minX; x--) {
+            for (int y = maxY; y >= minY; y--) {
+                currentKind = map[x][y];
+                currentPalette.r = (208 + (currentKind >>> 2)) / 255f;
                 batch.setColor(currentPalette);
-                batch.draw(terrains[currentPiece], 32 * y - 32 * x, 16 * x + 16 * y);
+                batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
             }
         }
         Faction faction;
         Sprite sprite;
-        for (int x = mapWidth - 1; x >= 0; x--) {
-            for (int y = mapHeight - 1; y >= 0; y--) {
-                if((currentPiece = pieces[x][y]) >= 0) {
-                    faction = Faction.whoOwns(x, y, guiRandom, state.world.factions);
-                    currentPalette.r = faction.palettes[guiRandom.nextIntHasty(faction.palettes.length)] / 255f;
-                    sprite = (Sprite) standing.getAt(currentPiece >>> 2)[currentPiece & 3].getKeyFrame(currentTime, true);
-                    sprite.setColor(currentPalette);
-                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * x + 16 * y + 4f);
+        Coord c;
+        for (int x = maxX; x >= minX; x--) {
+            for (int y = maxY; y >= minY; y--) {
+                c = Coord.get(x, y);
+                if((currentPiece = state.world.battle.pieces.getQFromA(c)) != null) {
+                    currentKind = currentPiece.kind << 2 | currentPiece.facing;
+                    sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                    sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
+                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * y + 16 * x + 4f);
                     sprite.draw(batch);
-                    if(currentPiece >>> 2 == standing.size() - 1)
-                    {
-                        font.draw(batch, faction.name, 32 * y - 32 * x - 32f, 16 * x + 16 * y + 80f, 128f, Align.center, true);
-                    }
+                    //if(currentKind >>> 2 == standing.size() - 1)
+                    //{
+                        font.draw(batch, currentPiece.name, 32 * y - 32 * x - 32f, 16 * y + 16 * x + 72f, 128f, Align.center, true);
+                    //}
                 }
             }
         }

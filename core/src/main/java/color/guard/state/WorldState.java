@@ -23,6 +23,7 @@ public class WorldState {
     public SpillWorldMap mapGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
+    public BattleState battle = null;
     public static final OrderedMap<String, String> terrains = Maker.makeOM(
             "Road", "Road",
             "Plains", "Hill",
@@ -173,5 +174,9 @@ public class WorldState {
                 factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), territory);
             }
         }
+    }
+    public void startBattle(Faction... belligerents)
+    {
+        battle = new BattleState(worldRandom.nextLong(), worldMap, belligerents);
     }
 }
