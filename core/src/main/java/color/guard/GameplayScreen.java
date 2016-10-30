@@ -49,7 +49,7 @@ public class GameplayScreen implements Screen {
     private int mapWidth, mapHeight;
     private float currentTime = 0f;
     private StatefulRNG guiRandom;
-    private String displayString;
+    //private String displayString;
     private InputMultiplexer input;
     private InputProcessor proc;
     private Vector3 tempVector3;
@@ -73,19 +73,19 @@ public class GameplayScreen implements Screen {
         palettes = new Texture("palettes.png");
         currentPalette = new Color(208 / 255f, 1, 1, 1);
 
-        atlas = new TextureAtlas("micro.atlas");
+        atlas = new TextureAtlas("mini.atlas");
         textures = atlas.getTextures();
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("font/NanoOKExtended"));
         //font.getData().setScale(2f);
         font.setColor(Color.BLACK);
-        displayString = state.world.mapGen.atlas.getAt(0);
+        //displayString = state.world.mapGen.atlas.getAt(0);
         String s;
         terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
         for (int i = 0; i < terrains.length >> 2; i++) {
-            terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0_Normal", 0);
-            terrains[i * 4 + 1] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face1_Normal", 0);
-            terrains[i * 4 + 2] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face2_Normal", 0);
-            terrains[i * 4 + 3] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face3_Normal", 0);
+            terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0", 0);
+            terrains[i * 4 + 1] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face1", 0);
+            terrains[i * 4 + 2] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face2", 0);
+            terrains[i * 4 + 3] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face3", 0);
         };
         int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
@@ -219,7 +219,7 @@ public class GameplayScreen implements Screen {
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
 
-        displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);
+        //displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);
         Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         viewport.apply(false);
@@ -263,7 +263,7 @@ public class GameplayScreen implements Screen {
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
                     sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                    sprite.setPosition(32 * y - 32 * x + 8f, 16 * y + 16 * x + 4f);
+                    sprite.setPosition(32 * y - 32 * x + 9f, 16 * y + 16 * x + 13f);
                     sprite.draw(batch);
                     //if(currentKind >>> 2 == standing.size() - 1)
                     //{

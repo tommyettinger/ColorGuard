@@ -36,7 +36,10 @@ public class WorldState {
             "Ice", "Hill",
             "River", "River",
             "Ocean", "Ocean",
-            "Warning", "Hill"
+            "Pit", "Pit",
+            "Volcano", "Volcano",
+            "Poison", "Poison",
+            "Warning", "Warning"
 /*
             "Road", "Road",
             "Plains", "Plains",
