@@ -52,9 +52,26 @@ public class WorldState {
             "Ice", "Tundra",
             "River", "River",
             "Ocean", "Ocean"
-
  */
     );
+
+    public static final int[] heights = {
+            0, //road
+            0, //plains
+            1, //forest
+            1, //jungle
+            2, //hill
+            3, //mountain
+            1, //ruins
+            0, //sand
+            0, //ice
+            0, //river
+            0, //ocean
+            0, //pit
+            3, //volcano
+            1, //poison
+            1, //warning
+    };
     String worldName;
 
     public WorldState() {

@@ -1,7 +1,6 @@
 package color.guard;
 
 import color.guard.rules.PieceKind;
-import color.guard.state.Faction;
 import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
@@ -57,9 +56,8 @@ public class GameplayScreen implements Screen {
     public GameplayScreen(GameState state)
     {
         this.state = state;
-        map = state.world.worldMap;
-        mapWidth = map.length;
-        mapHeight = map[0].length;
+        mapWidth = state.world.worldWidth;
+        mapHeight = state.world.worldHeight;
     }
 
     @Override
@@ -80,12 +78,37 @@ public class GameplayScreen implements Screen {
         font.setColor(Color.BLACK);
         //displayString = state.world.mapGen.atlas.getAt(0);
         String s;
-        terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
-        for (int i = 0; i < terrains.length >> 2; i++) {
-            terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0", 0);
-            terrains[i * 4 + 1] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face1", 0);
-            terrains[i * 4 + 2] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face2", 0);
-            terrains[i * 4 + 3] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face3", 0);
+        terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 64];
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 16; j++) {
+                s = "terrains/" + WorldState.terrains.getAt(i);
+                if((j & 1) != 0) s += "_SE";
+                if((j & 2) != 0) s += "_SW";
+                if((j & 4) != 0) s += "_NW";
+                if((j & 8) != 0) s += "_NE";
+                s += "_Huge_face";
+                for (int r = 0; r < 4; r++) {
+                    terrains[i * 64 + j * 4 + r] = atlas.findRegion(s + r, 0);
+                }
+            }
+        };
+        for (int i = 2; i < 9; i++) {
+            for (int j = 0; j < 64; j++) {
+                terrains[i * 64 + j] = terrains[64 + j];
+            }
+        };
+        for (int i = 9; i < terrains.length >> 6; i++) {
+            for (int j = 0; j < 16; j++) {
+                s = "terrains/" + WorldState.terrains.getAt(i);
+                if((j & 1) != 0) s += "_SE";
+                if((j & 2) != 0) s += "_SW";
+                if((j & 4) != 0) s += "_NW";
+                if((j & 8) != 0) s += "_NE";
+                s += "_Huge_face";
+                for (int r = 0; r < 4; r++) {
+                    terrains[i * 64 + j * 4 + r] = atlas.findRegion(s + r, 0);
+                }
+            }
         };
         int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
@@ -196,9 +219,11 @@ public class GameplayScreen implements Screen {
         //spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
 
         currentPalette.r = 208 / 255f;
+        map = new int[mapWidth][mapHeight];
+        int[][] wm = state.world.worldMap;
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                map[x][y] = map[x][y] * 4 + guiRandom.next(2);
+                map[x][y] = wm[x][y] * 64 + getSlope(wm, x, y) * 4 + guiRandom.next(2);
             }
         }
         batch = new SpriteBatch();
@@ -212,6 +237,15 @@ public class GameplayScreen implements Screen {
             }
         };
         Gdx.input.setInputProcessor(proc);
+    }
+    private int getSlope(int[][] map, int x, int y)
+    {
+        int s = 0, h = WorldState.heights[map[x][y]];
+        if(x > 0 && WorldState.heights[map[x - 1][y]] < h) s |= 1;
+        if(y > 0 && WorldState.heights[map[x][y - 1]] < h) s |= 2;
+        if(x < mapWidth - 1 && WorldState.heights[map[x + 1][y]] < h) s |= 4;
+        if(y < mapHeight - 1 && WorldState.heights[map[x][y+1]] < h) s |= 8;
+        return s;
     }
 
     @Override
@@ -247,27 +281,37 @@ public class GameplayScreen implements Screen {
 
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
-                currentKind = map[x][y];
-                currentPalette.r = (208 + (currentKind >>> 2)) / 255f;
-                batch.setColor(currentPalette);
+                currentKind = map[x][y] & -61;
+                batch.setColor((208 + (currentKind >>> 6)) / 255f, 1f, 1f, 1f);
                 batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
             }
         }
-        Faction faction;
         Sprite sprite;
         Coord c;
+        int h, m;
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
+                m = map[x][y];
+                h = WorldState.heights[m >>> 6];
+                for (int i = 1; i < h; i++) {
+                    currentKind = m & -61;
+                    batch.setColor((208 + (currentKind >>> 6)) / 255f, 1f, 1f, 1f);
+                    batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x + i * 12);
+                }
+                if(h >= 1) {
+                    batch.setColor((208 + (m >>> 6)) / 255f, 1f, 1f, 1f);
+                    batch.draw(terrains[m], 32 * y - 32 * x, 16 * y + 16 * x + h * 12);
+                }
                 c = Coord.get(x, y);
                 if((currentPiece = state.world.battle.pieces.getQFromA(c)) != null) {
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
                     sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                    sprite.setPosition(32 * y - 32 * x + 9f, 16 * y + 16 * x + 13f);
+                    sprite.setPosition(32 * y - 32 * x + 9f, 16 * y + 16 * x + 13f + h * 12);
                     sprite.draw(batch);
                     //if(currentKind >>> 2 == standing.size() - 1)
                     //{
-                        font.draw(batch, currentPiece.name, 32 * y - 32 * x - 32f, 16 * y + 16 * x + 72f, 128f, Align.center, true);
+                    font.draw(batch, currentPiece.name, 32 * y - 32 * x - 8f, 16 * y + 16 * x + 88f + h * 12, 80f, Align.center, true);
                     //}
                 }
             }
