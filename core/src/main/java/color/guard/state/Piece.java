@@ -8,16 +8,21 @@ import color.guard.rules.PieceKind;
 public class Piece {
     public final int kind;
     public final float palette;
-    public String name;
+    public final PieceKind pieceKind;
+    public String name, stats;
     public int facing;
     public int currentHealth;
+    public final int paint;
     public Piece()
     {
         kind = 0;
         palette = 0f;
         name = "Lonesome Joe";
-        facing = 0;
+        pieceKind = PieceKind.all.getAt(0);
         currentHealth = 1;
+        paint = 0;
+        stats = statsString();
+        facing = 0;
     }
 
     public Piece(int kind, Faction faction)
@@ -30,10 +35,11 @@ public class Piece {
         this.kind = kind;
         palette = faction.palettes[faction.rng.nextIntHasty(faction.palettes.length)] / 255f;
         this.facing = facing;
-        PieceKind pk = PieceKind.all.getAt(kind);
-        currentHealth = pk.wounds;
-        name = pk.abbreviation + ' ' + currentHealth + '/' + pk.wounds + '\n' +
-                faction.language.word(faction.rng, true, faction.rng.next(1) + Math.max(faction.rng.next(2), 1));
+        pieceKind = PieceKind.all.getAt(kind);
+        currentHealth = pieceKind.wounds;
+        paint = faction.paint;
+        stats = statsString();
+        name = faction.language.word(faction.rng, true, faction.rng.next(1) + Math.max(faction.rng.next(2), 1));
         /*
         if((faction.aggression & 31) < 5)
             name += faction.language.word(faction.rng, true, faction.rng.between(1, 4));
@@ -43,10 +49,8 @@ public class Piece {
     }
     public void resetName(Faction faction)
     {
-        PieceKind pk = PieceKind.all.getAt(kind);
-        currentHealth = pk.wounds;
-        name = pk.abbreviation + ' ' + currentHealth + '/' + pk.wounds + '\n' +
-                faction.language.word(faction.rng, true, faction.rng.between(1, 4));
+        currentHealth = pieceKind.wounds;
+        name = faction.language.word(faction.rng, true, faction.rng.between(1, 4));
         /*
         if(name.lastIndexOf(' ') < name.lastIndexOf(']'))
             name = "[" + PieceKind.all.getAt(kind).name + "]\n" +
@@ -59,15 +63,19 @@ public class Piece {
     }
     public void cityName(Faction faction)
     {
-        PieceKind pk = PieceKind.all.getAt(kind);
-        currentHealth = pk.wounds;
-        name = pk.abbreviation + ' ' + currentHealth + '/' + pk.wounds + '\n' +
-                faction.language.word(faction.rng, true, Math.max(faction.rng.between(1, 4), faction.rng.between(1, 4)));
+        currentHealth = pieceKind.wounds;
+        name = faction.language.word(faction.rng, true, Math.max(faction.rng.between(1, 4), faction.rng.between(1, 4)));
         /*
         if((faction.aggression & 3) == 0)
             name += faction.language.word(faction.rng, true, faction.rng.between(1, 3)) + " " + faction.language.word(faction.rng, true, faction.rng.between(1, 4));
         else
             name += faction.language.word(faction.rng, true, faction.rng.between(2, 4));
         */
+    }
+    public String statsString()
+    {
+        return (paint > 3 ? ":) " : (paint == 3) ? ":D " : (paint == 2) ? ":| " : ">:( ") + currentHealth + '/' + pieceKind.wounds; /* pieceKind.abbreviation + ' ' +
+                currentHealth + "/" + pieceKind.wounds;
+                */
     }
 }
