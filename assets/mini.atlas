@@ -32644,112 +32644,112 @@ animation_frames/Infantry_P/Infantry_P_Large_face3_death
   orig: 128, 188
   offset: 33, 22
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 699, 496
   size: 40, 83
   orig: 128, 188
   offset: 49, 19
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 748, 3025
   size: 38, 69
   orig: 128, 188
   offset: 49, 32
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1542, 3605
   size: 36, 77
   orig: 128, 188
   offset: 49, 21
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 3641, 3788
   size: 32, 69
   orig: 128, 188
   offset: 49, 23
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1452, 3174
   size: 28, 61
   orig: 128, 188
   offset: 49, 25
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1275, 179
   size: 25, 57
   orig: 128, 188
   offset: 49, 32
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 2390, 2495
   size: 24, 53
   orig: 128, 188
   offset: 49, 27
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 2390, 2438
   size: 24, 55
   orig: 128, 188
   offset: 49, 32
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1527, 1823
   size: 23, 52
   orig: 128, 188
   offset: 49, 32
   index: 12
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1756
   size: 22, 35
   orig: 128, 188
   offset: 49, 32
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1756
   size: 22, 35
   orig: 128, 188
   offset: 49, 32
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1719
   size: 22, 35
   orig: 128, 188
   offset: 49, 32
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1680
   size: 22, 37
   orig: 128, 188
   offset: 49, 31
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1633
   size: 22, 45
   orig: 128, 188
   offset: 49, 29
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 1579, 1584
   size: 22, 47
   orig: 128, 188
   offset: 49, 32
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_attack_1
   rotate: false
   xy: 2550, 3392
   size: 22, 50
@@ -32798,112 +32798,112 @@ animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face0_death
   orig: 128, 188
   offset: 30, 34
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 619, 2090
   size: 42, 83
   orig: 128, 188
   offset: 28, 24
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 614, 490
   size: 41, 73
   orig: 128, 188
   offset: 29, 33
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 748, 2946
   size: 38, 77
   orig: 128, 188
   offset: 32, 26
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 828, 88
   size: 34, 69
   orig: 128, 188
   offset: 36, 28
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1403, 2305
   size: 30, 61
   orig: 128, 188
   offset: 40, 30
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1454, 647
   size: 27, 60
   orig: 128, 188
   offset: 43, 33
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1149, 611
   size: 27, 59
   orig: 128, 188
   offset: 43, 33
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1216, 2
   size: 26, 53
   orig: 128, 188
   offset: 44, 32
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1263, 561
   size: 26, 56
   orig: 128, 188
   offset: 44, 33
   index: 12
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 2390, 2381
   size: 24, 55
   orig: 128, 188
   offset: 46, 33
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 2467, 2214
   size: 23, 52
   orig: 128, 188
   offset: 47, 33
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1579, 1536
   size: 22, 46
   orig: 128, 188
   offset: 48, 33
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 1847, 1734
   size: 18, 40
   orig: 128, 188
   offset: 52, 33
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 4078, 2919
   size: 16, 36
   orig: 128, 188
   offset: 54, 33
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 4078, 2919
   size: 16, 36
   orig: 128, 188
   offset: 54, 33
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_attack_1
   rotate: false
   xy: 4078, 2880
   size: 16, 37
@@ -32952,112 +32952,112 @@ animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face1_death
   orig: 128, 188
   offset: 59, 38
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2981, 3643
   size: 39, 101
   orig: 128, 188
   offset: 38, 33
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 748, 2844
   size: 38, 100
   orig: 128, 188
   offset: 39, 33
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 761, 293
   size: 35, 94
   orig: 128, 188
   offset: 42, 33
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 3817, 3474
   size: 31, 84
   orig: 128, 188
   offset: 46, 33
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 1149, 535
   size: 27, 74
   orig: 128, 188
   offset: 50, 33
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2390, 2308
   size: 24, 71
   orig: 128, 188
   offset: 53, 33
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2467, 2148
   size: 23, 64
   orig: 128, 188
   offset: 54, 33
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2467, 2079
   size: 23, 67
   orig: 128, 188
   offset: 54, 33
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 1579, 1459
   size: 22, 37
   orig: 128, 188
   offset: 55, 33
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 1579, 1459
   size: 22, 37
   orig: 128, 188
   offset: 55, 33
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2533, 2011
   size: 22, 39
   orig: 128, 188
   offset: 55, 33
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2550, 3444
   size: 22, 44
   orig: 128, 188
   offset: 55, 33
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2533, 1955
   size: 22, 54
   orig: 128, 188
   offset: 55, 33
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2533, 1896
   size: 22, 57
   orig: 128, 188
   offset: 55, 33
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2533, 1833
   size: 22, 61
   orig: 128, 188
   offset: 55, 33
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_attack_1
   rotate: false
   xy: 2533, 1766
   size: 22, 65
@@ -33106,112 +33106,112 @@ animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face2_death
   orig: 128, 188
   offset: 66, 22
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 620, 2824
   size: 43, 99
   orig: 128, 188
   offset: 56, 30
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 2566, 3760
   size: 41, 98
   orig: 128, 188
   offset: 56, 30
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 3022, 3636
   size: 39, 92
   orig: 128, 188
   offset: 56, 30
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 798, 310
   size: 35, 82
   orig: 128, 188
   offset: 56, 30
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 3817, 3400
   size: 31, 72
   orig: 128, 188
   offset: 56, 30
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1807, 2563
   size: 28, 65
   orig: 128, 188
   offset: 56, 30
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1149, 471
   size: 27, 62
   orig: 128, 188
   offset: 56, 30
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1654, 3430
   size: 27, 62
   orig: 128, 188
   offset: 56, 30
   index: 12
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1654, 3364
   size: 27, 64
   orig: 128, 188
   offset: 56, 30
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1275, 119
   size: 25, 58
   orig: 128, 188
   offset: 56, 30
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 2390, 2252
   size: 24, 54
   orig: 128, 188
   offset: 56, 30
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1552, 1823
   size: 23, 52
   orig: 128, 188
   offset: 56, 30
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1784, 1770
   size: 19, 42
   orig: 128, 188
   offset: 56, 30
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 804, 3614
   size: 17, 37
   orig: 128, 188
   offset: 56, 30
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1691, 668
   size: 16, 36
   orig: 128, 188
   offset: 56, 30
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_attack_1
   rotate: false
   xy: 1691, 668
   size: 16, 36
@@ -33260,112 +33260,112 @@ animation_frames/Infantry_PS/Infantry_PS_Alt_Large_face3_death
   orig: 128, 188
   offset: 33, 20
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 699, 411
   size: 40, 83
   orig: 128, 188
   offset: 49, 19
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 748, 2773
   size: 38, 69
   orig: 128, 188
   offset: 49, 32
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1580, 3615
   size: 36, 77
   orig: 128, 188
   offset: 49, 21
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 3641, 3717
   size: 32, 69
   orig: 128, 188
   offset: 49, 23
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1482, 3174
   size: 28, 61
   orig: 128, 188
   offset: 49, 25
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1302, 173
   size: 25, 57
   orig: 128, 188
   offset: 49, 32
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2390, 2197
   size: 24, 53
   orig: 128, 188
   offset: 49, 27
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2390, 2139
   size: 24, 56
   orig: 128, 188
   offset: 49, 32
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1499, 1924
   size: 23, 35
   orig: 128, 188
   offset: 49, 32
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1499, 1924
   size: 23, 35
   orig: 128, 188
   offset: 49, 32
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1524, 1924
   size: 23, 35
   orig: 128, 188
   offset: 49, 32
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1527, 1885
   size: 23, 37
   orig: 128, 188
   offset: 49, 31
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 1552, 1877
   size: 23, 45
   orig: 128, 188
   offset: 49, 29
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2492, 2517
   size: 23, 47
   orig: 128, 188
   offset: 49, 32
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2492, 2465
   size: 23, 50
   orig: 128, 188
   offset: 49, 32
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2492, 2411
   size: 23, 52
@@ -33414,112 +33414,112 @@ animation_frames/Infantry_PS/Infantry_PS_Large_face0_death
   orig: 128, 188
   offset: 33, 36
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 620, 2739
   size: 43, 83
   orig: 128, 188
   offset: 28, 24
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 665, 3415
   size: 42, 74
   orig: 128, 188
   offset: 29, 32
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 3063, 3710
   size: 39, 77
   orig: 128, 188
   offset: 32, 26
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 835, 328
   size: 35, 69
   orig: 128, 188
   offset: 36, 28
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 3817, 3337
   size: 31, 61
   orig: 128, 188
   offset: 40, 30
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1294, 1748
   size: 29, 62
   orig: 128, 188
   offset: 42, 32
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1807, 2381
   size: 28, 59
   orig: 128, 188
   offset: 43, 32
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1683, 3441
   size: 27, 53
   orig: 128, 188
   offset: 44, 32
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1263, 501
   size: 26, 58
   orig: 128, 188
   offset: 45, 32
   index: 12
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1302, 115
   size: 25, 56
   orig: 128, 188
   offset: 46, 32
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2390, 2084
   size: 24, 53
   orig: 128, 188
   offset: 47, 32
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2492, 2362
   size: 23, 47
   orig: 128, 188
   offset: 48, 32
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1784, 1727
   size: 19, 41
   orig: 128, 188
   offset: 52, 32
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1653, 718
   size: 17, 37
   orig: 128, 188
   offset: 54, 32
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1653, 718
   size: 17, 37
   orig: 128, 188
   offset: 54, 32
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1672, 751
   size: 17, 38
@@ -33568,112 +33568,112 @@ animation_frames/Infantry_PS/Infantry_PS_Large_face1_death
   orig: 128, 188
   offset: 62, 38
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 3104, 3686
   size: 39, 101
   orig: 128, 188
   offset: 38, 33
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 748, 2671
   size: 38, 100
   orig: 128, 188
   offset: 39, 33
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 875, 3342
   size: 35, 94
   orig: 128, 188
   offset: 42, 33
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 3817, 3251
   size: 31, 84
   orig: 128, 188
   offset: 46, 33
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 1683, 3365
   size: 27, 74
   orig: 128, 188
   offset: 50, 33
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2396, 2741
   size: 24, 71
   orig: 128, 188
   offset: 53, 33
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2492, 2296
   size: 23, 64
   orig: 128, 188
   offset: 54, 33
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2492, 2225
   size: 23, 69
   orig: 128, 188
   offset: 54, 33
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2533, 1688
   size: 22, 37
   orig: 128, 188
   offset: 55, 33
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2533, 1688
   size: 22, 37
   orig: 128, 188
   offset: 55, 33
   index: 15
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2533, 1647
   size: 22, 39
   orig: 128, 188
   offset: 55, 33
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2223, 3087
   size: 22, 44
   orig: 128, 188
   offset: 55, 33
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2498, 3499
   size: 22, 54
   orig: 128, 188
   offset: 55, 33
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 1603, 1763
   size: 22, 58
   orig: 128, 188
   offset: 55, 33
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 1603, 1700
   size: 22, 61
   orig: 128, 188
   offset: 55, 33
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 1603, 1633
   size: 22, 65
@@ -33715,112 +33715,112 @@ animation_frames/Infantry_PS/Infantry_PS_Large_face2_death
   orig: 128, 188
   offset: 66, 22
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 620, 2638
   size: 43, 99
   orig: 128, 188
   offset: 56, 30
   index: 8
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 706, 2051
   size: 41, 98
   orig: 128, 188
   offset: 56, 30
   index: 9
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 3063, 3616
   size: 39, 92
   orig: 128, 188
   offset: 56, 30
   index: 7
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 875, 3258
   size: 35, 82
   orig: 128, 188
   offset: 56, 30
   index: 6
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 3817, 3177
   size: 31, 72
   orig: 128, 188
   offset: 56, 30
   index: 5
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1294, 1680
   size: 29, 66
   orig: 128, 188
   offset: 56, 30
   index: 13
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1807, 2247
   size: 28, 69
   orig: 128, 188
   offset: 56, 30
   index: 14
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1712, 3432
   size: 27, 62
   orig: 128, 188
   offset: 56, 30
   index: 4
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1712, 3369
   size: 27, 61
   orig: 128, 188
   offset: 56, 30
   index: 12
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2308, 2488
   size: 26, 59
   orig: 128, 188
   offset: 56, 30
   index: 11
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2396, 2684
   size: 24, 55
   orig: 128, 188
   offset: 56, 30
   index: 10
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2492, 2171
   size: 23, 52
   orig: 128, 188
   offset: 56, 30
   index: 3
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1784, 1683
   size: 19, 42
   orig: 128, 188
   offset: 56, 30
   index: 2
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1653, 679
   size: 17, 37
   orig: 128, 188
   offset: 56, 30
   index: 1
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1905, 1647
   size: 16, 36
   orig: 128, 188
   offset: 56, 30
   index: 0
-animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_0
+animation_frames/Infantry_PS/Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1905, 1647
   size: 16, 36

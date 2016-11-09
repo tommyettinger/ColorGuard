@@ -36,7 +36,9 @@ public class GameplayScreen implements Screen {
     private OrderedMap<String, Animation[]> standing = new OrderedMap<String, Animation[]>(64),
             acting0 = new OrderedMap<String, Animation[]>(64),
             acting1 = new OrderedMap<String, Animation[]>(64),
-            dying = new OrderedMap<String, Animation[]>(64);
+            dying = new OrderedMap<String, Animation[]>(64),
+            receiving0 = new OrderedMap<String, Animation[]>(64),
+            receiving1 = new OrderedMap<String, Animation[]>(64);
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -78,7 +80,7 @@ public class GameplayScreen implements Screen {
         //font.getData().setScale(2f);
         font.setColor(Color.BLACK);
         //displayString = state.world.mapGen.atlas.getAt(0);
-        String s;
+        String s, r;
         terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
         for (int i = 0; i < terrains.length >> 2; i++) {
             terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0", 0);
@@ -105,6 +107,13 @@ public class GameplayScreen implements Screen {
                         new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_0")),
                         new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_0"))
                 });
+                r = "animation_frames/" + p.show[0] + "/" + p.show[0] + "_face";
+                receiving0.put(p.name, new Animation[]{
+                        new Animation(0.09f, atlas.createSprites(s + 0 + "_strength_" + p.strengths[0])),
+                        new Animation(0.09f, atlas.createSprites(s + 1 + "_strength_" + p.strengths[0])),
+                        new Animation(0.09f, atlas.createSprites(s + 2 + "_strength_" + p.strengths[0])),
+                        new Animation(0.09f, atlas.createSprites(s + 3 + "_strength_" + p.strengths[0]))
+                });
             }
             if((p.weapons & 1) != 0)
             {
@@ -114,6 +123,14 @@ public class GameplayScreen implements Screen {
                         new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_1")),
                         new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_1"))
                 });
+                r = "animation_frames/" + p.show[1] + "/" + p.show[1] + "_face";
+                receiving1.put(p.name, new Animation[]{
+                        new Animation(0.09f, atlas.createSprites(s + 0 + "_strength_" + p.strengths[1])),
+                        new Animation(0.09f, atlas.createSprites(s + 1 + "_strength_" + p.strengths[1])),
+                        new Animation(0.09f, atlas.createSprites(s + 2 + "_strength_" + p.strengths[1])),
+                        new Animation(0.09f, atlas.createSprites(s + 3 + "_strength_" + p.strengths[1]))
+                });
+
             }
             dying.put(p.name, new Animation[]{
                     new Animation(0.09f, atlas.createSprites(s + 0 + "_death")),

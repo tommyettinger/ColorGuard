@@ -119,7 +119,7 @@ public class Faction {
     }
     public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory)
     {
-        rng = new StatefulRNG(CrossHash.Lightning.hash64(name));
+        rng = new StatefulRNG(CrossHash.Falcon.hash64(name));
         this.index = index;
         this.name = name;
         this.language = language;
