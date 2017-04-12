@@ -10,20 +10,22 @@ build/
 hs_err_pid*
 
 ## Android:
-android/libs/armeabi/
-android/libs/armeabi-v7a/
-android/libs/x86/
+android/libs/armeabi/*.so
+android/libs/arm64-v8a/*.so
+android/libs/armeabi-v7a/*.so
+android/libs/x86/*.so
+android/libs/x86_64/*.so
 android/gen/
 local.properties
 com_crashlytics_export_strings.xml
 
 ## GWT:
 war/
-html/war/gwt_bree/
-html/gwt-unitCache/
+gwt/war/**
+gwt/gwt-unitCache/
 .apt_generated/
-html/war/WEB-INF/deploy/
-html/war/WEB-INF/classes/
+gwt/war/WEB-INF/deploy/
+gwt/war/WEB-INF/classes/
 .gwt/
 gwt-unitCache/
 www-test/
@@ -69,4 +71,3 @@ nb-configuration.xml
 *#*.*#
 /target/
 /bin/
-

@@ -156,7 +156,7 @@ public class Faction {
         else {
             GreasedRegion[] retractions = territory.retractSeries(4);
             for (int i = 3; i >= -1; i--) {
-                if (i == -1) {
+                if (i == -1) { // should never happen; only possible when territory is empty
                     capital = territory.singleRandom(rng);
                 }
                 else

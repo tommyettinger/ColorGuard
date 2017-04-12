@@ -1,9 +1,6 @@
 package color.guard.state;
 
-import squidpony.FakeLanguageGen;
-import squidpony.GwtCompatibility;
-import squidpony.Maker;
-import squidpony.Thesaurus;
+import squidpony.*;
 import squidpony.squidgrid.mapping.SpillWorldMap;
 import squidpony.squidmath.Coord;
 import squidpony.squidmath.GreasedRegion;
@@ -102,7 +99,7 @@ public class WorldState {
         factions = new Faction[24];
         String tempNation;
 
-        worldMap = GwtCompatibility.fill2D(10, worldWidth, worldHeight);
+        worldMap = ArrayTools.fill(10, worldWidth, worldHeight);
         worldMap = land.writeInts(worldMap, 1);
         ArrayList<GreasedRegion> continents = land.split(), tempRings;
         int cc = continents.size(), ringCount, continentSize;

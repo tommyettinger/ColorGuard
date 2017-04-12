@@ -3,8 +3,7 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 gwt {
-    gwtVersion = gwtFrameworkVersion
-    // Should match the version used for building the GWT backend. See gradle.properties.
+    gwtVersion = gwtFrameworkVersion // Should match the version used for building the GWT backend. See gradle.properties.
     maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
     minHeapSize = '1G'
 
@@ -15,7 +14,6 @@ gwt {
 
     compiler {
         strict = true
-        enableClosureCompiler = true
         disableCastChecking = true
     }
 }
@@ -25,8 +23,10 @@ dependencies {
     compile "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
     compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
     compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+    //compile "$squidLibUtilSnap:sources"
+    //compile "$squidLibExtraSnap:sources"
     compile "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion:sources"
-    compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion:sources"
+    //compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion:sources"
     compile "com.github.tommyettinger:blazingchain:$blazingChainVersion:sources"
     compile "com.github.tommyettinger:regexodus:$regExodusVersion:sources"
 }

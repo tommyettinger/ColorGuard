@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import squidpony.GwtCompatibility;
+import squidpony.ArrayTools;
 import squidpony.squidmath.Coord;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.StatefulRNG;
@@ -33,12 +33,12 @@ public class GameplayScreen implements Screen {
     private SpriteBatch batch;
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
-    private OrderedMap<String, Animation[]> standing = new OrderedMap<String, Animation[]>(64),
-            acting0 = new OrderedMap<String, Animation[]>(64),
-            acting1 = new OrderedMap<String, Animation[]>(64),
-            dying = new OrderedMap<String, Animation[]>(64),
-            receiving0 = new OrderedMap<String, Animation[]>(64),
-            receiving1 = new OrderedMap<String, Animation[]>(64);
+    private OrderedMap<String, Animation[]> standing = new OrderedMap<>(64),
+            acting0 = new OrderedMap<>(64),
+            acting1 = new OrderedMap<>(64),
+            dying = new OrderedMap<>(64),
+            receiving0 = new OrderedMap<>(64),
+            receiving1 = new OrderedMap<>(64);
 
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -54,7 +54,7 @@ public class GameplayScreen implements Screen {
     private InputMultiplexer input;
     private InputProcessor proc;
     private Vector3 tempVector3;
-    private static final float visualWidth = 640f, visualHeight = 360f;
+    private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
     public GameplayScreen(GameState state)
     {
@@ -68,92 +68,92 @@ public class GameplayScreen implements Screen {
         guiRandom = new StatefulRNG(0L);
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
-        viewport.getCamera().translate(0, 1080f, 0f);
+        viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
         tempVector3 = new Vector3();
         palettes = new Texture("palettes.png");
         tempSB = new StringBuilder(50);
 
-        atlas = new TextureAtlas("mini.atlas");
+        atlas = new TextureAtlas("OrthoNew.atlas");
         textures = atlas.getTextures();
-        font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("font/NanoOKExtended"));
+        font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
         //font.getData().setScale(2f);
         font.setColor(Color.BLACK);
         //displayString = state.world.mapGen.atlas.getAt(0);
         String s, r;
         terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
         for (int i = 0; i < terrains.length >> 2; i++) {
-            terrains[i * 4]     = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face0", 0);
-            terrains[i * 4 + 1] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face1", 0);
-            terrains[i * 4 + 2] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face2", 0);
-            terrains[i * 4 + 3] = atlas.findRegion("terrains/" + WorldState.terrains.getAt(i) + "_Huge_face3", 0);
+            terrains[i * 4]     = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face0", 0);
+            terrains[i * 4 + 1] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face1", 0);
+            terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face2", 0);
+            terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face3", 0);
         };
         int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
         for (int i = 0; i < pieceCount; i++) {
             p = PieceKind.kinds.getAt(i);
-            s = "standing_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            s = p.visual + "_Large_face";
             standing.put(p.name, new Animation[]{
-                    new Animation(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
+                    new Animation<>(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
             });
-            s = "animation_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            s = p.visual + "_Large_face";
             if((p.weapons & 2) != 0) {
                 acting0.put(p.name, new Animation[]{
-                        new Animation(0.09f, atlas.createSprites(s + 0 + "_attack_0")),
-                        new Animation(0.09f, atlas.createSprites(s + 1 + "_attack_0")),
-                        new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_0")),
-                        new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_0"))
+                        new Animation<>(0.09f, atlas.createSprites(s + 0 + "_attack_0")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 1 + "_attack_0")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 2 + "_attack_0")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 3 + "_attack_0"))
                 });
-                r = "animation_frames/" + p.show[0] + "/" + p.show[0] + "_face";
+                r = p.show[0] + "_face";
                 receiving0.put(p.name, new Animation[]{
-                        new Animation(0.09f, atlas.createSprites(s + 0 + "_strength_" + p.strengths[0])),
-                        new Animation(0.09f, atlas.createSprites(s + 1 + "_strength_" + p.strengths[0])),
-                        new Animation(0.09f, atlas.createSprites(s + 2 + "_strength_" + p.strengths[0])),
-                        new Animation(0.09f, atlas.createSprites(s + 3 + "_strength_" + p.strengths[0]))
+                        new Animation<>(0.09f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[0])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[0])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[0])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[0]))
                 });
             }
             if((p.weapons & 1) != 0)
             {
                 acting1.put(p.name, new Animation[]{
-                        new Animation(0.09f, atlas.createSprites(s + 0 + "_attack_1")),
-                        new Animation(0.09f, atlas.createSprites(s + 1 + "_attack_1")),
-                        new Animation(0.09f, atlas.createSprites(s + 2 + "_attack_1")),
-                        new Animation(0.09f, atlas.createSprites(s + 3 + "_attack_1"))
+                        new Animation<>(0.09f, atlas.createSprites(s + 0 + "_attack_1")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 1 + "_attack_1")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 2 + "_attack_1")),
+                        new Animation<>(0.09f, atlas.createSprites(s + 3 + "_attack_1"))
                 });
-                r = "animation_frames/" + p.show[1] + "/" + p.show[1] + "_face";
+                r = p.show[1] + "_face";
                 receiving1.put(p.name, new Animation[]{
-                        new Animation(0.09f, atlas.createSprites(s + 0 + "_strength_" + p.strengths[1])),
-                        new Animation(0.09f, atlas.createSprites(s + 1 + "_strength_" + p.strengths[1])),
-                        new Animation(0.09f, atlas.createSprites(s + 2 + "_strength_" + p.strengths[1])),
-                        new Animation(0.09f, atlas.createSprites(s + 3 + "_strength_" + p.strengths[1]))
+                        new Animation<>(0.09f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[1])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[1])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[1])),
+                        new Animation<>(0.09f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[1]))
                 });
 
             }
             dying.put(p.name, new Animation[]{
-                    new Animation(0.09f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
+                    new Animation<>(0.09f, atlas.createSprites(s + 0 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 1 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 2 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 3 + "_death"))
             });
         }
         for (int i = 0; i < facilityCount; i++) {
             p = PieceKind.facilities.getAt(i);
-            s = "standing_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            s = p.visual + "_Large_face";
             standing.put(p.name, new Animation[]{
-                    new Animation(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
+                    new Animation<>(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
+                    new Animation<>(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
             });
-            s = "animation_frames/" + p.visual + "/" + p.visual + "_Large_face";
+            s = p.visual + "_Large_face";
             dying.put(p.name, new Animation[]{
-                    new Animation(0.09f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation(0.09f, atlas.createSprites(s + 3 + "_death"))
+                    new Animation<>(0.09f, atlas.createSprites(s + 0 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 1 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 2 + "_death")),
+                    new Animation<>(0.09f, atlas.createSprites(s + 3 + "_death"))
             });
         }
 
@@ -187,7 +187,7 @@ public class GameplayScreen implements Screen {
                 "void main()\n" +
                 "{\n" +
                 "v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
-                "v_color.a = v_color.a * 1.0039216;\n" + //* (256.0/255.0)
+                "v_color.a = v_color.a * (256.0/254.0);\n" + //* (256.0/255.0)
                 "v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
                 "gl_Position = u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
                 "}\n";
@@ -211,9 +211,9 @@ public class GameplayScreen implements Screen {
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
         //spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
 
-        map = GwtCompatibility.copy2D(state.world.worldMap);
-        for (int x = mapWidth - 1; x >= 0; x--) {
-            for (int y = mapHeight - 1; y >= 0; y--) {
+        map = ArrayTools.copy(state.world.worldMap);
+        for (int x = 0; x < mapWidth; x++) {
+            for (int y = 0; y < mapHeight; y++) {
                 map[x][y] = map[x][y] * 4 + guiRandom.next(2);
             }
         }
@@ -266,33 +266,33 @@ public class GameplayScreen implements Screen {
         Piece currentPiece;
 
         Vector3 position = viewport.getCamera().position;
-        int centerX = -(int)((position.x) - 2 * (position.y)) >> 6,
-                centerY = (int)((position.x) + 2 * (position.y)) >> 6,
-                minX = Math.max(0, centerX - 11), maxX = Math.min(centerX + 12, mapWidth - 1),
-                minY = Math.max(0, centerY - 12), maxY = Math.min(centerY + 11, mapHeight - 1);
+        int centerX = (int)(position.x) >> 5,
+                centerY = (int)(position.y) >> 5,
+                minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 13, mapWidth - 1),
+                minY = Math.max(0, centerY - 10), maxY = Math.min(centerY + 10, mapHeight - 1);
 
-        for (int x = maxX; x >= minX; x--) {
-            for (int y = maxY; y >= minY; y--) {
+        for (int y = maxY; y >= minY; y--) {
+            for (int x = maxX; x >= minX; x--) {
                 currentKind = map[x][y];
-                batch.setColor((208 + (currentKind >>> 2)) / 255f, 1f, 1f, 1f);
-                batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
+                batch.setColor((208) / 255f, 1f, 1f, 1f);
+                batch.draw(terrains[currentKind], 32 * x, 32 * y);
             }
         }
         Sprite sprite;
         Coord c;
-        for (int x = maxX; x >= minX; x--) {
-            for (int y = maxY; y >= minY; y--) {
+        for (int y = maxY; y >= minY; y--) {
+            for (int x = maxX; x >= minX; x--) {
                 c = Coord.get(x, y);
                 if((currentPiece = state.world.battle.pieces.getQFromA(c)) != null) {
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
                     sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                    sprite.setPosition(32 * y - 32 * x + 9f, 16 * y + 16 * x + 13f);
+                    sprite.setPosition(32 * x + 2f, 32 * y + 6f);
                     sprite.draw(batch);
                     //if(currentKind >>> 2 == standing.size() - 1)
                     //{
-                    tempSB.append(currentPiece.name).append('\n').append(currentPiece.stats);
-                    font.draw(batch, tempSB, 32 * y - 32 * x - 8f, 16 * y + 16 * x + 86f, 80f, Align.center, true);
+                    //tempSB.append(currentPiece.name).append('\n').append(currentPiece.stats);
+                    font.draw(batch, currentPiece.stats, 32 * x - 20f, 32 * y + 56f, 80f, Align.center, true);
                     tempSB.setLength(0);
                     //}
                 }

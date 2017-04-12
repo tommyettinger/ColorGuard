@@ -18,8 +18,8 @@ public class DesktopLauncher {
     private static LwjglApplicationConfiguration getDefaultConfiguration() {
         LwjglApplicationConfiguration configuration = new LwjglApplicationConfiguration();
         configuration.title = "ColorGuard";
-        configuration.width = 640;
-        configuration.height = 360;
+        configuration.width = 800;
+        configuration.height = 450;
         configuration.vSyncEnabled = false;
         configuration.foregroundFPS = 0;
         for (int size : new int[] { 128, 64, 32, 16 }) {
