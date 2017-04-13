@@ -1,13 +1,12 @@
 package color.guard.state;
 
-import squidpony.*;
-import squidpony.squidgrid.mapping.SpillWorldMap;
-import squidpony.squidmath.Coord;
+import squidpony.FakeLanguageGen;
+import squidpony.squidgrid.mapping.PoliticalMapper;
+import squidpony.squidgrid.mapping.WorldMapGenerator;
+import squidpony.squidmath.Arrangement;
 import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.OrderedMap;
+import squidpony.squidmath.NumberTools;
 import squidpony.squidmath.StatefulRNG;
-
-import java.util.ArrayList;
 
 /**
  * Really important class that calculates and stores a world map and the factions it holds.
@@ -17,26 +16,29 @@ public class WorldState {
     public int worldWidth, worldHeight;
     public char[][] politicalMap;
     public int[][] worldMap;
-    public SpillWorldMap mapGen;
+    public WorldMapGenerator mapGen;
+    public PoliticalMapper polGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
     public BattleState battle = null;
-    public static final OrderedMap<String, String> terrains = Maker.makeOM(
-            "Road", "Road",
-            "Plains", "Hill",
-            "Forest", "Hill",
-            "Jungle", "Hill",
-            "Hill", "Hill",
-            "Mountain", "Hill",
-            "Ruins", "Hill",
-            "Sand", "Hill",
-            "Ice", "Hill",
-            "River", "River",
-            "Ocean", "Ocean",
-            "Pit", "Pit",
-            "Volcano", "Volcano",
-            "Poison", "Poison",
-            "Warning", "Warning"
+    public static final Arrangement<String> terrains = new Arrangement<>(
+            new String[]{
+            "Road",
+            "Plains",
+            "Forest",
+            "Jungle",
+            "Hill",
+            "Mountain",
+            "Ruins",
+            "Sand",
+            "Ice",
+            "River",
+            "Ocean",
+            "Pit",
+            "Volcano",
+            "Poison",
+            "Warning"
+            });
 /*
             "Road", "Road",
             "Plains", "Plains",
@@ -50,7 +52,7 @@ public class WorldState {
             "River", "River",
             "Ocean", "Ocean"
  */
-    );
+
 
     public static final int[] heights = {
             0, //road
@@ -75,6 +77,167 @@ public class WorldState {
     }
 
     public WorldState(int width, int height, long seed) {
+        worldWidth = Math.max(20, width);
+        worldHeight = Math.max(20, height);
+        worldRandom = new StatefulRNG(seed);
+        worldName = FakeLanguageGen.FANTASY_NAME.word(worldRandom, true);
+        mapGen = new WorldMapGenerator(seed, worldWidth, worldHeight);
+        polGen = new PoliticalMapper(worldName);
+        mapGen.generate(0.9, 1.0, seed);
+        GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
+        politicalMap = polGen.generate(land, 24, 0.97);
+        CGBiomeMapper bioGen = new CGBiomeMapper();
+        bioGen.makeBiomes(mapGen);
+        worldMap = bioGen.biomeCodeData;
+
+        factions = new Faction[24];
+        String tempNation;
+        for (char i = 'A'; i <= 'X'; i++) {
+            tempNation = polGen.atlas.get(i);
+            GreasedRegion territory = new GreasedRegion(politicalMap, i);
+            factions[i - 'A'] = new Faction(i - 'A', tempNation, polGen.spokenLanguages.get(i), territory);
+        }
+    }
+    public void startBattle(Faction... belligerents)
+    {
+        battle = new BattleState(worldRandom.nextLong(), worldMap, belligerents);
+    }
+
+    public static class CGBiomeMapper
+    {
+        /**
+         * The heat codes for the analyzed map, from 0 to 5 inclusive, with 0 coldest and 5 hottest.
+         */
+        public int[][] heatCodeData,
+        /**
+         * The moisture codes for the analyzed map, from 0 to 5 inclusive, with 0 driest and 5 wettest.
+         */
+        moistureCodeData,
+        /**
+         * The biome codes for the analyzed map, corresponding to shown terrain types.
+         */
+        biomeCodeData;
+
+        public static final double
+                coldestValueLower = 0.0,   coldestValueUpper = 0.15, // 0
+                colderValueLower = 0.15,   colderValueUpper = 0.31,  // 1
+                coldValueLower = 0.31,     coldValueUpper = 0.5,     // 2
+                warmValueLower = 0.5,      warmValueUpper = 0.69,    // 3
+                warmerValueLower = 0.69,   warmerValueUpper = 0.85,  // 4
+                warmestValueLower = 0.85,  warmestValueUpper = 1.0,  // 5
+
+        driestValueLower = 0.0,    driestValueUpper  = 0.27, // 0
+                drierValueLower = 0.27,    drierValueUpper   = 0.4,  // 1
+                dryValueLower = 0.4,       dryValueUpper     = 0.6,  // 2
+                wetValueLower = 0.6,       wetValueUpper     = 0.8,  // 3
+                wetterValueLower = 0.8,    wetterValueUpper  = 0.9,  // 4
+                wettestValueLower = 0.9,   wettestValueUpper = 1.0;  // 5
+public static final int Road = 0,
+            Plains = 1,
+            Forest = 2,
+            Jungle = 3,
+            Hill = 4,
+            Mountain = 5,
+            Ruins= 6,
+            Sand = 7,
+            Ice = 8,
+            River = 9,
+            Ocean = 10;
+
+        /**
+         * The default biome table to use with biome codes from {@link #biomeCodeData}. Biomes are assigned based on
+         * heat and moisture for the first 36 of 54 elements (coldest to warmest for each group of 6, with the first
+         * group as the dryest and the last group the wettest), then the next 6 are for coastlines (coldest to warmest),
+         * then rivers (coldest to warmest), then lakes (coldest to warmest).
+         */
+        public static final int[] biomeTable = {
+                //COLDEST //COLDER //COLD  //HOT   //HOTTER //HOTTEST
+                Ice,      Ice,     Plains, Sand,   Sand,    Sand,     //DRYEST
+                Ice,      Ice,     Plains, Plains, Sand,    Sand,     //DRYER
+                Ice,      Plains,  Forest, Plains, Plains,  Plains,   //DRY
+                Ice,      Forest,  Forest, Forest, Plains,  Plains,   //WET
+                Ice,      Forest,  Forest, Forest, Jungle,  Plains,   //WETTER
+                Ice,      Forest,  Forest, Jungle, Jungle,  Jungle,   //WETTEST
+                Ice,      Sand,    Sand,   Sand,   Sand,    Sand,     //COASTS
+                Ice,      River,   River,  River,  River,   River,    //RIVERS
+                Ice,      Ice,     River,  River,  River,   River,    //LAKES
+        };
+
+        public CGBiomeMapper()
+        {
+            heatCodeData = null;
+            moistureCodeData = null;
+            biomeCodeData = null;
+        }
+
+        public void makeBiomes(WorldMapGenerator world) {
+            if(world == null || world.width <= 0 || world.height <= 0)
+                return;
+            if(heatCodeData == null || (heatCodeData.length != world.width || heatCodeData[0].length != world.height))
+                heatCodeData = new int[world.width][world.height];
+            if(moistureCodeData == null || (moistureCodeData.length != world.width || moistureCodeData[0].length != world.height))
+                moistureCodeData = new int[world.width][world.height];
+            if(biomeCodeData == null || (biomeCodeData.length != world.width || biomeCodeData[0].length != world.height))
+                biomeCodeData = new int[world.width][world.height];
+            final double i_hot = (world.maxHeat == world.minHeat) ? 1.0 : 1.0 / (world.maxHeat - world.minHeat);
+            for (int x = 0; x < world.width; x++) {
+                for (int y = 0; y < world.height; y++) {
+                    final double hot = (world.heatData[x][y] - world.minHeat) * i_hot, moist = world.moistureData[x][y],
+                            high = world.heightData[x][y] + NumberTools.bounce(world.heightData[x][y]);
+                    final int heightCode = world.heightCodeData[x][y];
+                    int hc, mc;
+                    boolean isLake = world.generateRivers && world.partialLakeData.contains(x, y) && heightCode >= 4,
+                            isRiver =
+                                    (world.generateRivers && world.partialRiverData.contains(x, y) && heightCode >= 4);
+                    if (moist > wetterValueUpper) {
+                        mc = 5;
+                    } else if (moist > wetValueUpper) {
+                        mc = 4;
+                    } else if (moist > dryValueUpper) {
+                        mc = 3;
+                    } else if (moist > drierValueUpper) {
+                        mc = 2;
+                    } else if (moist > driestValueUpper) {
+                        mc = 1;
+                    } else {
+                        mc = 0;
+                    }
+
+                    if (hot > warmerValueUpper) {
+                        hc = 5;
+                    } else if (hot > warmValueUpper) {
+                        hc = 4;
+                    } else if (hot > coldValueUpper) {
+                        hc = 3;
+                    } else if (hot > colderValueUpper) {
+                        hc = 2;
+                    } else if (hot > coldestValueUpper) {
+                        hc = 1;
+                    } else {
+                        hc = 0;
+                    }
+
+                    heatCodeData[x][y] = hc;
+                    moistureCodeData[x][y] = mc;
+                    biomeCodeData[x][y] = heightCode < 3
+                            ? Ocean
+                            : isLake
+                            ? biomeTable[hc + 48]
+                            : (isRiver
+                            ? biomeTable[hc + 42]
+                            :((heightCode == 4)
+                            ? biomeTable[hc + 36]
+                            : high > 0.95
+                            ? Mountain
+                            : high > 0.7
+                            ? Hill
+                            : biomeTable[hc + mc * 6]));
+                }
+            }
+        }
+    }
+/*
+public WorldState(int width, int height, long seed) {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
         worldRandom = new StatefulRNG(seed);
@@ -192,8 +355,6 @@ public class WorldState {
             }
         }
     }
-    public void startBattle(Faction... belligerents)
-    {
-        battle = new BattleState(worldRandom.nextLong(), worldMap, belligerents);
-    }
+
+ */
 }

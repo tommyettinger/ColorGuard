@@ -3,6 +3,8 @@ package color.guard.state;
 import squidpony.FakeLanguageGen;
 import squidpony.squidmath.*;
 
+import java.util.List;
+
 /**
  * A faction in the game world; stores territory, a spoken language, the positions of the
  * capital and cities, some visual info for palettes, and the relationships this Faction has
@@ -118,9 +120,15 @@ public class Faction {
     public Faction()
     {
     }
+    public Faction(int index, String name, List<FakeLanguageGen> languages, GreasedRegion territory)
+    {
+        this(index, name,
+                languages.size() == 1 ? languages.get(0) : languages.get(0).mix(languages.get(1), 0.5),
+                territory);
+    }
     public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory)
     {
-        rng = new StatefulRNG(CrossHash.Falcon.hash64(name));
+        rng = new StatefulRNG(CrossHash.Wisp.hash64(name));
         this.index = index;
         this.name = name;
         this.language = language;
