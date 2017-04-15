@@ -83,7 +83,7 @@ public class WorldState {
         worldName = FakeLanguageGen.FANTASY_NAME.word(worldRandom, true);
         mapGen = new WorldMapGenerator(seed, worldWidth, worldHeight);
         polGen = new PoliticalMapper(worldName);
-        mapGen.generate(0.9, 1.0, seed);
+        mapGen.generate(1.0, 1.0, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         politicalMap = polGen.generate(land, 24, 0.97);
         CGBiomeMapper bioGen = new CGBiomeMapper();
@@ -120,23 +120,25 @@ public class WorldState {
 
         public static final double
                 coldestValueLower = 0.0,   coldestValueUpper = 0.15, // 0
-                colderValueLower = 0.15,   colderValueUpper = 0.31,  // 1
-                coldValueLower = 0.31,     coldValueUpper = 0.5,     // 2
-                warmValueLower = 0.5,      warmValueUpper = 0.69,    // 3
-                warmerValueLower = 0.69,   warmerValueUpper = 0.85,  // 4
+                colderValueLower = 0.15,   colderValueUpper = 0.3,   // 1
+                coldValueLower = 0.3,      coldValueUpper = 0.5,     // 2
+                warmValueLower = 0.5,      warmValueUpper = 0.7,     // 3
+                warmerValueLower = 0.7,    warmerValueUpper = 0.85,  // 4
                 warmestValueLower = 0.85,  warmestValueUpper = 1.0,  // 5
 
-        driestValueLower = 0.0,    driestValueUpper  = 0.27, // 0
-                drierValueLower = 0.27,    drierValueUpper   = 0.4,  // 1
-                dryValueLower = 0.4,       dryValueUpper     = 0.6,  // 2
-                wetValueLower = 0.6,       wetValueUpper     = 0.8,  // 3
-                wetterValueLower = 0.8,    wetterValueUpper  = 0.9,  // 4
-                wettestValueLower = 0.9,   wettestValueUpper = 1.0;  // 5
-public static final int Road = 0,
+                driestValueLower = 0.0,    driestValueUpper  = 0.16, // 0
+                drierValueLower = 0.16,    drierValueUpper   = 0.32, // 1
+                dryValueLower = 0.32,      dryValueUpper     = 0.48, // 2
+                wetValueLower = 0.48,      wetValueUpper     = 0.64, // 3
+                wetterValueLower = 0.64,    wetterValueUpper  = 0.8, // 4
+                wettestValueLower = 0.8,   wettestValueUpper = 1.0;  // 5
+
+        public static final int
+                Road = 0,
             Plains = 1,
             Forest = 2,
             Jungle = 3,
-            Hill = 4,
+            Rocky = 4,
             Mountain = 5,
             Ruins= 6,
             Sand = 7,
@@ -152,15 +154,15 @@ public static final int Road = 0,
          */
         public static final int[] biomeTable = {
                 //COLDEST //COLDER //COLD  //HOT   //HOTTER //HOTTEST
-                Ice,      Ice,     Plains, Sand,   Sand,    Sand,     //DRYEST
-                Ice,      Ice,     Plains, Plains, Sand,    Sand,     //DRYER
+                Ice,      Plains,  Plains, Sand,   Sand,    Sand,     //DRYEST
+                Ice,      Plains,  Plains, Plains, Sand,    Sand,     //DRYER
                 Ice,      Plains,  Forest, Plains, Plains,  Plains,   //DRY
                 Ice,      Forest,  Forest, Forest, Plains,  Plains,   //WET
-                Ice,      Forest,  Forest, Forest, Jungle,  Plains,   //WETTER
+                Ice,      Forest,  Forest, Forest, Jungle,  Jungle,   //WETTER
                 Ice,      Forest,  Forest, Jungle, Jungle,  Jungle,   //WETTEST
-                Ice,      Sand,    Sand,   Sand,   Sand,    Sand,     //COASTS
-                Ice,      River,   River,  River,  River,   River,    //RIVERS
-                Ice,      Ice,     River,  River,  River,   River,    //LAKES
+                Ice,      Rocky,   Rocky,  Sand,   Sand,    Sand,     //COASTS
+                River,    River,   River,  River,  River,   River,    //RIVERS
+                River,    River,   River,  River,  River,   River,    //LAKES
         };
 
         public CGBiomeMapper()
@@ -180,10 +182,11 @@ public static final int Road = 0,
             if(biomeCodeData == null || (biomeCodeData.length != world.width || biomeCodeData[0].length != world.height))
                 biomeCodeData = new int[world.width][world.height];
             final double i_hot = (world.maxHeat == world.minHeat) ? 1.0 : 1.0 / (world.maxHeat - world.minHeat);
+            GreasedRegion shores = world.landData.copy().not().fringe8way();
             for (int x = 0; x < world.width; x++) {
                 for (int y = 0; y < world.height; y++) {
                     final double hot = (world.heatData[x][y] - world.minHeat) * i_hot, moist = world.moistureData[x][y],
-                            high = world.heightData[x][y] + NumberTools.bounce(world.heightData[x][y]);
+                            high = world.heightData[x][y] + NumberTools.bounce(world.heightData[x][y] * 40);
                     final int heightCode = world.heightCodeData[x][y];
                     int hc, mc;
                     boolean isLake = world.generateRivers && world.partialLakeData.contains(x, y) && heightCode >= 4,
@@ -219,24 +222,23 @@ public static final int Road = 0,
 
                     heatCodeData[x][y] = hc;
                     moistureCodeData[x][y] = mc;
-                    biomeCodeData[x][y] = heightCode < 3
+                    biomeCodeData[x][y] = heightCode <= 3
                             ? Ocean
                             : isLake
                             ? biomeTable[hc + 48]
-                            : (isRiver
+                            : isRiver
                             ? biomeTable[hc + 42]
-                            :((heightCode == 4)
+                            : shores.contains(x, y)
                             ? biomeTable[hc + 36]
-                            : high > 0.95
+                            : high > 1.35
                             ? Mountain
-                            : high > 0.7
-                            ? Hill
-                            : biomeTable[hc + mc * 6]));
+                            : biomeTable[hc + mc * 6];
                 }
             }
         }
     }
-/*
+
+    /*
 public WorldState(int width, int height, long seed) {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
