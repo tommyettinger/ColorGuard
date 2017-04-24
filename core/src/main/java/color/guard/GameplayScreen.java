@@ -292,8 +292,10 @@ public class GameplayScreen implements Screen {
                     //if(currentKind >>> 2 == standing.size() - 1)
                     //{
                     //tempSB.append(currentPiece.name).append('\n').append(currentPiece.stats);
+                    font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
                     font.draw(batch, currentPiece.stats, 32 * x - 20f, 32 * y + 56f, 80f, Align.center, true);
-                    tempSB.setLength(0);
+                    //tempSB.setLength(0);
+                    batch.setColor(-0x1.fffffep126f); // white as a packed float
                     //}
                 }
             }

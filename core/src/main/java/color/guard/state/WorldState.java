@@ -16,7 +16,7 @@ public class WorldState {
     public int worldWidth, worldHeight;
     public char[][] politicalMap;
     public int[][] worldMap;
-    public WorldMapGenerator mapGen;
+    public WorldMapGenerator.TilingMap mapGen;
     public PoliticalMapper polGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
@@ -81,7 +81,7 @@ public class WorldState {
         worldHeight = Math.max(20, height);
         worldRandom = new StatefulRNG(seed);
         worldName = FakeLanguageGen.FANTASY_NAME.word(worldRandom, true);
-        mapGen = new WorldMapGenerator(seed, worldWidth, worldHeight);
+        mapGen = new WorldMapGenerator.TilingMap(seed, worldWidth, worldHeight);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.0, 1.0, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
