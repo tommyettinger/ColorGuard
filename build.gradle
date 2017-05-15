@@ -7,7 +7,6 @@ buildscript {
   }
   dependencies {
     classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-    classpath 'com.android.tools.build:gradle:2.2.2'
     classpath "de.richsource.gradle.plugins:gwt-gradle-plugin:$gwtPluginVersion"
   }
 }
@@ -17,7 +16,7 @@ allprojects {
   apply plugin: 'idea'
 }
 
-configure(subprojects - project(':android')) {
+configure(subprojects) {
   apply plugin: 'java'
   sourceCompatibility = 1.7
 }
