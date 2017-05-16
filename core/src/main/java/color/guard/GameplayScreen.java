@@ -248,7 +248,7 @@ public class GameplayScreen implements Screen {
     public void render(float delta) {
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        if((turnTime += delta) >= 0.625)
+        if((turnTime += delta) >= 1.25)
         {
             turnTime = 0f;
             state.world.battle.advanceTurn();
@@ -297,21 +297,52 @@ public class GameplayScreen implements Screen {
                 c = Coord.get(x, y);
                 if((currentPiece = pieces.getQFromA(c)) != null) {
                     idx = pieces.indexOfA(c);
-                    n = battle.moveTargets.keyAt(idx);
+                    n = battle.moveTargets.getAt(idx);
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
-                    offX = MathUtils.lerp(0f, n.x - c.x, turnTime * 1.6f);
-                    offY = MathUtils.lerp(0f, n.y - c.y, turnTime * 1.6f);
-                    sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
-                    sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                    sprite.setPosition(32 * (x+offX) + 2f, 32 * (y+offY) + 6f);
-                    sprite.draw(batch);
+                    if(c.equals(n)) {
+                        switch (currentPiece.pieceKind.weapons) {
+                            case 2: sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                offX = -0.47f;
+                                offY = -0.47f;
+                                break;
+                            case 3: sprite = (Sprite) (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                offX = -0.47f;
+                                offY = -0.47f;
+                                break;
+                            case 1: sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                offX = -0.47f;
+                                offY = -0.47f;
+                                break;
+                            default: sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                                offX = 0f;
+                                offY = 0f;
+                                break;
+                        }
+                        sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
+                        sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
+                        sprite.draw(batch);
+                        font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
+                        //tempSB.setLength(0);
+                        batch.setColor(-0x1.fffffep126f); // white as a packed float
+
+                    }
+                    else {
+                        offX = MathUtils.lerp(0f, n.x - c.x, Math.min(1f, turnTime * 1.6f));
+                        offY = MathUtils.lerp(0f, n.y - c.y, Math.min(1f, turnTime * 1.6f));
+                        sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                        sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
+                        sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
+                        sprite.draw(batch);
+                        font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
+                        //tempSB.setLength(0);
+                        batch.setColor(-0x1.fffffep126f); // white as a packed float
+
+                    }
                     //if(currentKind >>> 2 == standing.size() - 1)
                     //{
                     //tempSB.append(currentPiece.name).append('\n').append(currentPiece.stats);
-                    font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
-                    font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
-                    //tempSB.setLength(0);
-                    batch.setColor(-0x1.fffffep126f); // white as a packed float
                     //}
                 }
             }

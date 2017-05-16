@@ -10,25 +10,28 @@ import squidpony.squidmath.*;
 public class BattleState {
     public K2V1<Coord, String, Piece> pieces;
     public int moverLimit;
-    public Arrangement<Coord> moveTargets;
+    public OrderedSet<Coord> moveTargets;
     public StatefulRNG rng;
     private transient GreasedRegion working;
+    public int[][] map;
     public BattleState()
     {
         pieces = new K2V1<Coord, String, Piece>(128);
         moverLimit = 0;
-        moveTargets = new Arrangement<>(128);
+        moveTargets = new OrderedSet<>(128);
         rng = new StatefulRNG();
-        working = new GreasedRegion(128, 128);
+        map = new int[64][64];
+        working = new GreasedRegion(64, 64);
     }
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
+        this.map = map;
         rng = new StatefulRNG(seed);
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         int[] tempOrdering = new int[pieceCount];
         pieces = new K2V1<Coord, String, Piece>(16 + mapHeight * mapWidth >>> 4);
-        moveTargets = new Arrangement<>(16 + mapHeight * mapWidth >>> 4);
+        moveTargets = new OrderedSet<>(16 + mapHeight * mapWidth >>> 4);
         Coord pt;
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
@@ -87,7 +90,8 @@ public class BattleState {
             p.cityName(factions[i]);
             while(pieces.containsB(p.name))
                 p.resetName(factions[i]);
-            if(moveTargets.removeInt(city) < 0) --moverLimit;
+            if(moveTargets.remove(city))
+                --moverLimit;
             pieces.removeA(city);
             pieces.put(city, p.name, p);
             moveTargets.add(city);
@@ -101,14 +105,15 @@ public class BattleState {
         Coord pt, next;
         Piece p;
         for (int i = 0; i < ct; i++) {
-            pt = moveTargets.keyAt(i);
+            pt = moveTargets.getAt(i);
             p = pieces.alterAAt(i, pt).getQAt(i);
             r = rng.next(3);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
-                next = pt.translate(dir);
-                if(!next.isWithin(working.width, working.height) || pieces.containsA(next) || moveTargets.containsKey(next))
+                next = pt.translateCapped(dir.deltaX, dir.deltaY, map.length, map[0].length);
+                if(pieces.containsA(next) || moveTargets.contains(next)
+                        || p.pieceKind.mobilities[map[next.x][next.y]] >= 6)
                 {
                     if(rng.nextBoolean())
                         p.facing = p.turnLeft();
