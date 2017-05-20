@@ -1,12 +1,10 @@
 package color.guard.state;
 
 import squidpony.FakeLanguageGen;
+import squidpony.Maker;
 import squidpony.squidgrid.mapping.PoliticalMapper;
 import squidpony.squidgrid.mapping.WorldMapGenerator;
-import squidpony.squidmath.Arrangement;
-import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.NumberTools;
-import squidpony.squidmath.StatefulRNG;
+import squidpony.squidmath.*;
 
 /**
  * Really important class that calculates and stores a world map and the factions it holds.
@@ -85,7 +83,34 @@ public class WorldState {
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.0, 1.0, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
-        politicalMap = polGen.generate(land, 24, 0.97);
+        OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
+                '~', FakeLanguageGen.ELF,
+                '%', FakeLanguageGen.DEMONIC,
+                'A', FakeLanguageGen.INFERNAL,                                                          // dark
+                'B', FakeLanguageGen.INUKTITUT,                                                         // white
+                'C', FakeLanguageGen.ARABIC_ROMANIZED,                                                  // red
+                'D', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.55),// orange
+                'E', FakeLanguageGen.MONGOLIAN,                                                         // yellow
+                'F', FakeLanguageGen.SWAHILI,                                                           // green
+                'G', FakeLanguageGen.GREEK_ROMANIZED,                                                   // blue
+                'H', FakeLanguageGen.NAHUATL,                                                           // purple
+                'I', FakeLanguageGen.LOVECRAFT,                                                         // dark
+                'J', FakeLanguageGen.ELF,                                                               // white
+                'K', FakeLanguageGen.SOMALI,                                                            // red
+                'L', FakeLanguageGen.ENGLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.5), // orange
+                'M', FakeLanguageGen.FRENCH,                                                            // yellow
+                'N', FakeLanguageGen.GOBLIN.mix(FakeLanguageGen.SWAHILI, 0.4),            // green
+                'O', FakeLanguageGen.RUSSIAN_ROMANIZED,                                                 // blue
+                'P', FakeLanguageGen.HINDI_ROMANIZED.mix(FakeLanguageGen.NAHUATL, 0.65),  // purple
+                'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.ENGLISH, 0.25),          // dark
+                'R', FakeLanguageGen.INUKTITUT.mix(FakeLanguageGen.ELF, 0.55),            // white
+                'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.4), // red
+                'T', FakeLanguageGen.NORSE.addModifiers(FakeLanguageGen.Modifier.SIMPLIFY_NORSE),       // orange
+                'U', FakeLanguageGen.FRENCH.mix(FakeLanguageGen.INFERNAL, 0.25),          // yellow
+                'V', FakeLanguageGen.SWAHILI.mix(FakeLanguageGen.SOMALI, 0.4),            // green
+                'W', FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.GOBLIN, 025),  // blue
+                'X', FakeLanguageGen.NAHUATL.mix(FakeLanguageGen.MONGOLIAN, 0.4));        // purple
+        politicalMap = polGen.generate(land, languageAtlas, 0.97);
         CGBiomeMapper bioGen = new CGBiomeMapper();
         bioGen.makeBiomes(mapGen);
         worldMap = bioGen.biomeCodeData;
@@ -95,7 +120,7 @@ public class WorldState {
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = polGen.atlas.get(i);
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
-            factions[i - 'A'] = new Faction(i - 'A', tempNation, polGen.spokenLanguages.get(i), territory);
+            factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory);
         }
     }
     public void startBattle(Faction... belligerents)
