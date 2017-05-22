@@ -17980,112 +17980,112 @@ Infantry_PS_Large_face0
   orig: 31,61
   offset: 7,13
   index: 3
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2880,2879
   size: 14,20
   orig: 61,101
   offset: 22,28
   index: 15
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2880,2879
   size: 14,20
   orig: 61,101
   offset: 22,28
   index: 0
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2701,2593
   size: 18,23
   orig: 61,101
   offset: 18,28
   index: 12
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2701,2566
   size: 18,25
   orig: 61,101
   offset: 18,28
   index: 13
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2073,942
   size: 16,47
   orig: 61,101
   offset: 20,2
   index: 8
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2290,2320
   size: 16,22
   orig: 61,101
   offset: 20,28
   index: 9
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2965,2990
   size: 16,22
   orig: 61,101
   offset: 20,28
   index: 10
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2292,2404
   size: 16,23
   orig: 61,101
   offset: 20,28
   index: 11
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2310,2411
   size: 16,23
   orig: 61,101
   offset: 20,28
   index: 14
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2009,77
   size: 15,43
   orig: 61,101
   offset: 21,5
   index: 7
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2336,2140
   size: 14,21
   orig: 61,101
   offset: 22,27
   index: 1
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2336,2115
   size: 14,23
   orig: 61,101
   offset: 22,25
   index: 2
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2336,2086
   size: 14,27
   orig: 61,101
   offset: 22,21
   index: 3
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2336,2053
   size: 14,31
   orig: 61,101
   offset: 22,17
   index: 4
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2909,2730
   size: 14,35
   orig: 61,101
   offset: 22,13
   index: 5
-Infantry_PS_Large_face0_attack_0
+Infantry_PS_Large_face0_attack_1
   rotate: false
   xy: 2909,2689
   size: 14,39
@@ -18204,112 +18204,112 @@ Infantry_PS_Large_face1
   orig: 31,61
   offset: 11,11
   index: 2
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2999,2347
   size: 12,27
   orig: 61,101
   offset: 26,26
   index: 15
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2999,2347
   size: 12,27
   orig: 61,101
   offset: 26,26
   index: 0
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1701,1574
   size: 37,51
   orig: 61,101
   offset: 1,26
   index: 8
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1819,2048
   size: 36,50
   orig: 61,101
   offset: 2,26
   index: 9
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1700,782
   size: 34,49
   orig: 61,101
   offset: 4,26
   index: 7
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1913,2504
   size: 30,45
   orig: 61,101
   offset: 8,26
   index: 6
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 1719,300
   size: 26,41
   orig: 61,101
   offset: 12,26
   index: 5
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2131,2633
   size: 22,37
   orig: 61,101
   offset: 16,26
   index: 4
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2155,2649
   size: 22,42
   orig: 61,101
   offset: 16,26
   index: 14
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2097,2462
   size: 21,42
   orig: 61,101
   offset: 17,26
   index: 12
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2097,2416
   size: 21,44
   orig: 61,101
   offset: 17,26
   index: 13
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2487,2695
   size: 20,39
   orig: 61,101
   offset: 18,26
   index: 11
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2701,2531
   size: 18,33
   orig: 61,101
   offset: 20,26
   index: 3
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2701,2490
   size: 18,39
   orig: 61,101
   offset: 20,26
   index: 10
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2054,1772
   size: 14,29
   orig: 61,101
   offset: 24,26
   index: 2
-Infantry_PS_Large_face1_attack_0
+Infantry_PS_Large_face1_attack_1
   rotate: false
   xy: 2999,2318
   size: 12,27
@@ -18428,112 +18428,112 @@ Infantry_PS_Large_face2
   orig: 31,61
   offset: 9,9
   index: 2
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2054,1747
   size: 14,23
   orig: 61,101
   offset: 24,24
   index: 0
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2054,1747
   size: 14,23
   orig: 61,101
   offset: 24,24
   index: 15
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2728,2716
   size: 19,47
   orig: 61,101
   offset: 24,24
   index: 13
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2235,2219
   size: 17,75
   orig: 61,101
   offset: 24,24
   index: 9
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2235,2177
   size: 17,40
   orig: 61,101
   offset: 24,24
   index: 10
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2235,2132
   size: 17,43
   orig: 61,101
   offset: 24,24
   index: 11
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2235,2085
   size: 17,45
   orig: 61,101
   offset: 24,24
   index: 12
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2761,2609
   size: 16,71
   orig: 61,101
   offset: 24,24
   index: 7
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2761,2559
   size: 16,48
   orig: 61,101
   offset: 24,24
   index: 14
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2009,12
   size: 15,63
   orig: 61,101
   offset: 24,24
   index: 6
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2863,2874
   size: 15,76
   orig: 61,101
   offset: 24,24
   index: 8
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2054,1718
   size: 14,27
   orig: 61,101
   offset: 24,24
   index: 1
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2057,1454
   size: 14,31
   orig: 61,101
   offset: 24,24
   index: 2
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2057,1413
   size: 14,39
   orig: 61,101
   offset: 24,24
   index: 3
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2897,2825
   size: 14,47
   orig: 61,101
   offset: 24,24
   index: 4
-Infantry_PS_Large_face2_attack_0
+Infantry_PS_Large_face2_attack_1
   rotate: false
   xy: 2338,2194
   size: 14,55
@@ -18652,112 +18652,112 @@ Infantry_PS_Large_face3
   orig: 31,61
   offset: 7,9
   index: 1
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2999,2293
   size: 12,23
   orig: 61,101
   offset: 22,24
   index: 0
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2999,2293
   size: 12,23
   orig: 61,101
   offset: 22,24
   index: 15
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1665,1834
   size: 38,43
   orig: 61,101
   offset: 22,24
   index: 8
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1745,1859
   size: 37,42
   orig: 61,101
   offset: 22,24
   index: 9
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1660,1207
   size: 35,41
   orig: 61,101
   offset: 22,24
   index: 7
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1881,2586
   size: 31,37
   orig: 61,101
   offset: 22,24
   index: 6
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1891,1826
   size: 27,33
   orig: 61,101
   offset: 22,24
   index: 5
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 1842,1638
   size: 24,33
   orig: 61,101
   offset: 22,24
   index: 14
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2283,3118
   size: 23,29
   orig: 61,101
   offset: 22,24
   index: 4
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2097,2383
   size: 21,31
   orig: 61,101
   offset: 22,24
   index: 11
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2097,2347
   size: 21,34
   orig: 61,101
   offset: 22,24
   index: 13
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2509,2685
   size: 20,32
   orig: 61,101
   offset: 22,24
   index: 12
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2707,2697
   size: 19,25
   orig: 61,101
   offset: 22,24
   index: 3
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2728,2684
   size: 19,30
   orig: 61,101
   offset: 22,24
   index: 10
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2321,3203
   size: 15,23
   orig: 61,101
   offset: 22,24
   index: 2
-Infantry_PS_Large_face3_attack_0
+Infantry_PS_Large_face3_attack_1
   rotate: false
   xy: 2944,2898
   size: 13,23

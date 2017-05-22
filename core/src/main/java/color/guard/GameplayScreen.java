@@ -301,19 +301,23 @@ public class GameplayScreen implements Screen {
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     if(c.equals(n)) {
                         switch (currentPiece.pieceKind.weapons) {
-                            case 2: sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                            case 2:
+                                sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
                                 offX = -0.47f;
                                 offY = -0.47f;
                                 break;
-                            case 3: sprite = (Sprite) (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                            case 3:
+                                sprite = (Sprite) (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
                                 offX = -0.47f;
                                 offY = -0.47f;
                                 break;
-                            case 1: sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                            case 1:
+                                sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
                                 offX = -0.47f;
                                 offY = -0.47f;
                                 break;
-                            default: sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                            default:
+                                sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
                                 offX = 0f;
                                 offY = 0f;
                                 break;
@@ -325,7 +329,6 @@ public class GameplayScreen implements Screen {
                         font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
                         //tempSB.setLength(0);
                         batch.setColor(-0x1.fffffep126f); // white as a packed float
-
                     }
                     else {
                         offX = MathUtils.lerp(0f, n.x - c.x, Math.min(1f, turnTime * 1.6f));

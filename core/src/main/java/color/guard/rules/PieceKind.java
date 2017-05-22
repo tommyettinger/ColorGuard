@@ -102,7 +102,7 @@ public class PieceKind {
 //3
             "Rifle Sniper", new PieceKind("Rifle Sniper", "Infantry_T", "SN", "RFSN", FOOT, "Useful for taking out other foot soldiers at medium range.", "Indirect (1,3)", new String[]{"Occupy","Stealthy","Retaliate",}, new String[]{"Defense","Speed"}, "Sneak", 3, new String[]{"Pistol","Longarm"}, new String[]{"Handgun","Handgun"}, new int[]{1, 1}, 12, 1, 10, 30, 8, new int[]{2, 2, 2, 2, 2, 3, 2, 2, 2, 4, 6,}, 92),
 //4
-            "Missile Sniper", new PieceKind("Missile Sniper", "Infantry_PS", "SN", "MISN", FOOT, "The cheapest way to bring down a plane or copter.", "Indirect (2,4)", new String[]{"Occupy","Anti-Aerial","",}, new String[]{"Choice",""}, "Long Shot", 1, new String[]{"","Missile"}, new String[]{"Arc_Missile",""}, new int[]{2, 0}, 14, 2, 10, 30, 9, new int[]{2, 2, 3, 4, 2, 4, 3, 2, 3, 6, 8,}, 115),
+            "Missile Sniper", new PieceKind("Missile Sniper", "Infantry_PS", "SN", "MISN", FOOT, "The cheapest way to bring down a plane or copter.", "Indirect (2,4)", new String[]{"Occupy","Anti-Aerial","",}, new String[]{"Choice",""}, "Long Shot", 1, new String[]{"","Missile"}, new String[]{"Arc_Missile",""}, new int[]{0, 2}, 14, 2, 10, 30, 9, new int[]{2, 2, 3, 4, 2, 4, 3, 2, 3, 6, 8,}, 115),
 //5
             "Mortar Sniper", new PieceKind("Mortar Sniper", "Infantry_PT", "SN", "MRSN", FOOT, "Able to play the role of artillery, pinning foes, for less cost.", "Indirect (4,5)", new String[]{"Occupy","Pin","Anti-Structure",}, new String[]{"Accuracy","Speed"}, "Hunker Down", 1, new String[]{"","Cannon"}, new String[]{"","Long_Cannon"}, new int[]{0, 2}, 15, 4, 10, 10, 6, new int[]{2, 2, 2, 3, 3, 6, 3, 3, 3, 8, 8,}, 115),
 //6

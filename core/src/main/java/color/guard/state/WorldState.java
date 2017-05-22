@@ -78,14 +78,13 @@ public class WorldState {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
         worldRandom = new StatefulRNG(seed);
-        worldName = FakeLanguageGen.FANTASY_NAME.word(worldRandom, true);
+        worldName = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57)
+                .word(worldRandom, true);
         mapGen = new WorldMapGenerator.TilingMap(seed, worldWidth, worldHeight);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.0, 1.0, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
-                '~', FakeLanguageGen.ELF,
-                '%', FakeLanguageGen.DEMONIC,
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
                 'B', FakeLanguageGen.INUKTITUT,                                                         // white
                 'C', FakeLanguageGen.ARABIC_ROMANIZED,                                                  // red
@@ -93,23 +92,23 @@ public class WorldState {
                 'E', FakeLanguageGen.MONGOLIAN,                                                         // yellow
                 'F', FakeLanguageGen.SWAHILI,                                                           // green
                 'G', FakeLanguageGen.GREEK_ROMANIZED,                                                   // blue
-                'H', FakeLanguageGen.NAHUATL,                                                           // purple
+                'H', FakeLanguageGen.NAHUATL.mix(FakeLanguageGen.RUSSIAN_ROMANIZED, 0.2), // purple
                 'I', FakeLanguageGen.LOVECRAFT,                                                         // dark
                 'J', FakeLanguageGen.ELF,                                                               // white
                 'K', FakeLanguageGen.SOMALI,                                                            // red
                 'L', FakeLanguageGen.ENGLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.5), // orange
                 'M', FakeLanguageGen.FRENCH,                                                            // yellow
-                'N', FakeLanguageGen.GOBLIN.mix(FakeLanguageGen.SWAHILI, 0.4),            // green
+                'N', FakeLanguageGen.GOBLIN.mix(FakeLanguageGen.SWAHILI, 0.47),            // green
                 'O', FakeLanguageGen.RUSSIAN_ROMANIZED,                                                 // blue
-                'P', FakeLanguageGen.HINDI_ROMANIZED.mix(FakeLanguageGen.NAHUATL, 0.65),  // purple
-                'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.ENGLISH, 0.25),          // dark
-                'R', FakeLanguageGen.INUKTITUT.mix(FakeLanguageGen.ELF, 0.55),            // white
-                'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.4), // red
+                'P', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.NAHUATL, 0.65),  // purple
+                'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.ENGLISH, 0.4),            // dark
+                'R', FakeLanguageGen.INUKTITUT.mix(FakeLanguageGen.ELF, 0.6),              // white
+                'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.45), // red
                 'T', FakeLanguageGen.NORSE.addModifiers(FakeLanguageGen.Modifier.SIMPLIFY_NORSE),       // orange
-                'U', FakeLanguageGen.FRENCH.mix(FakeLanguageGen.INFERNAL, 0.25),          // yellow
-                'V', FakeLanguageGen.SWAHILI.mix(FakeLanguageGen.SOMALI, 0.4),            // green
-                'W', FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.GOBLIN, 025),  // blue
-                'X', FakeLanguageGen.NAHUATL.mix(FakeLanguageGen.MONGOLIAN, 0.4));        // purple
+                'U', FakeLanguageGen.FRENCH.mix(FakeLanguageGen.INFERNAL, 0.3),          // yellow
+                'V', FakeLanguageGen.SWAHILI.mix(FakeLanguageGen.SOMALI, 0.35),            // green
+                'W', FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.GOBLIN, 0.25),  // blue
+                'X', FakeLanguageGen.NAHUATL.mix(FakeLanguageGen.MONGOLIAN, 0.43));        // purple
         politicalMap = polGen.generate(land, languageAtlas, 0.97);
         CGBiomeMapper bioGen = new CGBiomeMapper();
         bioGen.makeBiomes(mapGen);
@@ -119,6 +118,7 @@ public class WorldState {
         String tempNation;
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = polGen.atlas.get(i);
+            System.out.println(tempNation);
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
             factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory);
         }
