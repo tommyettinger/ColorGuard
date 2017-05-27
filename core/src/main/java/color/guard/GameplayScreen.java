@@ -5,25 +5,32 @@ import color.guard.state.BattleState;
 import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
 import squidpony.squidmath.Coord;
-import squidpony.squidmath.K2V1;
+import squidpony.squidmath.LapRNG;
 import squidpony.squidmath.OrderedMap;
-import squidpony.squidmath.StatefulRNG;
+import squidpony.squidmath.RNG;
 
 /**
  * Gameplay screen of the application.
@@ -52,13 +59,14 @@ public class GameplayScreen implements Screen {
     //private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
     private float currentTime = 0f, turnTime = 0f;
-    private StatefulRNG guiRandom;
+    private RNG guiRandom;
     //private String displayString;
     private InputMultiplexer input;
     private InputProcessor proc;
     private Vector3 tempVector3;
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
+    private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -68,7 +76,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new StatefulRNG(0L);
+        guiRandom = new RNG(new LapRNG(0x1337BEEF));
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         viewport.getCamera().translate(1080, 1080f, 0f);
@@ -160,6 +168,7 @@ public class GameplayScreen implements Screen {
             });
         }
 
+        //GLProfiler.enable();
         state.world.startBattle(state.world.factions);
 
         /*pieces = new int[mapWidth][mapHeight];
@@ -246,6 +255,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
         if((turnTime += delta) >= 1.25)
@@ -265,11 +275,13 @@ public class GameplayScreen implements Screen {
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         batch.begin();
         batch.setColor(208f / 255f, 1f, 1f, 1f);
-        palettes.bind(3);
+        palettes.bind();
 
-        indexShader.setUniformi("u_texPalette", 3);
-        textures.first().bind(2);
-        indexShader.setUniformi("u_texture", 2);
+        //indexShader.setUniformi("u_texPalette", 2);
+        indexShader.setUniformi("u_texPalette", 0);
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE1);
+        //textures.first().bind(1);
+        indexShader.setUniformi("u_texture", 1);
         int currentKind;
         Piece currentPiece;
 
@@ -277,7 +289,7 @@ public class GameplayScreen implements Screen {
         int centerX = (int)(position.x) >> 5,
                 centerY = (int)(position.y) >> 5,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 13, mapWidth - 1),
-                minY = Math.max(0, centerY - 10), maxY = Math.min(centerY + 10, mapHeight - 1);
+                minY = Math.max(0, centerY - 8), maxY = Math.min(centerY + 8, mapHeight - 1);
 
         for (int y = maxY; y >= minY; y--) {
             for (int x = maxX; x >= minX; x--) {
@@ -289,14 +301,14 @@ public class GameplayScreen implements Screen {
         Sprite sprite;
         Coord c, n;
         BattleState battle = state.world.battle;
-        K2V1<Coord, String, Piece> pieces = battle.pieces;
+        OrderedMap<Coord, Piece> pieces = battle.pieces;
         float offX, offY;
         int idx;
         for (int y = maxY; y >= minY; y--) {
             for (int x = maxX; x >= minX; x--) {
                 c = Coord.get(x, y);
-                if((currentPiece = pieces.getQFromA(c)) != null) {
-                    idx = pieces.indexOfA(c);
+                if((currentPiece = pieces.get(c)) != null) {
+                    idx = pieces.indexOf(c);
                     n = battle.moveTargets.getAt(idx);
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     if(c.equals(n)) {
@@ -325,10 +337,9 @@ public class GameplayScreen implements Screen {
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
                         sprite.draw(batch);
-                        font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
-                        font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
-                        //tempSB.setLength(0);
-                        batch.setColor(-0x1.fffffep126f); // white as a packed float
+                        //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        //font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
+                        //batch.setColor(-0x1.fffffep126f); // white as a packed float
                     }
                     else {
                         offX = MathUtils.lerp(0f, n.x - c.x, Math.min(1f, turnTime * 1.6f));
@@ -337,10 +348,9 @@ public class GameplayScreen implements Screen {
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
                         sprite.draw(batch);
-                        font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
-                        font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
-                        //tempSB.setLength(0);
-                        batch.setColor(-0x1.fffffep126f); // white as a packed float
+                        //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        //font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
+                        //batch.setColor(-0x1.fffffep126f); // white as a packed float
 
                     }
                     //if(currentKind >>> 2 == standing.size() - 1)
@@ -350,10 +360,15 @@ public class GameplayScreen implements Screen {
                 }
             }
         }
-        //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), -300, 1200);
-        //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
-        batch.end();
+        //font.setColor(1f / 255f, 1f, 1f, 1f);
+        //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
 
+        //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), position.x, position.y + 80);
+        //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
+        batch.setColor(-0x1.fffffep126f); // white as a packed float
+        batch.end();
+        //drawCalls = GLProfiler.drawCalls;
+        //textureBindings = GLProfiler.textureBindings;
     }
 
     @Override

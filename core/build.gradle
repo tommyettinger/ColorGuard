@@ -9,6 +9,5 @@ dependencies {
     compile "com.github.tommyettinger:blazingchain:$blazingChainVersion"
     compile "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion"
     compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion"
-
 }
         

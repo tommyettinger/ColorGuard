@@ -1,5 +1,6 @@
 package color.guard.state;
 
+import squidpony.squidmath.LightRNG;
 import squidpony.squidmath.StatefulRNG;
 
 /**
@@ -14,7 +15,7 @@ public class GameState {
     }
     public GameState(long seed)
     {
-        masterRandom = new StatefulRNG(seed);
+        masterRandom = new StatefulRNG(new LightRNG(seed));
         world = new WorldState(192, 192, masterRandom.nextLong());
     }
 }

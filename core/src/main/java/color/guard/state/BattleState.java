@@ -4,49 +4,54 @@ import color.guard.rules.PieceKind;
 import squidpony.squidgrid.Direction;
 import squidpony.squidmath.*;
 
+import java.util.HashSet;
+
 /**
  * Created by Tommy Ettinger on 10/28/2016.
  */
 public class BattleState {
-    public K2V1<Coord, String, Piece> pieces;
+    public OrderedMap<Coord, Piece> pieces;
     public int moverLimit;
     public OrderedSet<Coord> moveTargets;
-    public StatefulRNG rng;
+    public RNG rng;
+    public LapRNG lap;
     private transient GreasedRegion working;
     public int[][] map;
     public BattleState()
     {
-        pieces = new K2V1<Coord, String, Piece>(128);
+        pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new StatefulRNG();
+        rng = new RNG(lap = new LapRNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
     }
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new StatefulRNG(seed);
+        rng = new RNG(lap = new LapRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         int[] tempOrdering = new int[pieceCount];
-        pieces = new K2V1<Coord, String, Piece>(16 + mapHeight * mapWidth >>> 4);
+        pieces = new OrderedMap<>(16 + mapHeight * mapWidth >>> 4);
         moveTargets = new OrderedSet<>(16 + mapHeight * mapWidth >>> 4);
         Coord pt;
+        HashSet<String> names = new HashSet<>(16 + mapHeight * mapWidth >>> 4);
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(rng.next(4) == 0) {
+                if(lap.next(4) == 0) {
                     rng.randomOrdering(pieceCount, tempOrdering);
                     for (int i = 0; i < pieceCount; i++) {
                         if(PieceKind.kinds.getAt(tempOrdering[i]).mobilities[map[x][y]] < 6)
                         {
                             Faction fact = Faction.whoOwns(x, y, rng, factions);
                             Piece p = new Piece(tempOrdering[i], fact);
-                            while(pieces.containsB(p.name))
+                            while(names.contains(p.name))
                                 p.resetName(fact);
                             pt = Coord.get(x, y);
-                            pieces.put(pt, p.name, p);
+                            pieces.put(pt, p);
+                            names.add(p.name);
                             moveTargets.add(pt);
                             continue CELL_WISE;
                         }
@@ -65,10 +70,11 @@ public class BattleState {
                 city = cities[j];
                 Piece p = new Piece(pieceCount, factions[i]);
                 p.cityName(factions[i]);
-                while(pieces.containsB(p.name))
+                while(names.contains(p.name))
                     p.resetName(factions[i]);
-                if (!pieces.containsA(city)) {
-                    pieces.put(city, p.name, p);
+                if (!pieces.containsKey(city)) {
+                    pieces.put(city, p);
+                    names.add(p.name);
                     moveTargets.add(city);
                 }
             }
@@ -78,44 +84,46 @@ public class BattleState {
                 city = cities[j];
                 Piece p = new Piece(pieceCount + 1, factions[i]);
                 p.cityName(factions[i]);
-                while(pieces.containsB(p.name))
+                while(names.contains(p.name))
                     p.resetName(factions[i]);
-                if (!pieces.containsA(city)) {
-                    pieces.put(city, p.name, p);
+                if (!pieces.containsKey(city)) {
+                    pieces.put(city, p);
+                    names.add(p.name);
                     moveTargets.add(city);
                 }
             }
             city = capital;
             Piece p = new Piece(pieceCount + 2, factions[i]);
             p.cityName(factions[i]);
-            while(pieces.containsB(p.name))
+            while(names.contains(p.name))
                 p.resetName(factions[i]);
             if(moveTargets.remove(city))
                 --moverLimit;
-            pieces.removeA(city);
-            pieces.put(city, p.name, p);
+            pieces.remove(city);
+            pieces.put(city, p);
+            names.add(p.name);
             moveTargets.add(city);
         }
     }
 
     public void advanceTurn()
     {
-        int ct = moverLimit, r, pc = pieces.size();
+        int ct = moverLimit, r;
         Direction dir;
         Coord pt, next;
         Piece p;
         for (int i = 0; i < ct; i++) {
             pt = moveTargets.getAt(i);
-            p = pieces.alterAAt(i, pt).getQAt(i);
-            r = rng.next(3);
+            p = pieces.alterAt(i, pt);
+            r = lap.next(3);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
                 next = pt.translateCapped(dir.deltaX, dir.deltaY, map.length, map[0].length);
-                if(pieces.containsA(next) || moveTargets.contains(next)
+                if(pieces.containsKey(next) || moveTargets.contains(next)
                         || p.pieceKind.mobilities[map[next.x][next.y]] >= 6)
                 {
-                    if(rng.nextBoolean())
+                    if(lap.nextLong() < 0L)
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -128,7 +136,7 @@ public class BattleState {
             }
             else
             {
-                if(rng.nextBoolean())
+                if(lap.nextLong() < 0L)
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();
