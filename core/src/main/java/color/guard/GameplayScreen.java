@@ -5,25 +5,16 @@ import color.guard.state.BattleState;
 import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
@@ -52,7 +43,6 @@ public class GameplayScreen implements Screen {
 
     private OrthographicCamera camera;
     private Viewport viewport;
-    ObjectSet<Texture> textures;
     BitmapFont font;
 
     private int[][] map;
@@ -85,8 +75,7 @@ public class GameplayScreen implements Screen {
         palettes = new Texture("palettes.png");
         tempSB = new StringBuilder(50);
 
-        atlas = new TextureAtlas("OrthoNew.atlas");
-        textures = atlas.getTextures();
+        atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
         //font.getData().setScale(2f);
         font.setColor(Color.BLACK);
@@ -94,10 +83,10 @@ public class GameplayScreen implements Screen {
         String s, r;
         terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
         for (int i = 0; i < terrains.length >> 2; i++) {
-            terrains[i * 4]     = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face0", 0);
-            terrains[i * 4 + 1] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face1", 0);
-            terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face2", 0);
-            terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_face3", 0);
+            terrains[i * 4]     = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face0", 0);
+            terrains[i * 4 + 1] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face1", 0);
+            terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face2", 0);
+            terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face3", 0);
         };
         int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
         PieceKind p;
@@ -286,11 +275,22 @@ public class GameplayScreen implements Screen {
         Piece currentPiece;
 
         Vector3 position = viewport.getCamera().position;
-        int centerX = (int)(position.x) >> 5,
+        int centerX = -(int)((position.x) - 2 * (position.y)) >> 6,
+                centerY = (int)((position.x) + 2 * (position.y)) >> 6,
+                minX = Math.max(0, centerX - 14), maxX = Math.min(centerX + 14, mapWidth - 1),
+                minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 14, mapHeight - 1);
+
+        for (int x = maxX; x >= minX; x--) {
+            for (int y = maxY; y >= minY; y--) {
+                currentKind = map[x][y];
+                batch.setColor(208f / 255f, 1f, 1f, 1f);
+                batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
+            }
+        }
+        /*int centerX = (int)(position.x) >> 5,
                 centerY = (int)(position.y) >> 5,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 13, mapWidth - 1),
                 minY = Math.max(0, centerY - 8), maxY = Math.min(centerY + 8, mapHeight - 1);
-
         for (int y = maxY; y >= minY; y--) {
             for (int x = maxX; x >= minX; x--) {
                 currentKind = map[x][y];
@@ -298,35 +298,37 @@ public class GameplayScreen implements Screen {
                 batch.draw(terrains[currentKind], 32 * x, 32 * y);
             }
         }
+        */
         Sprite sprite;
         Coord c, n;
         BattleState battle = state.world.battle;
         OrderedMap<Coord, Piece> pieces = battle.pieces;
         float offX, offY;
         int idx;
+
         for (int y = maxY; y >= minY; y--) {
             for (int x = maxX; x >= minX; x--) {
-                c = Coord.get(x, y);
-                if((currentPiece = pieces.get(c)) != null) {
+                if((currentPiece = pieces.get(c = Coord.get(x, y))) != null) {
                     idx = pieces.indexOf(c);
                     n = battle.moveTargets.getAt(idx);
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
+
                     if(c.equals(n)) {
                         switch (currentPiece.pieceKind.weapons) {
                             case 2:
                                 sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
-                                offX = -0.47f;
-                                offY = -0.47f;
+                                offX = -40f;
+                                offY = -20f;
                                 break;
                             case 3:
                                 sprite = (Sprite) (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
-                                offX = -0.47f;
-                                offY = -0.47f;
+                                offX = -40f;
+                                offY = -20f;
                                 break;
                             case 1:
                                 sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
-                                offX = -0.47f;
-                                offY = -0.47f;
+                                offX = -40f;
+                                offY = -20f;
                                 break;
                             default:
                                 sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
@@ -335,28 +337,25 @@ public class GameplayScreen implements Screen {
                                 break;
                         }
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                        sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
+                        sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
+
                         //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
                         //font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
                     }
                     else {
-                        offX = MathUtils.lerp(0f, n.x - c.x, Math.min(1f, turnTime * 1.6f));
-                        offY = MathUtils.lerp(0f, n.y - c.y, Math.min(1f, turnTime * 1.6f));
+                        offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+                        offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
-                        sprite.setPosition(32 * (x + offX) + 2f, 32 * (y + offY) + 6f);
+                        sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
                         //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
                         //font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
 
                     }
-                    //if(currentKind >>> 2 == standing.size() - 1)
-                    //{
-                    //tempSB.append(currentPiece.name).append('\n').append(currentPiece.stats);
-                    //}
                 }
             }
         }

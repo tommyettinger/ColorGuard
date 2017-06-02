@@ -80,11 +80,11 @@ public class Piece {
 
     public static Direction facingDirection(final int facing) {
         switch (facing) {
-            case 0:
-                return Direction.UP;
             case 1:
+                return Direction.UP;
+            case 0:
                 return Direction.LEFT;
-            case 2:
+            case 3:
                 return Direction.DOWN;
             default:
                 return Direction.RIGHT;
