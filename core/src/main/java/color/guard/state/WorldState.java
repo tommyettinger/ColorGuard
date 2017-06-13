@@ -80,7 +80,8 @@ public class WorldState {
         worldRandom = new StatefulRNG(seed);
         worldName = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57)
                 .word(worldRandom, true);
-        mapGen = new WorldMapGenerator.TilingMap(seed, worldWidth, worldHeight);
+        mapGen = new WorldMapGenerator.TilingMap(seed, worldWidth, worldHeight,
+                new Noise.Scaled4D(WhirlingNoise.instance, 0.6, 0.6, 0.6, 0.6), 1.3);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.0, 1.0, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);

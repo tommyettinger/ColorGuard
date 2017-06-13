@@ -6,7 +6,6 @@ import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -78,7 +78,7 @@ public class GameplayScreen implements Screen {
         atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
         //font.getData().setScale(2f);
-        font.setColor(Color.BLACK);
+        font.setColor(1f / 255f, 1f, 1f, 1f);
         //displayString = state.world.mapGen.atlas.getAt(0);
         String s, r;
         terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
@@ -261,16 +261,17 @@ public class GameplayScreen implements Screen {
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.setShader(indexShader);
-        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE1);
+        palettes.bind();
         batch.begin();
         batch.setColor(208f / 255f, 1f, 1f, 1f);
-        palettes.bind();
 
         //indexShader.setUniformi("u_texPalette", 2);
-        indexShader.setUniformi("u_texPalette", 0);
-        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE1);
+        indexShader.setUniformi("u_texPalette", 1);
+        Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         //textures.first().bind(1);
-        indexShader.setUniformi("u_texture", 1);
+//        indexShader.setUniformi("u_texture", 1);
+
         int currentKind;
         Piece currentPiece;
 
@@ -340,9 +341,10 @@ public class GameplayScreen implements Screen {
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
 
-                        //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
-                        //font.draw(batch, currentPiece.stats, 32 * (x) - 20f, 32 * (y) + 56f, 80f, Align.center, true);
+                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        font.draw(batch, currentPiece.stats, 32 * (y - x) + 9f, 16 * (y + x) + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
+
                     }
                     else {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
@@ -351,20 +353,19 @@ public class GameplayScreen implements Screen {
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
-                        //font.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
-                        //font.draw(batch, currentPiece.stats, 32 * (x+offX) - 20f, 32 * (y+offY) + 56f, 80f, Align.center, true);
+                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
+                        font.draw(batch, currentPiece.stats, 32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
-
                     }
                 }
             }
         }
-        //font.setColor(1f / 255f, 1f, 1f, 1f);
+        //batch.setColor(1f / 255f, 1f, 1f, 1f);
         //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
 
         //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), position.x, position.y + 80);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
-        batch.setColor(-0x1.fffffep126f); // white as a packed float
+        //batch.setColor(-0x1.fffffep126f); // white as a packed float
         batch.end();
         //drawCalls = GLProfiler.drawCalls;
         //textureBindings = GLProfiler.textureBindings;
