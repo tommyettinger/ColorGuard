@@ -14,7 +14,7 @@ public class WorldState {
     public int worldWidth, worldHeight;
     public char[][] politicalMap;
     public int[][] worldMap;
-    public WorldMapGenerator.TilingMap mapGen;
+    public StandardMap mapGen;
     public PoliticalMapper polGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
@@ -80,10 +80,10 @@ public class WorldState {
         worldRandom = new StatefulRNG(seed);
         worldName = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57)
                 .word(worldRandom, true);
-        mapGen = new WorldMapGenerator.TilingMap(seed, worldWidth, worldHeight,
-                new Noise.Scaled4D(WhirlingNoise.instance, 0.6, 0.6, 0.6, 0.6), 1.3);
+        mapGen = new StandardMap(seed, worldWidth, worldHeight,
+                new Noise.Scaled2D(WhirlingNoise.instance, 0.8, 0.8), 0.9);
         polGen = new PoliticalMapper(worldName);
-        mapGen.generate(1.0, 1.0, seed);
+        mapGen.generate(0.91, 1.02, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -97,12 +97,12 @@ public class WorldState {
                 'I', FakeLanguageGen.LOVECRAFT,                                                         // dark
                 'J', FakeLanguageGen.ELF,                                                               // white
                 'K', FakeLanguageGen.SOMALI,                                                            // red
-                'L', FakeLanguageGen.ENGLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.5), // orange
+                'L', FakeLanguageGen.SIMPLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.5), // orange
                 'M', FakeLanguageGen.FRENCH,                                                            // yellow
                 'N', FakeLanguageGen.GOBLIN.mix(FakeLanguageGen.SWAHILI, 0.47),            // green
                 'O', FakeLanguageGen.RUSSIAN_ROMANIZED,                                                 // blue
                 'P', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.NAHUATL, 0.65),  // purple
-                'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.ENGLISH, 0.4),            // dark
+                'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.SIMPLISH, 0.4),            // dark
                 'R', FakeLanguageGen.INUKTITUT.mix(FakeLanguageGen.ELF, 0.6),              // white
                 'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.45), // red
                 'T', FakeLanguageGen.NORSE.addModifiers(FakeLanguageGen.Modifier.SIMPLIFY_NORSE),       // orange
@@ -119,7 +119,7 @@ public class WorldState {
         String tempNation;
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = polGen.atlas.get(i);
-            System.out.println(tempNation);
+            System.out.printf("%s (%s)\n", tempNation, polGen.briefAtlas.get(i));
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
             factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory);
         }
@@ -127,6 +127,286 @@ public class WorldState {
     public void startBattle(Faction... belligerents)
     {
         battle = new BattleState(worldRandom.nextLong(), worldMap, belligerents);
+    }
+    public static class StandardMap extends WorldMapGenerator {
+        //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
+        protected static final double terrainFreq = 1.175, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
+        private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
+                minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
+                minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
+
+        public final Noise.Noise2D terrain, terrainRidged, heat, moisture, otherRidged;
+
+        /**
+         * Constructs a concrete WorldMapGenerator for a map does not tile. Always makes a 256x256 map.
+         * Uses WhirlingNoise as its noise generator, with 1.0 as the octave multiplier affecting detail.
+         * If you were using {@link squidpony.squidgrid.mapping.WorldMapGenerator.TilingMap#TilingMap(long, int, int, squidpony.squidmath.Noise.Noise4D, double)}, then this would be the
+         * same as passing the parameters {@code 0x1337BABE1337D00DL, 256, 256, WhirlingNoise.instance, 1.0}.
+         */
+        public StandardMap() {
+            this(0x1337BABE1337D00DL, 256, 256, WhirlingNoise.instance, 1.0);
+        }
+
+        /**
+         * Constructs a concrete WorldMapGenerator for a map that can be used as a tiling, wrapping east-to-west as well
+         * as north-to-south.
+         * Takes only the width/height of the map. The initial seed is set to the same large long
+         * every time, and it's likely that you would set the seed when you call {@link #generate(long)}. The width and
+         * height of the map cannot be changed after the fact, but you can zoom in.
+         * Uses WhirlingNoise as its noise generator, with 1.0 as the octave multiplier affecting detail.
+         *
+         * @param mapWidth  the width of the map(s) to generate; cannot be changed later
+         * @param mapHeight the height of the map(s) to generate; cannot be changed later
+         */
+        public StandardMap(int mapWidth, int mapHeight) {
+            this(0x1337BABE1337D00DL, mapWidth, mapHeight, WhirlingNoise.instance, 1.0);
+        }
+
+        /**
+         * Constructs a concrete WorldMapGenerator for a map that can be used as a tiling, wrapping east-to-west as well
+         * as north-to-south.
+         * Takes an initial seed and the width/height of the map. The {@code initialSeed}
+         * parameter may or may not be used, since you can specify the seed to use when you call {@link #generate(long)}.
+         * The width and height of the map cannot be changed after the fact, but you can zoom in.
+         * Uses WhirlingNoise as its noise generator, with 1.0 as the octave multiplier affecting detail.
+         *
+         * @param initialSeed the seed for the StatefulRNG this uses; this may also be set per-call to generate
+         * @param mapWidth    the width of the map(s) to generate; cannot be changed later
+         * @param mapHeight   the height of the map(s) to generate; cannot be changed later
+         */
+        public StandardMap(long initialSeed, int mapWidth, int mapHeight) {
+            this(initialSeed, mapWidth, mapHeight, WhirlingNoise.instance, 1.0);
+        }
+
+        /**
+         * Constructs a concrete WorldMapGenerator for a map that can be used as a tiling, wrapping east-to-west as well
+         * as north-to-south. Takes an initial seed, the width/height of the map, and a noise generator (a
+         * {@link Noise.Noise4D} implementation, which is usually {@link WhirlingNoise#instance}. The {@code initialSeed}
+         * parameter may or may not be used, since you can specify the seed to use when you call
+         * {@link #generate(long)}. The width and height of the map cannot be changed after the fact, but you can zoom
+         * in. Currently only WhirlingNoise makes sense to use as the value for {@code noiseGenerator}, and the seed it's
+         * constructed with doesn't matter because it will change the seed several times at different scales of noise
+         * (it's fine to use the static {@link WhirlingNoise#instance} because it has no changing state between runs of
+         * the program; it's effectively a constant). The detail level, which is the {@code octaveMultiplier} parameter
+         * that can be passed to another constructor, is always 1.0 with this constructor.
+         *
+         * @param initialSeed      the seed for the StatefulRNG this uses; this may also be set per-call to generate
+         * @param mapWidth         the width of the map(s) to generate; cannot be changed later
+         * @param mapHeight        the height of the map(s) to generate; cannot be changed later
+         * @param noiseGenerator   an instance of a noise generator capable of 2D noise, often {@link WhirlingNoise}
+         */
+        public StandardMap(long initialSeed, int mapWidth, int mapHeight, final Noise.Noise2D noiseGenerator) {
+            this(initialSeed, mapWidth, mapHeight, noiseGenerator, 1.0);
+        }
+
+        /**
+         * Constructs a concrete WorldMapGenerator for a map that can be used as a tiling, wrapping east-to-west as well
+         * as north-to-south. Takes an initial seed, the width/height of the map, and parameters for noise
+         * generation (a {@link Noise.Noise4D} implementation, which is usually {@link WhirlingNoise#instance}, and a
+         * multiplier on how many octaves of noise to use, with 1.0 being normal (high) detail and higher multipliers
+         * producing even more detailed noise when zoomed-in). The {@code initialSeed} parameter may or may not be used,
+         * since you can specify the seed to use when you call {@link #generate(long)}. The width and height of the map
+         * cannot be changed after the fact, but you can zoom in. Currently only WhirlingNoise makes sense to use as the
+         * value for {@code noiseGenerator}, and the seed it's constructed with doesn't matter because it will change the
+         * seed several times at different scales of noise (it's fine to use the static {@link WhirlingNoise#instance} because
+         * it has no changing state between runs of the program; it's effectively a constant). The {@code octaveMultiplier}
+         * parameter should probably be no lower than 0.5, but can be arbitrarily high if you're willing to spend much more
+         * time on generating detail only noticeable at very high zoom; normally 1.0 is fine and may even be too high for
+         * maps that don't require zooming.
+         * @param initialSeed the seed for the StatefulRNG this uses; this may also be set per-call to generate
+         * @param mapWidth the width of the map(s) to generate; cannot be changed later
+         * @param mapHeight the height of the map(s) to generate; cannot be changed later
+         * @param noiseGenerator an instance of a noise generator capable of 4D noise, almost always {@link WhirlingNoise}
+         * @param octaveMultiplier used to adjust the level of detail, with 0.5 at the bare-minimum detail and 1.0 normal
+         */
+        public StandardMap(long initialSeed, int mapWidth, int mapHeight, final Noise.Noise2D noiseGenerator, double octaveMultiplier) {
+            super(initialSeed, mapWidth, mapHeight);
+            terrain = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 8), terrainFreq);
+            terrainRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 10), terrainRidgedFreq);
+            heat = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 3), heatFreq);
+            moisture = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 4), moistureFreq);
+            otherRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 6), otherFreq);
+        }
+
+        protected void regenerate(int startX, int startY, int usedWidth, int usedHeight,
+                                  double waterMod, double coolMod, long state)
+        {
+            boolean fresh = false;
+            if(cachedState != state || waterMod != waterModifier || coolMod != coolingModifier)
+            {
+                minHeight = Double.POSITIVE_INFINITY;
+                maxHeight = Double.NEGATIVE_INFINITY;
+                minHeat0 = Double.POSITIVE_INFINITY;
+                maxHeat0 = Double.NEGATIVE_INFINITY;
+                minHeat1 = Double.POSITIVE_INFINITY;
+                maxHeat1 = Double.NEGATIVE_INFINITY;
+                minHeat = Double.POSITIVE_INFINITY;
+                maxHeat = Double.NEGATIVE_INFINITY;
+                minWet0 = Double.POSITIVE_INFINITY;
+                maxWet0 = Double.NEGATIVE_INFINITY;
+                minWet = Double.POSITIVE_INFINITY;
+                maxWet = Double.NEGATIVE_INFINITY;
+                cachedState = state;
+                fresh = true;
+            }
+            rng.setState(state);
+            int seedA = rng.nextInt(), seedB = rng.nextInt(), seedC = rng.nextInt(), t;
+
+            waterModifier = (waterMod <= 0) ? rng.nextDouble(0.29) + 0.91 : waterMod;
+            coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.45) * (rng.nextDouble()-0.5) + 1.1 : coolMod;
+
+            double p, q,
+                    ps, pc,
+                    qs, qc,
+                    h, temp,
+                    xPos, yPos = startY,
+                    i_uw = usedWidth / (double)width, i_uh = usedHeight / (double)height,
+                    wh = (width + height) * 0.5, i_wh = 1.0 / wh, subtle = 8.0 / wh;
+            for (int y = 0; y < height; y++, yPos += i_uh) {
+                xPos = startX;
+                for (int x = 0; x < width; x++, xPos += i_uw) {
+                    q = (xPos + yPos - wh) * i_wh;
+                    p = (xPos - yPos) * i_wh;
+                    h = terrain.getNoiseWithSeed(p +
+                                    terrainRidged.getNoiseWithSeed(p, q, seedA + seedB),
+                            q, seedA);
+                    h -= Math.max(
+                            Math.max(Math.max(-(xPos - (width >>> 3)), 0), Math.max(xPos - (width * 7 >>> 3), 0)),
+                            Math.max(Math.max(-(yPos - (height >>> 3)), 0), Math.max(yPos - (height * 7 >>> 3), 0))) * subtle;
+                    h *= waterModifier;
+                    heightData[x][y] = h;
+                    heatData[x][y] = (pc = heat.getNoiseWithSeed(p, q
+                                    + otherRidged.getNoiseWithSeed(p, q, seedB + seedC)
+                            , seedB));
+                    moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p, q
+                                    + otherRidged.getNoiseWithSeed(p, q, seedC + seedA)
+                            , seedC));
+                    minHeightActual = Math.min(minHeightActual, h);
+                    maxHeightActual = Math.max(maxHeightActual, h);
+                    if(fresh) {
+                        minHeight = Math.min(minHeight, h);
+                        maxHeight = Math.max(maxHeight, h);
+
+                        minHeat0 = Math.min(minHeat0, pc);
+                        maxHeat0 = Math.max(maxHeat0, pc);
+
+                        minWet0 = Math.min(minWet0, temp);
+                        maxWet0 = Math.max(maxWet0, temp);
+
+                    }
+                }
+
+            }
+            minHeightActual = Math.min(minHeightActual, minHeight);
+            maxHeightActual = Math.max(maxHeightActual, maxHeight);
+            double heightDiff = 2.0 / (maxHeightActual - minHeightActual),
+                    heatDiff = 0.8 / (maxHeat0 - minHeat0),
+                    wetDiff = 1.0 / (maxWet0 - minWet0),
+                    hMod;
+            double minHeightActual0 = minHeightActual;
+            double maxHeightActual0 = maxHeightActual;
+            yPos = startY;
+            ps = Double.POSITIVE_INFINITY;
+            pc = Double.NEGATIVE_INFINITY;
+
+            for (int y = 0; y < height; y++, yPos += i_uh) {
+                xPos = startX;
+                for (int x = 0; x < width; x++, xPos += i_uw) {
+                    temp = Math.abs(xPos + yPos - wh) * i_wh;
+                    temp *= (2.4 - temp);
+                    temp = 2.2 - temp;
+                    heightData[x][y] = (h = (heightData[x][y] - minHeightActual) * heightDiff - 1.0);
+                    minHeightActual0 = Math.min(minHeightActual0, h);
+                    maxHeightActual0 = Math.max(maxHeightActual0, h);
+                    heightCodeData[x][y] = (t = codeHeight(h));
+                    hMod = 1.0;
+                    switch (t) {
+                        case 0:
+                        case 1:
+                        case 2:
+                        case 3:
+                            h = 0.4;
+                            hMod = 0.2;
+                            break;
+                        case 6:
+                            h = -0.1 * (h - forestLower - 0.08);
+                            break;
+                        case 7:
+                            h *= -0.25;
+                            break;
+                        case 8:
+                            h *= -0.4;
+                            break;
+                        default:
+                            h *= 0.05;
+                    }
+                    heatData[x][y] = (h = (((heatData[x][y] - minHeat0) * heatDiff * hMod) + h + 0.6) * temp);
+                    if (fresh) {
+                        ps = Math.min(ps, h); //minHeat0
+                        pc = Math.max(pc, h); //maxHeat0
+                    }
+                }
+            }
+            if(fresh)
+            {
+                minHeat1 = ps;
+                maxHeat1 = pc;
+            }
+            heatDiff = coolingModifier / (maxHeat1 - minHeat1);
+            qs = Double.POSITIVE_INFINITY;
+            qc = Double.NEGATIVE_INFINITY;
+            ps = Double.POSITIVE_INFINITY;
+            pc = Double.NEGATIVE_INFINITY;
+
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    heatData[x][y] = (h = ((heatData[x][y] - minHeat1) * heatDiff));
+                    moistureData[x][y] = (temp = (moistureData[x][y] - minWet0) * wetDiff);
+                    if (fresh) {
+                        qs = Math.min(qs, h);
+                        qc = Math.max(qc, h);
+                        ps = Math.min(ps, temp);
+                        pc = Math.max(pc, temp);
+                    }
+                }
+            }
+            if(fresh)
+            {
+                minHeat = qs;
+                maxHeat = qc;
+                minWet = ps;
+                maxWet = pc;
+            }
+            landData.refill(heightCodeData, 4, 999);
+            if(generateRivers) {
+                if (fresh) {
+                    addRivers();
+                    riverData.connect8way().thin().thin();
+                    lakeData.connect8way().thin();
+                    partialRiverData.remake(riverData);
+                    partialLakeData.remake(lakeData);
+                } else {
+                    partialRiverData.remake(riverData);
+                    partialLakeData.remake(lakeData);
+                    for (int i = 1; i <= zoom; i++) {
+                        int stx = (startCacheX.get(i) - startCacheX.get(i - 1)) << (i - 1),
+                                sty = (startCacheY.get(i) - startCacheY.get(i - 1)) << (i - 1);
+                        if ((i & 3) == 3) {
+                            partialRiverData.zoom(stx, sty).connect8way();
+                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.4));
+                            partialLakeData.zoom(stx, sty).connect8way();
+                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.55));
+                        } else {
+                            partialRiverData.zoom(stx, sty).connect8way().thin();
+                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.5));
+                            partialLakeData.zoom(stx, sty).connect8way().thin();
+                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.7));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static class CGBiomeMapper
@@ -248,8 +528,11 @@ public class WorldState {
 
                     heatCodeData[x][y] = hc;
                     moistureCodeData[x][y] = mc;
-                    biomeCodeData[x][y] = heightCode <= 3
+                    biomeCodeData[x][y] =
+                            heightCode <= 3
                             ? Ocean
+                            : hc == 0 || (hc == 1 && moist < 0.54)
+                            ? Ice
                             : isLake
                             ? biomeTable[hc + 48]
                             : isRiver
