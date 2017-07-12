@@ -1,10 +1,14 @@
 package color.guard.state;
 
 import color.guard.rules.PieceKind;
+import com.badlogic.gdx.utils.ObjectSet;
 import squidpony.squidgrid.Direction;
-import squidpony.squidmath.*;
-
-import java.util.HashSet;
+import squidpony.squidmath.BardRNG;
+import squidpony.squidmath.Coord;
+import squidpony.squidmath.GreasedRegion;
+import squidpony.squidmath.OrderedMap;
+import squidpony.squidmath.OrderedSet;
+import squidpony.squidmath.RNG;
 
 /**
  * Created by Tommy Ettinger on 10/28/2016.
@@ -14,7 +18,7 @@ public class BattleState {
     public int moverLimit;
     public OrderedSet<Coord> moveTargets;
     public RNG rng;
-    public LapRNG lap;
+    public BardRNG bard;
     private transient GreasedRegion working;
     public int[][] map;
     public BattleState()
@@ -22,25 +26,25 @@ public class BattleState {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new RNG(lap = new LapRNG());
+        rng = new RNG(bard = new BardRNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
     }
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new RNG(lap = new LapRNG(seed));
+        rng = new RNG(bard = new BardRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         int[] tempOrdering = new int[pieceCount];
         pieces = new OrderedMap<>(16 + mapHeight * mapWidth >>> 4);
         moveTargets = new OrderedSet<>(16 + mapHeight * mapWidth >>> 4);
         Coord pt;
-        HashSet<String> names = new HashSet<>(16 + mapHeight * mapWidth >>> 4);
+        ObjectSet<String> names = new ObjectSet<>(16 + mapHeight * mapWidth >>> 4);
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(lap.next(4) == 0) {
+                if(bard.next(4) == 0) {
                     rng.randomOrdering(pieceCount, tempOrdering);
                     for (int i = 0; i < pieceCount; i++) {
                         if(PieceKind.kinds.getAt(tempOrdering[i]).mobilities[map[x][y]] < 6)
@@ -115,7 +119,7 @@ public class BattleState {
         for (int i = 0; i < ct; i++) {
             pt = moveTargets.getAt(i);
             p = pieces.alterAt(i, pt);
-            r = lap.next(3);
+            r = bard.next(3);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
@@ -123,7 +127,7 @@ public class BattleState {
                 if(pieces.containsKey(next) || moveTargets.contains(next)
                         || p.pieceKind.mobilities[map[next.x][next.y]] >= 6)
                 {
-                    if(lap.nextLong() < 0L)
+                    if(bard.nextInt() < 0)
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -136,7 +140,7 @@ public class BattleState {
             }
             else
             {
-                if(lap.nextLong() < 0L)
+                if(bard.nextInt() < 0)
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();

@@ -4,7 +4,13 @@ import squidpony.FakeLanguageGen;
 import squidpony.Maker;
 import squidpony.squidgrid.mapping.PoliticalMapper;
 import squidpony.squidgrid.mapping.WorldMapGenerator;
-import squidpony.squidmath.*;
+import squidpony.squidmath.Arrangement;
+import squidpony.squidmath.GreasedRegion;
+import squidpony.squidmath.Noise;
+import squidpony.squidmath.NumberTools;
+import squidpony.squidmath.OrderedMap;
+import squidpony.squidmath.StatefulRNG;
+import squidpony.squidmath.WhirlingNoise;
 
 /**
  * Really important class that calculates and stores a world map and the factions it holds.

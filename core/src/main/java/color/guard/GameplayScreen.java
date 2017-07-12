@@ -5,21 +5,28 @@ import color.guard.state.BattleState;
 import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
-import com.badlogic.gdx.*;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
 import squidpony.squidmath.Coord;
-import squidpony.squidmath.LapRNG;
+import squidpony.squidmath.FlapRNG;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.RNG;
 
@@ -34,14 +41,14 @@ public class GameplayScreen implements Screen {
     private SpriteBatch batch;
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
-    private OrderedMap<String, Animation[]> standing = new OrderedMap<>(64),
+    private OrderedMap<String, Array<Animation<Sprite>>> standing = new OrderedMap<>(64),
             acting0 = new OrderedMap<>(64),
             acting1 = new OrderedMap<>(64),
             dying = new OrderedMap<>(64),
             receiving0 = new OrderedMap<>(64),
             receiving1 = new OrderedMap<>(64);
 
-    private OrthographicCamera camera;
+    //private OrthographicCamera camera;
     private Viewport viewport;
     BitmapFont font;
 
@@ -51,12 +58,12 @@ public class GameplayScreen implements Screen {
     private float currentTime = 0f, turnTime = 0f;
     private RNG guiRandom;
     //private String displayString;
-    private InputMultiplexer input;
+    //private InputMultiplexer input;
     private InputProcessor proc;
     private Vector3 tempVector3;
     private static final float visualWidth = 800f, visualHeight = 450f;
-    private StringBuilder tempSB;
-    private int drawCalls = 0, textureBindings = 0;
+    //private StringBuilder tempSB;
+    //private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -66,14 +73,14 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new RNG(new LapRNG(0x1337BEEF));
+        guiRandom = new RNG(new FlapRNG(0x1337BEEF));
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
         tempVector3 = new Vector3();
         palettes = new Texture("palettes.png");
-        tempSB = new StringBuilder(50);
+        //tempSB = new StringBuilder(50);
 
         atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
@@ -93,68 +100,69 @@ public class GameplayScreen implements Screen {
         for (int i = 0; i < pieceCount; i++) {
             p = PieceKind.kinds.getAt(i);
             s = p.visual + "_Large_face";
-            standing.put(p.name, new Animation[]{
-                    new Animation<>(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
-            });
+            Array<Animation<Sprite>> tmpStand = new Array<>(true,4);
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP));
+            standing.put(p.name, tmpStand);
             s = p.visual + "_Large_face";
             if((p.weapons & 2) != 0) {
-                acting0.put(p.name, new Animation[]{
-                        new Animation<>(0.09f, atlas.createSprites(s + 0 + "_attack_0")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 1 + "_attack_0")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 2 + "_attack_0")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 3 + "_attack_0"))
-                });
+                Array<Animation<Sprite>> tmpA0 = new Array<>(true,4);
+
+                tmpA0.add(new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_0")));
+                tmpA0.add(new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_0")));
+                tmpA0.add(new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_0")));
+                tmpA0.add(new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_0")));
+                acting0.put(p.name, tmpA0);
                 r = p.show[0] + "_face";
-                receiving0.put(p.name, new Animation[]{
-                        new Animation<>(0.09f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[0])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[0])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[0])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[0]))
-                });
+                Array<Animation<Sprite>> tmpR0 = new Array<>(true,4);
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[0])));
+                receiving0.put(p.name, tmpR0);
             }
             if((p.weapons & 1) != 0)
             {
-                acting1.put(p.name, new Animation[]{
-                        new Animation<>(0.09f, atlas.createSprites(s + 0 + "_attack_1")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 1 + "_attack_1")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 2 + "_attack_1")),
-                        new Animation<>(0.09f, atlas.createSprites(s + 3 + "_attack_1"))
-                });
+                Array<Animation<Sprite>> tmpA1 = new Array<>(true,4);
+                tmpA1.add(new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_1")));
+                tmpA1.add(new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_1")));
+                tmpA1.add(new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_1")));
+                tmpA1.add(new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_1")));
+                acting1.put(p.name, tmpA1);
                 r = p.show[1] + "_face";
-                receiving1.put(p.name, new Animation[]{
-                        new Animation<>(0.09f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[1])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[1])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[1])),
-                        new Animation<>(0.09f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[1]))
-                });
-
+                Array<Animation<Sprite>> tmpR1 = new Array<>(true,4);
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[1])));
+                receiving1.put(p.name, tmpR1);
             }
-            dying.put(p.name, new Animation[]{
-                    new Animation<>(0.09f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 3 + "_death"))
-            });
+            Array<Animation<Sprite>> tmpDeath = new Array<>(true,4);
+
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death")));
+            dying.put(p.name, tmpDeath);
         }
         for (int i = 0; i < facilityCount; i++) {
             p = PieceKind.facilities.getAt(i);
             s = p.visual + "_Large_face";
-            standing.put(p.name, new Animation[]{
-                    new Animation<>(0.09f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation<>(0.09f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
-            });
+            Array<Animation<Sprite>> tmpStand = new Array<>(true,4);
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP));
+            tmpStand.add(new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP));
+            standing.put(p.name, tmpStand);
             s = p.visual + "_Large_face";
-            dying.put(p.name, new Animation[]{
-                    new Animation<>(0.09f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation<>(0.09f, atlas.createSprites(s + 3 + "_death"))
-            });
+            Array<Animation<Sprite>> tmpDeath = new Array<>(true,4);
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death")));
+            tmpDeath.add(new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death")));
+            dying.put(p.name, tmpDeath);
         }
 
         //GLProfiler.enable();
@@ -248,7 +256,7 @@ public class GameplayScreen implements Screen {
         //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        if((turnTime += delta) >= 1.25)
+        if((turnTime += delta) >= 1.5f)
         {
             turnTime = 0f;
             state.world.battle.advanceTurn();
@@ -317,22 +325,22 @@ public class GameplayScreen implements Screen {
                     if(c.equals(n)) {
                         switch (currentPiece.pieceKind.weapons) {
                             case 2:
-                                sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = acting0.get(currentPiece.pieceKind.name).get(currentKind & 3).getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             case 3:
-                                sprite = (Sprite) (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = (c.hashCode() < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name).get(currentKind & 3).getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             case 1:
-                                sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = acting1.get(currentPiece.pieceKind.name).get(currentKind & 3).getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             default:
-                                sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                                sprite = standing.getAt(currentKind >>> 2).get(currentKind & 3).getKeyFrame(currentTime, true);
                                 offX = 0f;
                                 offY = 0f;
                                 break;
@@ -349,7 +357,7 @@ public class GameplayScreen implements Screen {
                     else {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
-                        sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                        sprite = standing.getAt(currentKind >>> 2).get(currentKind & 3).getKeyFrame(currentTime, true);
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
