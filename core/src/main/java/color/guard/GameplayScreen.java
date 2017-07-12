@@ -188,11 +188,12 @@ public class GameplayScreen implements Screen {
                 "void main()\n" +
                 "{\n" +
                 "v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
-                "v_color.a = v_color.a * (256.0/254.0);\n" + //* (256.0/255.0)
+                "v_color.a = v_color.a * (255.0/254.0);\n" + //* (256.0/255.0)
                 "v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
                 "gl_Position = u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
                 "}\n";
-        String fragment = "#ifdef GL_ES\n" +
+        String fragment =
+                "#ifdef GL_ES\n" +
                 "#define LOWP lowp\n" +
                 "precision mediump float;\n" +
                 "#else\n" +
@@ -205,7 +206,7 @@ public class GameplayScreen implements Screen {
                 "void main()\n" +
                 "{\n" +
                 "vec4 color = texture2D(u_texture, v_texCoords);\n" +
-                "vec2 index = vec2(color.r, v_color.r);\n" +
+                "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
                 "gl_FragColor = vec4(texture2D(u_texPalette, index).rgb, color.a);\n" +
                 "}\n";
         indexShader = new ShaderProgram(vertex, fragment);
@@ -280,11 +281,10 @@ public class GameplayScreen implements Screen {
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
                 minX = Math.max(0, centerX - 14), maxX = Math.min(centerX + 14, mapWidth - 1),
                 minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 14, mapHeight - 1);
-
+        batch.setColor(208f / 255f, 1f, 1f, 1f);
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
-                batch.setColor(208f / 255f, 1f, 1f, 1f);
                 batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
             }
         }
