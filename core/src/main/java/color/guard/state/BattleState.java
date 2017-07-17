@@ -3,12 +3,7 @@ package color.guard.state;
 import color.guard.rules.PieceKind;
 import com.badlogic.gdx.utils.ObjectSet;
 import squidpony.squidgrid.Direction;
-import squidpony.squidmath.BardRNG;
-import squidpony.squidmath.Coord;
-import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.OrderedMap;
-import squidpony.squidmath.OrderedSet;
-import squidpony.squidmath.RNG;
+import squidpony.squidmath.*;
 
 /**
  * Created by Tommy Ettinger on 10/28/2016.
@@ -18,7 +13,7 @@ public class BattleState {
     public int moverLimit;
     public OrderedSet<Coord> moveTargets;
     public RNG rng;
-    public BardRNG bard;
+    public LapRNG lap;
     private transient GreasedRegion working;
     public int[][] map;
     public BattleState()
@@ -26,14 +21,14 @@ public class BattleState {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new RNG(bard = new BardRNG());
+        rng = new RNG(lap = new LapRNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
     }
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new RNG(bard = new BardRNG(seed));
+        rng = new RNG(lap = new LapRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         int[] tempOrdering = new int[pieceCount];
@@ -44,7 +39,7 @@ public class BattleState {
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(bard.next(4) == 0) {
+                if(lap.next(4) == 0) {
                     rng.randomOrdering(pieceCount, tempOrdering);
                     for (int i = 0; i < pieceCount; i++) {
                         if((PieceKind.kinds.getAt(tempOrdering[i]).permits & 1 << map[x][y]) != 0)
@@ -119,7 +114,7 @@ public class BattleState {
         for (int i = 0; i < ct; i++) {
             pt = moveTargets.getAt(i);
             p = pieces.alterAt(i, pt);
-            r = bard.next(3);
+            r = lap.next(3);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
@@ -127,7 +122,7 @@ public class BattleState {
                 if(pieces.containsKey(next) || moveTargets.contains(next)
                         || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
                 {
-                    if(bard.nextInt() < 0)
+                    if(lap.nextInt() < 0)
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -140,7 +135,7 @@ public class BattleState {
             }
             else
             {
-                if(bard.nextInt() < 0)
+                if(lap.nextInt() < 0)
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();

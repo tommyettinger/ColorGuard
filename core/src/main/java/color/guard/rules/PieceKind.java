@@ -63,6 +63,7 @@ public class PieceKind {
         group = "FA";
         motion = "Immobile";
         stats = new int[]{wounds, 0, armor, 0, 0, 0, 0, 0, 0};
+        this.wounds = wounds;
         this.features = new Arrangement<>(motionFeatures.get(motion));
         weapons = 0;
         ammo = new String[]{"", ""};
@@ -94,8 +95,9 @@ public class PieceKind {
         this.description = description;
         this.motion = motion;
         this.stats = stats;
+        this.wounds = 5 + 4 * stats[PieceKind.TOU];
         this.features = new Arrangement<>(motionFeatures.get(motion));
-        this.features.addAllIfAbsent(features);
+        this.features.putAll(features);
         this.weapons = weapons;
         this.ammo = ammo;
         this.minimumRanges = minimumRanges;

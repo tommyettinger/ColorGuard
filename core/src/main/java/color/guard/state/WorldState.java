@@ -87,9 +87,9 @@ public class WorldState {
         worldName = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57)
                 .word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
-                new Noise.Scaled2D(WhirlingNoise.instance, 0.8, 0.8), 0.9);
+                WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
-        mapGen.generate(0.91, 1.02, seed);
+        mapGen.generate(1.391, 1.02, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -267,7 +267,7 @@ public class WorldState {
                     h, temp,
                     xPos, yPos = startY,
                     i_uw = usedWidth / (double)width, i_uh = usedHeight / (double)height,
-                    wh = (width + height) * 0.5, i_wh = 1.0 / wh, subtle = 8.0 / wh;
+                    wh = (width + height) * 0.5, i_wh = 1.0 / wh, subtle = 5.5 / wh;
             for (int y = 0; y < height; y++, yPos += i_uh) {
                 xPos = startX;
                 for (int x = 0; x < width; x++, xPos += i_uw) {
