@@ -1,7 +1,10 @@
 package color.guard.rules;
 
 import squidpony.Maker;
+import squidpony.squidmath.Arrangement;
 import squidpony.squidmath.OrderedMap;
+
+import java.util.Arrays;
 
 /**
  * The listing of pieces we have graphics and stats for. The stats aren't used much yet.
@@ -10,12 +13,30 @@ import squidpony.squidmath.OrderedMap;
 public class PieceKind {
     public static final int
     //categories
-    FOOT=0,LIGH=1,HEAV=2,AERI=3,NAVA=4,STRU=5;
+    TROP=0,LIGH=1,HEAV=2,AERI=3,NAVA=4,STRU=5,
+    TOU=0, EVA=1, AMR=2, PRC=3, STR=4, HLP=5, REF=6, MOV=7, ASP=8;
+    public static final OrderedMap<String, String[]> motionFeatures = Maker.makeOM(
+            //0
+            "Foot", new String[] {"Traverse,", "Hike,", "Ford,", "Responsive,", "Irreparable"},
+            //1
+            "Wheels", new String[] {"Road-Home,", "Responsive,", "Carrier"},
+            //2
+            "Treads", new String[] {"Traverse,", "Reliable,", "Shielded"},
+            //3
+            "Flying", new String[] {"Fly,", "Reliable"},
+            //4
+            "Soaring", new String[] {"Fly,", "Unassailable,",  "Irreparable"},
+            //5
+            "Naval", new String[] {"Unassailable,", "Reliable,", "Carrier,", "Shielded,", "Aquatic"},
+            //6
+            "Immobile", new String[]{"Shielded"}
+            );
 
-    public String name, visual, abbreviation, group, description, action, skill;
-    public String[] features, weaknesses, ammo, show;
-    public int category, weapons, power, armor, wounds, dodge, speed, cost;
-    public int[] mobilities, strengths;
+    public String name, visual, abbreviation, group, description, motion;
+    public String[] ammo, show;
+    public int category, weapons, wounds, permits;
+    public int[] stats, minimumRanges, maximumRanges, powers, mobilities, shownStrengths;
+    public Arrangement<String> features;
     public PieceKind()
     {
 
@@ -37,128 +58,172 @@ public class PieceKind {
         this.name = name;
         this.visual = visual;
         this.abbreviation = abbreviation;
-        this.group = "FA";
         this.description = description;
-        this.action = "";
-        this.skill = "";
-        this.features = new String[0];
-        this.weaknesses = new String[]{"", ""};
-        this.ammo = new String[]{"", ""};
-        this.show = new String[]{"", ""};
-        this.strengths = new int[]{0, 0};
-        this.category = STRU;
-        this.weapons = 0;
-        this.power = 0;
-        this.armor = armor;
-        this.wounds = wounds;
-        this.dodge = 0;
-        this.speed = 0;
-        this.cost = 9000;
-        this.mobilities = (aquatic)
+        category = STRU;
+        group = "FA";
+        motion = "Immobile";
+        stats = new int[]{wounds, 0, armor, 0, 0, 0, 0, 0, 0};
+        this.features = new Arrangement<>(motionFeatures.get(motion));
+        weapons = 0;
+        ammo = new String[]{"", ""};
+        minimumRanges = new int[]{0, 0};
+        maximumRanges = new int[]{0, 0};
+        powers = new int[]{0, 0};
+        show = new String[]{"", ""};
+        shownStrengths = new int[]{0, 0};
+        // Road Plains Forest Jungle Rocky Mountain Ruins Sand Ice River Ocean
+        // 0    1      2      3      4     5        6     7    8   9     10
+        mobilities = (aquatic)
                 ? new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8,}
                 : new int[]{1, 2, 4, 6, 4, 8, 8, 4, 4, 8, 8,};
+        permits = (aquatic)
+                ? 512
+                : 1 | 2 | 4 | 16 | 128 | 256;
     }
 
     public PieceKind(String name, String visual, String group, String abbreviation, int category, String description,
-                     String action, String[] features, String[] weaknesses, String skill, int weapons, String[] ammo,
-                     String[] show, int[] strengths, int power, int armor, int wounds, int dodge, int speed, int[] mobilities, int cost){
+                     String motion, int[] stats, String[] features, int weapons,
+                     String[] ammo, int[] minimumRanges, int[] maximumRanges, int[] powers,
+                     String[] show, int[] shownStrengths)
+    {
         this.name = name;
         this.visual = visual;
-        this.abbreviation = abbreviation;
         this.group = group;
-        this.description = description;
-        this.action = action;
-        this.skill = skill;
-        this.features = features;
-        this.weaknesses = weaknesses;
-        this.ammo = ammo;
-        this.show = show;
-        this.strengths = strengths;
+        this.abbreviation = abbreviation;
         this.category = category;
+        this.description = description;
+        this.motion = motion;
+        this.stats = stats;
+        this.features = new Arrangement<>(motionFeatures.get(motion));
+        this.features.addAllIfAbsent(features);
         this.weapons = weapons;
-        this.power = power;
-        this.armor = armor;
-        this.wounds = wounds;
-        this.dodge = dodge;
-        this.speed = speed;
-        this.cost = cost;
-        this.mobilities = mobilities;
+        this.ammo = ammo;
+        this.minimumRanges = minimumRanges;
+        this.maximumRanges = maximumRanges;
+        this.powers = powers;
+        this.show = show;
+        this.shownStrengths = shownStrengths;
+        //      Road Plains Forest Jungle Rocky Mountain Ruins Sand Ice River Ocean
+        //      0    1      2      3      4     5        6     7    8   9     10
+        mobilities = new int[]{
+                1,   1,     2,     3,     3,    4,       3,    1,   1,  4,    4
+        };
+        permits = 1 | 2 | 4 | 8 | 16 | 64 | 128 | 256;
+        if(this.features.containsKey("Fly"))
+        {
+            Arrays.fill(mobilities, 1);
+            permits = 2047;
+        }
+        else if(this.features.containsKey("Aquatic"))
+        {
+            Arrays.fill(mobilities,9);
+            mobilities[9] = 1;
+            mobilities[10] = 1;
+            permits = 512 | 1024;
+        }
+        else
+        {
+            if(this.features.containsKey("Traverse"))
+            {
+                mobilities[2]--;
+                mobilities[3]--;
+                mobilities[4]--;
+                mobilities[5]--;
+                mobilities[6]--;
+            }
+            if(this.features.containsKey("Hike"))
+            {
+                mobilities[4]--;
+                mobilities[5]--;
+                permits |= 48;
+            }
+            if(this.features.containsKey("Ford"))
+            {
+                mobilities[9] -= 2;
+                permits |= 512;
+            }
+            if(this.features.containsKey("Float"))
+            {
+                mobilities[10] -= 2;
+                permits |= 1024;
+            }
+        }
     }
 
     /*
     to generate from spreadsheet as TSV, search and replace.
     search string:
-    ^([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t(\d)\t([^\t]*)\t(\d)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t([^\t]*)\t\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t(\d*)\t\d*\t\d*\t\d*\t(\d*)\t(\d*)
+    ^([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t(\d)\t(\d)\t(\d)\t(\d)\t(\d)\t(\d)\t(\d)\t(\d)\t\d\t(\d)\t\d+\t([^\t]+)\t(\d)\t(\d)\t(\d)\t([^\t]*)\t(\d?)\t(\d?)\t(\d?)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t(\d)\t([^\t]*)\t(\d)\t([^\t]*)\t(\d)\t(\d+)$
     replace string:
-    //$38\n"$5", new PieceKind\("$5", "$3", "$1", "$2", $6, "$7", "$8", new String\[\]\{"$9","$10","$11",\}, new String\[\]\{"$12","$13"\}, "$14", $4, new String\[\]\{"$15","$16"\}, new String\[\]\{"$17","$19"\}, new int\[\]\{$18, $20\}, $21, $22, $23, $24, $25, new int\[\]\{$26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36,\}, $37\),
+    //$33\n\"$3\", new PieceKind\(\"$3\", \"$27\", \"$1\", \"$2\", $4, \"$5\", \"$6\", new int\[\]\{$7, $8, $9, $10, $11, $12, $13, $14, $15\}, new String\[\]\{\"$24\", \"$25\", \"$26\"\}, $28, new String\[\]\{\"$16\", \"$20\"\}, new int\[\]\{$17, $21\}, new int\[\]\{$18, $22\}, new int\[\]\{$19, $23\}, new String\[\]\{\"$29\", \"$31\"\}, new int\[\]\{$30, $32\}\),
     */
     public static final OrderedMap<String, PieceKind> kinds = Maker.makeOM(
 //0
-            "Infantry", new PieceKind("Infantry", "Infantry", "SL", "INFY", FOOT, "Cheap, weak, and fragile, but can occupy enemy facilities.", "", new String[]{"Occupy","Reckless","Anti-Troop",}, new String[]{"Power",""}, "Full Auto", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{1, 0}, 9, 3, 10, 15, 7, new int[]{2, 2, 2, 3, 2, 4, 3, 2, 3, 4, 8,}, 68),
+            "Infantry", new PieceKind("Infantry", "Infantry", "SL", "INFY", TROP, "A brave foot soldier who gets stronger in a team.", "Foot", new int[]{2, 6, 2, 4, 1, 7, 8, 4, 6}, new String[]{"Swarm", "Lucky", "Troop-Focus"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{1, 1}),
 //1
-            "Bazooka", new PieceKind("Bazooka", "Infantry_P", "SL", "BZKA", FOOT, "A cost-effective way to fight tanks and artillery.", "", new String[]{"Occupy","Reckless","Anti-Heavy",}, new String[]{"Accuracy",""}, "Armor Buster", 3, new String[]{"Pistol","Rocket"}, new String[]{"Handgun","Rocket"}, new int[]{1, 3}, 11, 4, 10, 0, 7, new int[]{2, 2, 2, 3, 2, 4, 3, 2, 3, 4, 8,}, 85),
+            "Bazooka", new PieceKind("Bazooka", "Infantry_P", "SL", "BZKA", TROP, "A tougher foot soldier who can blast vehicles.", "Foot", new int[]{4, 4, 4, 3, 5, 7, 5, 4, 5}, new String[]{"Swarm", "Heavy-Focus", "Light-Focus"}, 3, new String[]{"Rocket", "Pistol"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{4, 0}, new String[]{"Rocket", "Handgun"}, new int[]{3, 1}),
 //2
-            "Bike", new PieceKind("Bike", "Infantry_S", "SL", "BIKE", FOOT, "Drastically faster than the Infantry on land, but no stronger.", "", new String[]{"Occupy","Reckless","Anti-Troop",}, new String[]{"Power",""}, "Rush", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 9, 2, 10, 10, 13, new int[]{1, 2, 2, 4, 3, 6, 3, 3, 3, 8, 8,}, 85),
+            "Bike", new PieceKind("Bike", "Infantry_S", "SL", "BIKE", TROP, "A soldier who moves quickly on a motorcycle and can gather loot.", "Wheels", new int[]{2, 5, 2, 4, 1, 7, 7, 6, 5}, new String[]{"Swarm", "Gather", "Traverse"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //3
-            "Rifle Sniper", new PieceKind("Rifle Sniper", "Infantry_T", "SN", "RFSN", FOOT, "Useful for taking out other foot soldiers at medium range.", "Indirect (1,3)", new String[]{"Occupy","Stealthy","Retaliate",}, new String[]{"Defense","Speed"}, "Sneak", 3, new String[]{"Pistol","Longarm"}, new String[]{"Handgun","Handgun"}, new int[]{1, 1}, 12, 1, 10, 30, 8, new int[]{2, 2, 2, 2, 2, 3, 2, 2, 2, 4, 6,}, 92),
+            "Rifle Sniper", new PieceKind("Rifle Sniper", "Infantry_T", "SN", "RFSN", TROP, "A spy who can shoot at medium range and counter as well.", "Foot", new int[]{1, 9, 1, 8, 3, 2, 6, 3, 5}, new String[]{"Stealthy", "Troop-Focus", "Seek"}, 3, new String[]{"Longarm", "Pistol"}, new int[]{2, 1}, new int[]{3, 1}, new int[]{4, 0}, new String[]{"Handgun", "Handgun"}, new int[]{1, 1}),
 //4
-            "Missile Sniper", new PieceKind("Missile Sniper", "Infantry_PS", "SN", "MISN", FOOT, "The cheapest way to bring down a plane or copter.", "Indirect (2,4)", new String[]{"Occupy","Anti-Aerial","",}, new String[]{"Choice",""}, "Long Shot", 1, new String[]{"","Missile"}, new String[]{"Arc_Missile",""}, new int[]{0, 2}, 14, 2, 10, 30, 9, new int[]{2, 2, 3, 4, 2, 4, 3, 2, 3, 6, 8,}, 115),
+            "Missile Sniper", new PieceKind("Missile Sniper", "Infantry_PS", "SN", "MISN", TROP, "A specialized sniper who is highly skilled at taking down aircraft.", "Foot", new int[]{3, 4, 2, 7, 5, 5, 0, 4, 4}, new String[]{"Pin", "Aerial-Focus", "Mountain-Strike"}, 1, new String[]{"Missile", ""}, new int[]{2, 0}, new int[]{6, 0}, new int[]{4, 0}, new String[]{"Arc_Missile", ""}, new int[]{2, 0}),
 //5
-            "Mortar Sniper", new PieceKind("Mortar Sniper", "Infantry_PT", "SN", "MRSN", FOOT, "Able to play the role of artillery, pinning foes, for less cost.", "Indirect (4,5)", new String[]{"Occupy","Pin","Anti-Structure",}, new String[]{"Accuracy","Speed"}, "Hunker Down", 1, new String[]{"","Cannon"}, new String[]{"","Long_Cannon"}, new int[]{0, 2}, 15, 4, 10, 10, 6, new int[]{2, 2, 2, 3, 3, 6, 3, 3, 3, 8, 8,}, 115),
+            "Mortar Sniper", new PieceKind("Mortar Sniper", "Infantry_PT", "SN", "MRSN", TROP, "A slow but potent sniper who can pound stationary targets.", "Foot", new int[]{5, 1, 4, 2, 9, 7, 0, 3, 4}, new String[]{"Pin", "Heavy-Focus", "Structure-Focus"}, 1, new String[]{"Cannon", ""}, new int[]{3, 0}, new int[]{7, 0}, new int[]{4, 0}, new String[]{"Long_Cannon", ""}, new int[]{2, 0}),
 //6
-            "Light Tank", new PieceKind("Light Tank", "Tank", "TN", "LTNK", HEAV, "A basic sort of tank that can guard territory well.", "", new String[]{"Guard","Anti-Light","Anti-Heavy",}, new String[]{"Rotation",""}, "Rush", 3, new String[]{"Cannon","Assault"}, new String[]{"Cannon","Machine_Gun"}, new int[]{2, 1}, 17, 9, 20, 6, 10, new int[]{2, 2, 2, 3, 3, 8, 2, 3, 4, 8, 8,}, 220),
+            "Light Tank", new PieceKind("Light Tank", "Tank", "TN", "LTNK", HEAV, "A basic sort of tank with a potent counterattack.", "Treads", new int[]{7, 1, 6, 2, 6, 3, 3, 6, 5}, new String[]{"Vengeful", "Juggernaut", "Light-Focus"}, 3, new String[]{"Cannon", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Cannon", "Machine_Gun"}, new int[]{2, 1}),
 //7
-            "War Tank", new PieceKind("War Tank", "Tank_P", "TN", "WTNK", HEAV, "An extremely tough tank that gives up speed for strength.", "", new String[]{"Guard","Anti-Heavy","Anti-Structure",}, new String[]{"Rotation",""}, "Rampage", 3, new String[]{"Cannon","Assault"}, new String[]{"Cannon","Machine_Gun"}, new int[]{4, 2}, 25, 13, 27, 0, 7, new int[]{2, 2, 2, 3, 3, 8, 2, 3, 3, 8, 8,}, 275),
+            "War Tank", new PieceKind("War Tank", "Tank_P", "TN", "WTNK", HEAV, "Overkill on treads; has an incredible cannon and a good counter.", "Treads", new int[]{9, 1, 9, 2, 9, 1, 1, 5, 4}, new String[]{"Vengeful", "Juggernaut", "Heavy-Focus"}, 3, new String[]{"Cannon", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Cannon", "Machine_Gun"}, new int[]{4, 1}),
 //8
-            "Heavy Cannon", new PieceKind("Heavy Cannon", "Artillery_P", "TN", "HCNN", HEAV, "A mix of tank and artillery that can counter indirect fire.", "Indirect (1,3)", new String[]{"Guard","Pin","Retaliate",}, new String[]{"Rotation","Speed"}, "Hunker Down", 2, new String[]{"Cannon",""}, new String[]{"Cannon",""}, new int[]{4, 0}, 30, 10, 24, 0, 7, new int[]{2, 2, 3, 4, 3, 8, 2, 3, 3, 8, 8,}, 275),
+            "Heavy Cannon", new PieceKind("Heavy Cannon", "Artillery_P", "TN", "HCNN", HEAV, "A mix of tank and artillery that can counter indirect fire.", "Treads", new int[]{8, 1, 6, 1, 9, 4, 1, 3, 4}, new String[]{"Vengeful", "Juggernaut", "Pin"}, 2, new String[]{"Cannon", "Cannon"}, new int[]{1, 1}, new int[]{4, 4}, new int[]{1, 3}, new String[]{"Cannon", "Cannon"}, new int[]{4, 4}),
 //9
-            "Light Artillery", new PieceKind("Light Artillery", "Artillery", "AR", "LART", HEAV, "Inaccurate, but long-ranged and able to pin foes it misses.", "Indirect (3,5)", new String[]{"Pin","Anti-Structure","",}, new String[]{"Accuracy",""}, "Long Shot", 1, new String[]{"","Cannon"}, new String[]{"","Long_Cannon"}, new int[]{0, 3}, 16, 4, 14, 0, 11, new int[]{1, 2, 3, 4, 3, 8, 2, 3, 4, 8, 8,}, 180),
+            "Light Artillery", new PieceKind("Light Artillery", "Artillery", "AR", "LART", HEAV, "Inaccurate, but long-ranged and able to pin foes it misses.", "Treads", new int[]{6, 3, 4, 1, 7, 7, 0, 4, 4}, new String[]{"Pin", "Light-Focus", "Plains-Home"}, 1, new String[]{"Cannon", ""}, new int[]{2, 0}, new int[]{5, 0}, new int[]{4, 0}, new String[]{"Long_Cannon", ""}, new int[]{3, 0}),
 //10
-            "AA Artillery", new PieceKind("AA Artillery", "Artillery_S", "AR", "AART", HEAV, "Able to pin flying units it misses, and obliterate ones it hits.", "Indirect (4,5)", new String[]{"Pin","Anti-Aerial","",}, new String[]{"Choice",""}, "Spotter", 1, new String[]{"","Missile"}, new String[]{"","Arc_Missile"}, new int[]{0, 3}, 17, 7, 19, 0, 15, new int[]{1, 2, 3, 4, 3, 8, 2, 3, 4, 8, 8,}, 225),
+            "AA Artillery", new PieceKind("AA Artillery", "Artillery_S", "AR", "AART", HEAV, "Able to pin flying units it misses, and obliterate ones it hits.", "Treads", new int[]{5, 3, 2, 7, 5, 6, 0, 4, 3}, new String[]{"Pin", "Aerial-Focus", "Sand-Home"}, 1, new String[]{"Missile", ""}, new int[]{3, 0}, new int[]{7, 0}, new int[]{4, 0}, new String[]{"Arc_Missile", ""}, new int[]{3, 0}),
 //11
-            "Stealth Artillery", new PieceKind("Stealth Artillery", "Artillery_T", "AR", "SART", LIGH, "A tricky artillery that fires missiles from hiding.", "Indirect (4,5)", new String[]{"Pin","Stealthy","",}, new String[]{"Defense",""}, "Sneak", 1, new String[]{"","Missile"}, new String[]{"","Arc_Missile"}, new int[]{0, 4}, 28, 3, 16, 50, 12, new int[]{1, 2, 2, 2, 2, 4, 2, 2, 3, 4, 8,}, 215),
+            "Stealth Artillery", new PieceKind("Stealth Artillery", "Artillery_T", "AR", "SART", LIGH, "A tricky artillery that fires missiles from difficult terrain.", "Wheels", new int[]{4, 7, 3, 5, 8, 3, 0, 4, 3}, new String[]{"Pin", "Stealthy", "Traverse"}, 1, new String[]{"Missile", ""}, new int[]{3, 0}, new int[]{6, 0}, new int[]{4, 0}, new String[]{"Arc_Missile", ""}, new int[]{4, 0}),
 //12
-            "Recon", new PieceKind("Recon", "Recon", "LV", "RECN", LIGH, "A quick unit that can intercept foot soldiers in rough terrain.", "", new String[]{"Seek","Coordinate","Anti-Troop",}, new String[]{"Power",""}, "Spotter", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{1, 0}, 10, 4, 15, 17, 14, new int[]{1, 2, 2, 2, 2, 4, 2, 2, 2, 8, 8,}, 148),
+            "Recon", new PieceKind("Recon", "Recon", "LV", "RECN", LIGH, "A quick unit that can intercept foot soldiers in rough terrain.", "Wheels", new int[]{5, 4, 3, 8, 1, 5, 4, 6, 4}, new String[]{"Gather", "Troop-Focus", "Traverse"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{1, 1}),
 //13
-            "AA Gun", new PieceKind("AA Gun", "Tank_S", "LV", "AAGN", LIGH, "Tank-like against flying and foot units, defending an area.", "", new String[]{"Guard","Anti-Aerial","Anti-Troop",}, new String[]{"Choice",""}, "Full Auto", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 17, 4, 16, 14, 16, new int[]{2, 2, 2, 3, 3, 8, 2, 3, 4, 8, 8,}, 185),
+            "AA Gun", new PieceKind("AA Gun", "Tank_S", "LV", "AAGN", LIGH, "A well-rounded defender; strong against flying and foot units.", "Treads", new int[]{6, 1, 5, 6, 5, 5, 6, 5, 3}, new String[]{"Pin", "Troop-Focus", "Aerial-Focus"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //14
-            "Flamethrower", new PieceKind("Flamethrower", "Flamethrower", "LV", "FLMT", LIGH, "Drastically more powerful against armored targets.", "", new String[]{"Anti-Structure","Anti-Heavy","Permeate",}, new String[]{"Defense",""}, "Rampage", 2, new String[]{"Chemical",""}, new String[]{"Bomb",""}, new int[]{1, 0}, 20, 4, 17, 10, 12, new int[]{1, 2, 2, 2, 3, 8, 2, 3, 3, 8, 8,}, 185),
+            "Flamethrower", new PieceKind("Flamethrower", "Flamethrower", "LV", "FLMT", LIGH, "Drastically more powerful against armored targets.", "Treads", new int[]{7, 2, 6, 7, 8, 2, 2, 5, 3}, new String[]{"Incinerator", "Light-Focus", "Heavy-Focus"}, 2, new String[]{"Fire", "Fire"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{4, 0}, new String[]{"Bomb", "Bomb"}, new int[]{1, 1}),
 //15
-            "Prop Plane", new PieceKind("Prop Plane", "Plane", "PL", "PPLN", AERI, "Can move, attack, and keep moving, but weak to AA units.", "", new String[]{"Mobile","Anti-Light","Coordinate",}, new String[]{"Defense",""}, "Full Auto", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 15, 1, 11, 33, 15, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 224),
+            "Legacy Plane", new PieceKind("Legacy Plane", "Plane", "PL", "LPLN", AERI, "A scouting plane that can advise allies and fight other aircraft.", "Flying", new int[]{1, 7, 1, 5, 3, 8, 7, 7, 2}, new String[]{"Benefactor", "Aerial-Focus", "Light-Focus"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //16
-            "Heavy Bomber", new PieceKind("Heavy Bomber", "Plane_P", "PL", "HBMR", AERI, "Can move, attack all adjacent units, and move again.", "Blast", new String[]{"Mobile","Anti-Structure","Permeate",}, new String[]{"Accuracy","Defense"}, "Rampage", 1, new String[]{"","Chemical"}, new String[]{"","Bomb"}, new int[]{0, 4}, 32, 1, 12, 18, 13, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 285),
+            "Heavy Bomber", new PieceKind("Heavy Bomber", "Plane_P", "PL", "HBMR", AERI, "A power hitter that burns up everything nearby with its bombs.", "Flying", new int[]{4, 6, 2, 6, 9, 7, 0, 7, 1}, new String[]{"Incinerator", "Structure-Focus", "Heavy-Focus"}, 1, new String[]{"Fire", ""}, new int[]{1, 0}, new int[]{1, 0}, new int[]{4, 0}, new String[]{"Bomb", ""}, new int[]{4, 0}),
 //17
-            "Fighter Jet", new PieceKind("Fighter Jet", "Plane_S", "PL", "FIJT", AERI, "Mostly strong against other flying units, but very much so.", "", new String[]{"Mobile","Anti-Aerial","Seek",}, new String[]{"Defense",""}, "Rush", 2, new String[]{"Rocket",""}, new String[]{"Rocket",""}, new int[]{1, 0}, 28, 1, 10, 40, 18, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 285),
+            "Fighter Jet", new PieceKind("Fighter Jet", "Plane_S", "PL", "FIJT", AERI, "Mostly strong against other flying units, but very much so.", "Soaring", new int[]{1, 8, 1, 8, 5, 5, 4, 8, 1}, new String[]{"Responsive", "Aerial-Focus", "Pin"}, 2, new String[]{"Rocket", "Rocket"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Rocket", "Rocket"}, new int[]{1, 1}),
 //18
-            "Supply Truck", new PieceKind("Supply Truck", "Truck", "TR", "SPTR", LIGH, "A basic transport that can bring Super Ammo to fighters.", "Supply", new String[]{"Carry","Coordinate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 5, 18, 10, 11, new int[]{1, 2, 3, 4, 3, 6, 3, 3, 4, 8, 8,}, 112),
+            "Supply Truck", new PieceKind("Supply Truck", "Truck", "TR", "SPTR", LIGH, "A loot-gathering transport that does well in groups.", "Wheels", new int[]{4, 2, 3, 3, 4, 8, 0, 6, 6}, new String[]{"Gather", "Benefactor", "Swarm"}, 0, new String[]{"Supply", ""}, new int[]{1, 0}, new int[]{2, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //19
-            "Amphi Transport", new PieceKind("Amphi Transport", "Truck_S", "TR", "AMTR", HEAV, "A different kind of transport; amphibious, with better armor.", "Supply", new String[]{"Carry","Coordinate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 8, 18, 0, 10, new int[]{2, 2, 3, 3, 3, 8, 3, 3, 3, 2, 2,}, 140),
+            "Amphi Transport", new PieceKind("Amphi Transport", "Truck_S", "TR", "AMTR", HEAV, "A different kind of transport; amphibious, with better armor.", "Treads", new int[]{6, 1, 5, 2, 6, 6, 0, 5, 5}, new String[]{"Gather", "Ford", "Float"}, 0, new String[]{"Supply", ""}, new int[]{1, 0}, new int[]{3, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //20
-            "Transport Copter", new PieceKind("Transport Copter", "Copter", "TR", "TRCP", AERI, "A flying kind of transport; very fast, but fragile.", "Restore", new String[]{"Carry","Coordinate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 1, 8, 15, 12, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 140),
+            "Transport Copter", new PieceKind("Transport Copter", "Copter", "TR", "TRCP", AERI, "A flying kind of transport; very fast, but fragile.", "Flying", new int[]{2, 5, 1, 5, 4, 9, 0, 7, 5}, new String[]{"Gather", "Lucky", "Benefactor"}, 0, new String[]{"Supply", ""}, new int[]{1, 0}, new int[]{1, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //21
-            "Jetpack", new PieceKind("Jetpack", "Infantry_ST", "LF", "JTPK", AERI, "Able to occupy facilities, fly, and mobile-attack.", "", new String[]{"Occupy","Mobile","Anti-Aerial",}, new String[]{"Defense",""}, "Full Auto", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 11, 1, 8, 35, 12, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 188),
+            "Jetpack", new PieceKind("Jetpack", "Infantry_ST", "LF", "JTPK", AERI, "A flying daredevil who can shoot at aircraft at high speed.", "Flying", new int[]{1, 9, 1, 4, 2, 7, 6, 7, 3}, new String[]{"Raider", "Aerial-Focus", "Responsive"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //22
-            "Gunship Copter", new PieceKind("Gunship Copter", "Copter_P", "LF", "GNCP", AERI, "A slow-flying copter that can defend like a tank.", "", new String[]{"Guard","Anti-Heavy","",}, new String[]{"",""}, "Armor Buster", 3, new String[]{"Assault","Rocket"}, new String[]{"Machine_Gun","Rocket"}, new int[]{2, 2}, 20, 1, 14, 30, 10, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 235),
+            "Gunship Copter", new PieceKind("Gunship Copter", "Copter_P", "LF", "GNCP", AERI, "A slower copter with precision missiles and serious miniguns.", "Flying", new int[]{3, 7, 3, 6, 6, 5, 6, 5, 2}, new String[]{"Seek", "Heavy-Focus", "Light-Focus"}, 3, new String[]{"Rocket", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Rocket", "Machine_Gun"}, new int[]{2, 2}),
 //23
-            "Blitz Copter", new PieceKind("Blitz Copter", "Copter_S", "LF", "BLCP", AERI, "A very fast copter that gives up some offensive strength.", "", new String[]{"Mobile","Anti-Light","Anti-Aerial",}, new String[]{"Power",""}, "Rush", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 17, 1, 10, 45, 16, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 235),
+            "Blitz Copter", new PieceKind("Blitz Copter", "Copter_S", "LF", "BLCP", AERI, "A very fast copter that gives up some offensive strength.", "Flying", new int[]{2, 9, 1, 6, 2, 6, 6, 7, 2}, new String[]{"Ambush", "Light-Focus", "Aerial-Focus"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{3, 1}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //24
-            "Jammer", new PieceKind("Jammer", "Truck_T", "TV", "JAMR", LIGH, "Can jam enemy signals and generate Super Ammo.", "Hack", new String[]{"Disrupt","Generate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 5, 17, 30, 13, new int[]{1, 2, 3, 4, 3, 6, 3, 3, 4, 8, 8,}, 120),
+            "Jammer", new PieceKind("Jammer", "Truck_T", "TV", "JAMR", LIGH, "Can hack enemy facilities and gather loot.", "Wheels", new int[]{4, 2, 2, 6, 6, 8, 0, 6, 3}, new String[]{"Gather", "Benefactor", "Sabotage"}, 0, new String[]{"Hack", ""}, new int[]{2, 0}, new int[]{4, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //25
-            "Build Rig", new PieceKind("Build Rig", "Truck_P", "TV", "BLDR", HEAV, "Can repair vehicles and facilities and generate Super Ammo.", "Restore", new String[]{"Carry","Generate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 9, 21, 0, 9, new int[]{2, 2, 2, 3, 2, 4, 2, 2, 3, 8, 8,}, 150),
+            "Build Rig", new PieceKind("Build Rig", "Truck_P", "TV", "BLDR", HEAV, "Can repair vehicles and facilities in remote locations.", "Treads", new int[]{7, 1, 5, 6, 8, 9, 0, 5, 2}, new String[]{"Gather", "Benefactor", "Hike"}, 0, new String[]{"Repair", ""}, new int[]{1, 0}, new int[]{1, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //26
-            "Comm Copter", new PieceKind("Comm Copter", "Copter_T", "TV", "CMCP", AERI, "Can coordinate allies and generate Super Ammo.", "Hack", new String[]{"Coordinate","Generate","",}, new String[]{"Noncombat",""}, "", 0, new String[]{"",""}, new String[]{"",""}, new int[]{0, 0}, 0, 1, 8, 45, 13, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 150),
+            "Comm Copter", new PieceKind("Comm Copter", "Copter_T", "TV", "CMCP", AERI, "Can hack at long range from the air, but can't easily gather loot.", "Soaring", new int[]{1, 9, 1, 6, 4, 9, 0, 6, 2}, new String[]{"Lucky", "Benefactor", "Sabotage"}, 0, new String[]{"Hack", ""}, new int[]{4, 0}, new int[]{6, 0}, new int[]{4, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //27
-            "Mud Tank", new PieceKind("Mud Tank", "Tank_T", "SH", "MTNK", HEAV, "A versatile tank that can stealthily defend almost any terrain.", "", new String[]{"Stealthy","Guard","",}, new String[]{"",""}, "Sneak", 3, new String[]{"Longarm","Cannon"}, new String[]{"Handgun","Cannon"}, new int[]{1, 2}, 19, 11, 25, 20, 12, new int[]{2, 2, 2, 2, 3, 6, 2, 3, 4, 3, 4,}, 264),
+            "Mud Tank", new PieceKind("Mud Tank", "Tank_T", "SH", "MTNK", HEAV, "A mix of tank and sniping platform that can enter rivers.", "Treads", new int[]{7, 2, 5, 5, 5, 1, 3, 6, 3}, new String[]{"Stealthy", "Ford", "Juggernaut"}, 3, new String[]{"Longarm", "Cannon"}, new int[]{2, 1}, new int[]{3, 1}, new int[]{1, 3}, new String[]{"Handgun", "Cannon"}, new int[]{1, 2}),
 //28
-            "Submarine", new PieceKind("Submarine", "Boat_T", "SH", "SBMR", NAVA, "A sneaky long-range naval unit that can devastate facilities.", "Indirect (4,5)", new String[]{"Vanish","Anti-Structure","Torpedo",}, new String[]{"Rotation","Defense"}, "Sneak", 1, new String[]{"","Missile"}, new String[]{"Torpedo","Arc_Missile"}, new int[]{1, 4}, 34, 10, 8, 0, 10, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 4, 1,}, 330),
+            "Submarine", new PieceKind("Submarine", "Boat_T", "SH", "SBMR", NAVA, "A sneaky long-range naval unit that can devastate facilities.", "Naval", new int[]{1, 8, 9, 3, 9, 1, 1, 4, 2}, new String[]{"Pin", "Structure-Focus", "Naval-Focus"}, 1, new String[]{"Missile", "Torpedo"}, new int[]{5, 1}, new int[]{7, 1}, new int[]{3, 1}, new String[]{"Arc_Missile", "Torpedo"}, new int[]{4, 1}),
 //29
-            "Stealth Jet", new PieceKind("Stealth Jet", "Plane_T", "SH", "STJT", AERI, "A plane that can sneak up, blast enemies, and zoom away.", "", new String[]{"Vanish","Mobile","Anti-Aerial",}, new String[]{"Defense",""}, "Sneak", 2, new String[]{"Rocket",""}, new String[]{"Rocket",""}, new int[]{2, 0}, 40, 1, 10, 60, 16, new int[]{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,}, 330),
+            "Stealth Jet", new PieceKind("Stealth Jet", "Plane_T", "SH", "STJT", AERI, "A devastating plane when attacking, though it has no defense.", "Soaring", new int[]{1, 9, 1, 9, 9, 1, 0, 8, 2}, new String[]{"Ambush", "Aerial-Focus", "Seek"}, 2, new String[]{"Rocket", ""}, new int[]{1, 0}, new int[]{1, 0}, new int[]{4, 0}, new String[]{"Rocket", ""}, new int[]{2, 0}),
 //30
-            "Patrol Boat", new PieceKind("Patrol Boat", "Boat", "BT", "PTBT", NAVA, "A boat that can attack all kinds of unit, but isn't too strong.", "Indirect (1,3)", new String[]{"Retaliate","Seek","Anti-Aerial",}, new String[]{"Rotation","Power"}, "Spotter", 2, new String[]{"Assault",""}, new String[]{"Machine_Gun",""}, new int[]{2, 0}, 17, 5, 18, 0, 9, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 1,}, 272),
+            "Patrol Boat", new PieceKind("Patrol Boat", "Boat", "BT", "PTBT", NAVA, "A versatile boat that can gather loot at sea and fire on afar.", "Naval", new int[]{8, 1, 2, 6, 4, 6, 5, 5, 2}, new String[]{"Gather", "Aerial-Focus", "Seek"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{3, 3}, new int[]{2, 2}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{2, 2}),
 //31
-            "Cruiser", new PieceKind("Cruiser", "Boat_S", "BT", "CRSR", NAVA, "A fast boat that can devastate aerial and naval units.", "Indirect (3,4)", new String[]{"Mobile","Anti-Aerial","Torpedo",}, new String[]{"Rotation","Choice"}, "Rush", 1, new String[]{"","Missile"}, new String[]{"Torpedo","Arc_Missile"}, new int[]{1, 3}, 26, 7, 19, 0, 15, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 1,}, 340),
+            "Cruiser", new PieceKind("Cruiser", "Boat_S", "BT", "CRSR", NAVA, "A fast boat that can devastate aerial and naval units.", "Naval", new int[]{7, 1, 2, 7, 6, 3, 4, 6, 1}, new String[]{"Responsive", "Aerial-Focus", "Naval-Focus"}, 1, new String[]{"Missile", "Torpedo"}, new int[]{2, 1}, new int[]{4, 1}, new int[]{2, 2}, new String[]{"Arc_Missile", "Torpedo"}, new int[]{3, 1}),
 //32
-            "Battleship", new PieceKind("Battleship", "Boat_P", "BT", "BTSP", NAVA, "A long-range boat with a set of huge anti-armor cannons.", "Indirect (1,4)", new String[]{"Retaliate","Anti-Heavy","Anti-Structure",}, new String[]{"Rotation","Speed"}, "Long Shot", 2, new String[]{"Cannon",""}, new String[]{"Long_Cannon",""}, new int[]{4, 0}, 30, 7, 23, 0, 7, new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 2, 1,}, 340)
+            "Battleship", new PieceKind("Battleship", "Boat_P", "BT", "BTSP", NAVA, "A long-range boat with a set of huge anti-armor cannons.", "Naval", new int[]{9, 1, 6, 1, 9, 4, 2, 4, 1}, new String[]{"Juggernaut", "Structure-Focus", "Heavy-Focus"}, 2, new String[]{"Cannon", "Cannon"}, new int[]{1, 1}, new int[]{5, 5}, new int[]{2, 2}, new String[]{"Long_Cannon", "Long_Cannon"}, new int[]{4, 4})
     ),
     facilities = Maker.makeOM(
             //33

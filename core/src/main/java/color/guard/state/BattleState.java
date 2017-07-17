@@ -47,7 +47,7 @@ public class BattleState {
                 if(bard.next(4) == 0) {
                     rng.randomOrdering(pieceCount, tempOrdering);
                     for (int i = 0; i < pieceCount; i++) {
-                        if(PieceKind.kinds.getAt(tempOrdering[i]).mobilities[map[x][y]] < 6)
+                        if((PieceKind.kinds.getAt(tempOrdering[i]).permits & 1 << map[x][y]) != 0)
                         {
                             Faction fact = Faction.whoOwns(x, y, rng, factions);
                             Piece p = new Piece(tempOrdering[i], fact);
@@ -125,7 +125,7 @@ public class BattleState {
                 dir = Piece.facingDirection(p.facing);
                 next = pt.translateCapped(dir.deltaX, dir.deltaY, map.length, map[0].length);
                 if(pieces.containsKey(next) || moveTargets.contains(next)
-                        || p.pieceKind.mobilities[map[next.x][next.y]] >= 6)
+                        || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
                 {
                     if(bard.nextInt() < 0)
                         p.facing = p.turnLeft();

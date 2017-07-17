@@ -117,10 +117,10 @@ public class GameplayScreen implements Screen {
                 acting0.put(p.name, tmpA0);
                 r = p.show[0] + "_face";
                 Array<Animation<Sprite>> tmpR0 = new Array<>(true,4);
-                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[0])));
-                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[0])));
-                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[0])));
-                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[0])));
+                tmpR0.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[0])));
                 receiving0.put(p.name, tmpR0);
             }
             if((p.weapons & 1) != 0)
@@ -133,10 +133,10 @@ public class GameplayScreen implements Screen {
                 acting1.put(p.name, tmpA1);
                 r = p.show[1] + "_face";
                 Array<Animation<Sprite>> tmpR1 = new Array<>(true,4);
-                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.strengths[1])));
-                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.strengths[1])));
-                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.strengths[1])));
-                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.strengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[1])));
+                tmpR1.add(new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[1])));
                 receiving1.put(p.name, tmpR1);
             }
             Array<Animation<Sprite>> tmpDeath = new Array<>(true,4);

@@ -445,6 +445,8 @@ public class WorldState {
                 wetterValueLower = 0.64,    wetterValueUpper  = 0.8, // 4
                 wettestValueLower = 0.8,   wettestValueUpper = 1.0;  // 5
 
+        // Road Plains Forest Jungle Rocky Mountain Ruins Sand Ice River Ocean
+        // 0    1      2      3      4     5        6     7    8   9     10
         public static final int
                 Road = 0,
             Plains = 1,
