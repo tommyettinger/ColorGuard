@@ -34,12 +34,14 @@ public class GameplayScreen implements Screen {
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
 
-    private OrderedMap<String, Animation[]> standing = new OrderedMap<>(64),
-            acting0 = new OrderedMap<>(64),
-            acting1 = new OrderedMap<>(64),
-            dying = new OrderedMap<>(64),
-            receiving0 = new OrderedMap<>(64),
-            receiving1 = new OrderedMap<>(64);
+    private Animation[]
+              standing
+            , acting0
+            , acting1
+            , dying
+            , receiving0
+            , receiving1
+            ;
     
     //private OrthographicCamera camera;
     private Viewport viewport;
@@ -88,74 +90,64 @@ public class GameplayScreen implements Screen {
             terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face2", 0);
             terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face3", 0);
         };
-        int pieceCount = PieceKind.kinds.size(), facilityCount = PieceKind.facilities.size();
+        int pieceCount = PieceKind.kinds.size(),
+                facilityCount = PieceKind.facilities.size(),
+                totalCount = pieceCount + facilityCount << 2;
         PieceKind p;
-
+        standing   = new Animation[totalCount];
+        acting0    = new Animation[totalCount];
+        acting1    = new Animation[totalCount];
+        dying      = new Animation[totalCount];
+        receiving0 = new Animation[totalCount];
+        receiving1 = new Animation[totalCount];
         for (int i = 0; i < pieceCount; i++) {
             p = PieceKind.kinds.getAt(i);
             s = p.visual + "_Large_face";
-            standing.put(p.name, new Animation[]{
-                    new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
-            });
+            standing[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP);
+            standing[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP);
+            standing[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP);
+            standing[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP);
             s = p.visual + "_Large_face";
             if((p.weapons & 2) != 0) {
-                acting0.put(p.name, new Animation[]{
-                        new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_0")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_0")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_0")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_0"))
-                });
+                acting0[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_0"));
+                acting0[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_0"));
+                acting0[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_0"));
+                acting0[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_0"));
                 r = p.show[0] + "_face";
-                receiving0.put(p.name, new Animation[]{
-                        new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[0])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[0])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[0])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[0]))
-                });
+                receiving0[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[0]));
+                receiving0[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[0]));
+                receiving0[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[0]));
+                receiving0[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[0]));
             }
             if((p.weapons & 1) != 0)
             {
-                acting1.put(p.name, new Animation[]{
-                        new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_1")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_1")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_1")),
-                        new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_1"))
-                });
+                acting1[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0 + "_attack_1"));
+                acting1[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1 + "_attack_1"));
+                acting1[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_attack_1"));
+                acting1[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_attack_1"));
                 r = p.show[1] + "_face";
-                receiving1.put(p.name, new Animation[]{
-                        new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[1])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[1])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[1])),
-                        new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[1]))
-                });
-
+                receiving1[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(r + 0 + "_strength_" + p.shownStrengths[1]));
+                receiving1[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(r + 1 + "_strength_" + p.shownStrengths[1]));
+                receiving1[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(r + 2 + "_strength_" + p.shownStrengths[1]));
+                receiving1[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(r + 3 + "_strength_" + p.shownStrengths[1]));
             }
-            dying.put(p.name, new Animation[]{
-                    new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"))
-            });
+            dying[i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death"));
+            dying[i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death"));
+            dying[i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death"));
+            dying[i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"));
         }
         for (int i = 0; i < facilityCount; i++) {
             p = PieceKind.facilities.getAt(i);
             s = p.visual + "_Large_face";
-            standing.put(p.name, new Animation[]{
-                    new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP),
-                    new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP)
-            });
+            standing[pieceCount + i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0), Animation.PlayMode.LOOP);
+            standing[pieceCount + i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1), Animation.PlayMode.LOOP);
+            standing[pieceCount + i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2), Animation.PlayMode.LOOP);
+            standing[pieceCount + i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3), Animation.PlayMode.LOOP);
             s = p.visual + "_Large_face";
-            dying.put(p.name, new Animation[]{
-                    new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death")),
-                    new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"))
-            });
+            dying[pieceCount + i << 2    ] = new Animation<>(0.10f, atlas.createSprites(s + 0 + "_death"));
+            dying[pieceCount + i << 2 | 1] = new Animation<>(0.10f, atlas.createSprites(s + 1 + "_death"));
+            dying[pieceCount + i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death"));
+            dying[pieceCount + i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"));
         }
 
         //GLProfiler.enable();
@@ -280,8 +272,8 @@ public class GameplayScreen implements Screen {
         Vector3 position = viewport.getCamera().position;
         int centerX = -(int)((position.x) - 2 * (position.y)) >> 6,
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
-                minX = Math.max(0, centerX - 14), maxX = Math.min(centerX + 14, mapWidth - 1),
-                minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 14, mapHeight - 1);
+                minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 14, mapWidth - 1),
+                minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 13, mapHeight - 1);
         batch.setColor(208f / 255f, 1f, 1f, 1f);
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
@@ -318,22 +310,22 @@ public class GameplayScreen implements Screen {
                     if(c.equals(n)) {
                         switch (currentPiece.pieceKind.weapons) {
                             case 2:
-                                sprite = (Sprite) acting0.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = (Sprite) acting0[currentKind].getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             case 3:
-                                sprite = (Sprite) (Light32RNG.determine(x * 31 + currentKind ^ y * 19) < 1 ? acting0 : acting1).get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = (Sprite) (((currentKind * (x << 4 | 13) * (y << 4 | 11) & 256) == 0) ? acting0 : acting1)[currentKind].getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             case 1:
-                                sprite = (Sprite) acting1.get(currentPiece.pieceKind.name)[currentKind & 3].getKeyFrame(turnTime, false);
+                                sprite = (Sprite) acting1[currentKind].getKeyFrame(turnTime, false);
                                 offX = -40f;
                                 offY = -20f;
                                 break;
                             default:
-                                sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                                sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
                                 offX = 0f;
                                 offY = 0f;
                                 break;
@@ -349,7 +341,7 @@ public class GameplayScreen implements Screen {
                     else {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
-                        sprite = (Sprite) standing.getAt(currentKind >>> 2)[currentKind & 3].getKeyFrame(currentTime, true);
+                        sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);

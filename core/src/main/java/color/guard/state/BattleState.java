@@ -31,29 +31,26 @@ public class BattleState {
         rng = new RNG(lap = new LapRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
-        int[] tempOrdering = new int[pieceCount];
         pieces = new OrderedMap<>(16 + mapHeight * mapWidth >>> 4);
         moveTargets = new OrderedSet<>(16 + mapHeight * mapWidth >>> 4);
         Coord pt;
         ObjectSet<String> names = new ObjectSet<>(16 + mapHeight * mapWidth >>> 4);
+        int temp;
         for (int x = mapWidth - 1; x >= 0; x--) {
             CELL_WISE:
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(lap.next(4) == 0) {
-                    rng.randomOrdering(pieceCount, tempOrdering);
-                    for (int i = 0; i < pieceCount; i++) {
-                        if((PieceKind.kinds.getAt(tempOrdering[i]).permits & 1 << map[x][y]) != 0)
-                        {
-                            Faction fact = Faction.whoOwns(x, y, rng, factions);
-                            Piece p = new Piece(tempOrdering[i], fact);
-                            while(names.contains(p.name))
-                                p.resetName(fact);
-                            pt = Coord.get(x, y);
-                            pieces.put(pt, p);
-                            names.add(p.name);
-                            moveTargets.add(pt);
-                            continue CELL_WISE;
-                        }
+                if(lap.next(6) < 5) {
+                    temp = rng.nextIntHasty(pieceCount);
+                    if((PieceKind.kinds.getAt(temp).permits & 1 << map[x][y]) != 0) {
+                        Faction fact = Faction.whoOwns(x, y, rng, factions);
+                        Piece p = new Piece(temp, fact);
+                        while (names.contains(p.name))
+                            p.resetName(fact);
+                        pt = Coord.get(x, y);
+                        pieces.put(pt, p);
+                        names.add(p.name);
+                        moveTargets.add(pt);
+                        continue CELL_WISE;
                     }
                 }
             }
