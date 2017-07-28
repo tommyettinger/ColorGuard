@@ -68,7 +68,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new RNG(new FlapRNG(0x1337BEEF));
+        guiRandom = new RNG(new LapRNG(0x1337BEEF));
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         viewport.getCamera().translate(1080, 1080f, 0f);

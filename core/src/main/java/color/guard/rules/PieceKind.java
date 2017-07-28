@@ -1,8 +1,8 @@
 package color.guard.rules;
 
 import squidpony.Maker;
-import squidpony.squidmath.Arrangement;
 import squidpony.squidmath.OrderedMap;
+import squidpony.squidmath.OrderedSet;
 
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ public class PieceKind {
     public String[] ammo, show;
     public int category, weapons, wounds, permits;
     public int[] stats, minimumRanges, maximumRanges, powers, mobilities, shownStrengths;
-    public Arrangement<String> features;
+    public OrderedSet<String> features;
     public PieceKind()
     {
 
@@ -64,7 +64,7 @@ public class PieceKind {
         motion = "Immobile";
         stats = new int[]{wounds, 0, armor, 0, 0, 0, 0, 0, 0};
         this.wounds = wounds;
-        this.features = new Arrangement<>(motionFeatures.get(motion));
+        this.features = new OrderedSet<>(motionFeatures.get(motion));
         weapons = 0;
         ammo = new String[]{"", ""};
         minimumRanges = new int[]{0, 0};
@@ -96,8 +96,8 @@ public class PieceKind {
         this.motion = motion;
         this.stats = stats;
         this.wounds = 5 + 4 * stats[PieceKind.TOU];
-        this.features = new Arrangement<>(motionFeatures.get(motion));
-        this.features.putAll(features);
+        this.features = new OrderedSet<>(motionFeatures.get(motion));
+        this.features.addAll(features);
         this.weapons = weapons;
         this.ammo = ammo;
         this.minimumRanges = minimumRanges;
@@ -111,12 +111,12 @@ public class PieceKind {
                 1,   1,     2,     3,     3,    4,       3,    1,   1,  4,    4
         };
         permits = 1 | 2 | 4 | 8 | 16 | 64 | 128 | 256;
-        if(this.features.containsKey("Fly"))
+        if(this.features.contains("Fly"))
         {
             Arrays.fill(mobilities, 1);
             permits = 2047;
         }
-        else if(this.features.containsKey("Aquatic"))
+        else if(this.features.contains("Aquatic"))
         {
             Arrays.fill(mobilities,9);
             mobilities[9] = 1;
@@ -125,7 +125,7 @@ public class PieceKind {
         }
         else
         {
-            if(this.features.containsKey("Traverse"))
+            if(this.features.contains("Traverse"))
             {
                 mobilities[2]--;
                 mobilities[3]--;
@@ -133,18 +133,18 @@ public class PieceKind {
                 mobilities[5]--;
                 mobilities[6]--;
             }
-            if(this.features.containsKey("Hike"))
+            if(this.features.contains("Hike"))
             {
                 mobilities[4]--;
                 mobilities[5]--;
                 permits |= 48;
             }
-            if(this.features.containsKey("Ford"))
+            if(this.features.contains("Ford"))
             {
                 mobilities[9] -= 2;
                 permits |= 512;
             }
-            if(this.features.containsKey("Float"))
+            if(this.features.contains("Float"))
             {
                 mobilities[10] -= 2;
                 permits |= 1024;

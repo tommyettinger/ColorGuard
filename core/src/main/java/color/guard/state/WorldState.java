@@ -95,7 +95,7 @@ public class WorldState {
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
                 'B', FakeLanguageGen.INUKTITUT,                                                         // white
                 'C', FakeLanguageGen.ARABIC_ROMANIZED,                                                  // red
-                'D', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.55),// orange
+                'D', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.6),// orange
                 'E', FakeLanguageGen.MONGOLIAN,                                                         // yellow
                 'F', FakeLanguageGen.SWAHILI,                                                           // green
                 'G', FakeLanguageGen.GREEK_ROMANIZED,                                                   // blue
@@ -103,14 +103,14 @@ public class WorldState {
                 'I', FakeLanguageGen.LOVECRAFT,                                                         // dark
                 'J', FakeLanguageGen.ELF,                                                               // white
                 'K', FakeLanguageGen.SOMALI,                                                            // red
-                'L', FakeLanguageGen.SIMPLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.5), // orange
+                'L', FakeLanguageGen.SIMPLISH.mix(FakeLanguageGen.JAPANESE_ROMANIZED, 0.35), // orange
                 'M', FakeLanguageGen.FRENCH,                                                            // yellow
                 'N', FakeLanguageGen.GOBLIN.mix(FakeLanguageGen.SWAHILI, 0.47),            // green
                 'O', FakeLanguageGen.RUSSIAN_ROMANIZED,                                                 // blue
                 'P', FakeLanguageGen.HINDI_ROMANIZED.removeAccents().mix(FakeLanguageGen.NAHUATL, 0.65),  // purple
                 'Q', FakeLanguageGen.DEMONIC.mix(FakeLanguageGen.SIMPLISH, 0.4),            // dark
                 'R', FakeLanguageGen.INUKTITUT.mix(FakeLanguageGen.ELF, 0.6),              // white
-                'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.45), // red
+                'S', FakeLanguageGen.ARABIC_ROMANIZED.mix(FakeLanguageGen.FANTASY_NAME, 0.55), // red
                 'T', FakeLanguageGen.NORSE.addModifiers(FakeLanguageGen.Modifier.SIMPLIFY_NORSE),       // orange
                 'U', FakeLanguageGen.FRENCH.mix(FakeLanguageGen.INFERNAL, 0.3),          // yellow
                 'V', FakeLanguageGen.SWAHILI.mix(FakeLanguageGen.SOMALI, 0.35),            // green
