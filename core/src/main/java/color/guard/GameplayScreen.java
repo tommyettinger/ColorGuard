@@ -50,14 +50,14 @@ public class GameplayScreen implements Screen {
     private int[][] map;
     //private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
-    private float currentTime = 0f, turnTime = 0f;
+    private float currentTime = 0f, turnTime = 0f, cameraTraversed = 0f;
     private RNG guiRandom;
     //private String displayString;
     //private InputMultiplexer input;
     private InputProcessor proc;
-    private Vector3 tempVector3;
+    private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
-    //private StringBuilder tempSB;
+    private StringBuilder tempSB;
     //private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
@@ -74,8 +74,10 @@ public class GameplayScreen implements Screen {
         viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
         tempVector3 = new Vector3();
+        prevCameraPosition = viewport.getCamera().position.cpy();
+        nextCameraPosition = viewport.getCamera().position.cpy();
         palettes = new Texture("palettes.png");
-        //tempSB = new StringBuilder(50);
+        tempSB = new StringBuilder(50);
 
         atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
@@ -216,9 +218,10 @@ public class GameplayScreen implements Screen {
         proc = new InputAdapter(){
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                tempVector3.set(screenX, screenY, 0);
-                viewport.unproject(tempVector3);
-                viewport.getCamera().position.set(tempVector3);
+                prevCameraPosition.set(viewport.getCamera().position);
+                nextCameraPosition.set(screenX, screenY, 0);
+                cameraTraversed = 0f;
+                viewport.unproject(nextCameraPosition);
                 return true;
             }
         };
@@ -241,7 +244,10 @@ public class GameplayScreen implements Screen {
         //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        if((turnTime += delta) >= 1.5f)
+        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
+        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
+        viewport.getCamera().position.set(tempVector3);
+        if((turnTime += delta) >= 1.5f && cameraTraversed == 1f)
         {
             turnTime = 0f;
             state.world.battle.advanceTurn();
@@ -279,6 +285,9 @@ public class GameplayScreen implements Screen {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
                 batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
+//                tempSB.setLength(0);
+//                font.draw(batch, tempSB.append(state.world.bioGen.heatCodeData[x][y]),
+//                        32 * y - 32 * x, 16 * y + 16 * x + 32, 64f, 1, false);
             }
         }
         /*int centerX = (int)(position.x) >> 5,

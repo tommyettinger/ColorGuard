@@ -22,6 +22,7 @@ public class WorldState {
     public int[][] worldMap;
     public StandardMap mapGen;
     public PoliticalMapper polGen;
+    public CGBiomeMapper bioGen;
     public Faction[] factions;
     public StatefulRNG worldRandom;
     public BattleState battle = null;
@@ -89,7 +90,7 @@ public class WorldState {
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
                 WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
-        mapGen.generate(1.391, 1.02, seed);
+        mapGen.generate(1.391, 1.15, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -117,7 +118,7 @@ public class WorldState {
                 'W', FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.GOBLIN, 0.25),  // blue
                 'X', FakeLanguageGen.NAHUATL.mix(FakeLanguageGen.MONGOLIAN, 0.43));        // purple
         politicalMap = polGen.generate(land, languageAtlas, 0.97);
-        CGBiomeMapper bioGen = new CGBiomeMapper();
+        bioGen = new CGBiomeMapper();
         bioGen.makeBiomes(mapGen);
         worldMap = bioGen.biomeCodeData;
 
@@ -125,7 +126,7 @@ public class WorldState {
         String tempNation;
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = polGen.atlas.get(i);
-            System.out.printf("%s (%s)\n", tempNation, polGen.briefAtlas.get(i));
+            System.out.println(tempNation + " (" + polGen.briefAtlas.get(i) + ')');
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
             factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory);
         }
@@ -136,7 +137,7 @@ public class WorldState {
     }
     public static class StandardMap extends WorldMapGenerator {
         //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
-        protected static final double terrainFreq = 1.175, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
+        protected static final double terrainFreq = 1.75, terrainRidgedFreq = 1.9, heatFreq = 2.1, moistureFreq = 2.5, otherFreq = 3.5;
         private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -259,7 +260,7 @@ public class WorldState {
             int seedA = rng.nextInt(), seedB = rng.nextInt(), seedC = rng.nextInt(), t;
 
             waterModifier = (waterMod <= 0) ? rng.nextDouble(0.29) + 0.91 : waterMod;
-            coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.45) * (rng.nextDouble()-0.5) + 1.1 : coolMod;
+            coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.3) * (rng.nextDouble()-0.5) + 1.0 : coolMod;
 
             double p, q,
                     ps, pc,
@@ -267,7 +268,7 @@ public class WorldState {
                     h, temp,
                     xPos, yPos = startY,
                     i_uw = usedWidth / (double)width, i_uh = usedHeight / (double)height,
-                    wh = (width + height) * 0.5, i_wh = 1.0 / wh, subtle = 5.5 / wh;
+                    wh = (width + height) * 0.5, i_wh = 1.0 / wh, subtle = 8.0 / wh;
             for (int y = 0; y < height; y++, yPos += i_uh) {
                 xPos = startX;
                 for (int x = 0; x < width; x++, xPos += i_uw) {
@@ -319,7 +320,7 @@ public class WorldState {
                 xPos = startX;
                 for (int x = 0; x < width; x++, xPos += i_uw) {
                     temp = Math.abs(xPos + yPos - wh) * i_wh;
-                    temp *= (2.4 - temp);
+                    temp *= (2.4 - temp) * temp;
                     temp = 2.2 - temp;
                     heightData[x][y] = (h = (heightData[x][y] - minHeightActual) * heightDiff - 1.0);
                     minHeightActual0 = Math.min(minHeightActual0, h);
@@ -335,16 +336,16 @@ public class WorldState {
                             hMod = 0.2;
                             break;
                         case 6:
-                            h = -0.1 * (h - forestLower - 0.08);
+                            h = 0.4;
                             break;
                         case 7:
-                            h *= -0.25;
+                            h *= 0.25;
                             break;
                         case 8:
-                            h *= -0.4;
+                            h *= 0.1;
                             break;
                         default:
-                            h *= 0.05;
+                            h *= 0.7;
                     }
                     heatData[x][y] = (h = (((heatData[x][y] - minHeat0) * heatDiff * hMod) + h + 0.6) * temp);
                     if (fresh) {
@@ -495,12 +496,12 @@ public class WorldState {
                 moistureCodeData = new int[world.width][world.height];
             if(biomeCodeData == null || (biomeCodeData.length != world.width || biomeCodeData[0].length != world.height))
                 biomeCodeData = new int[world.width][world.height];
-            final double i_hot = (world.maxHeat == world.minHeat) ? 1.0 : 1.0 / (world.maxHeat - world.minHeat);
+            final double i_hot = (world.maxHeat == 0.0) ? 1.0 : 1.0 / world.maxHeat;
             GreasedRegion shores = world.landData.copy().not().fringe8way();
             for (int x = 0; x < world.width; x++) {
                 for (int y = 0; y < world.height; y++) {
-                    final double hot = (world.heatData[x][y] - world.minHeat) * i_hot, moist = world.moistureData[x][y],
-                            high = world.heightData[x][y] + NumberTools.bounce(world.heightData[x][y] * 40);
+                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y],
+                            high = world.heightData[x][y] + NumberTools.bounce(10 + world.heightData[x][y] * 40);
                     final int heightCode = world.heightCodeData[x][y];
                     int hc, mc;
                     boolean isLake = world.generateRivers && world.partialLakeData.contains(x, y) && heightCode >= 4,
@@ -520,15 +521,15 @@ public class WorldState {
                         mc = 0;
                     }
 
-                    if (hot > warmerValueUpper) {
+                    if (hot >= (warmestValueUpper - (warmerValueUpper - warmerValueLower) * 0.2) * i_hot) {
                         hc = 5;
-                    } else if (hot > warmValueUpper) {
+                    } else if (hot >= (warmerValueUpper - (warmValueUpper - warmValueLower) * 0.2) * i_hot) {
                         hc = 4;
-                    } else if (hot > coldValueUpper) {
+                    } else if (hot >= (warmValueUpper - (coldValueUpper - coldValueLower) * 0.2) * i_hot) {
                         hc = 3;
-                    } else if (hot > colderValueUpper) {
+                    } else if (hot >= (coldValueUpper - (colderValueUpper - colderValueLower) * 0.2) * i_hot) {
                         hc = 2;
-                    } else if (hot > coldestValueUpper) {
+                    } else if (hot >= (colderValueUpper - (coldestValueUpper) * 0.2) * i_hot) {
                         hc = 1;
                     } else {
                         hc = 0;
@@ -539,7 +540,9 @@ public class WorldState {
                     biomeCodeData[x][y] =
                             heightCode <= 3
                             ? Ocean
-                            : hc == 0 || (hc == 1 && moist < 0.54)
+                            : heightCode == 8
+                            ? Mountain
+                            : hc == 0
                             ? Ice
                             : isLake
                             ? biomeTable[hc + 48]
@@ -547,8 +550,6 @@ public class WorldState {
                             ? biomeTable[hc + 42]
                             : shores.contains(x, y)
                             ? biomeTable[hc + 36]
-                            : high > 1.35
-                            ? Mountain
                             : biomeTable[hc + mc * 6];
                 }
             }
