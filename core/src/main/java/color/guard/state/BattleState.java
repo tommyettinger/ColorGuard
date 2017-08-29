@@ -14,7 +14,7 @@ public class BattleState {
     public OrderedSet<Coord> moveTargets;
     public RNG rng;
     public LapRNG lap;
-    private transient GreasedRegion working;
+    private transient GreasedRegion working, working2;
     public int[][] map;
     public BattleState()
     {
@@ -24,6 +24,7 @@ public class BattleState {
         rng = new RNG(lap = new LapRNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
+        working2 = new GreasedRegion(64, 64);
     }
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
@@ -31,13 +32,13 @@ public class BattleState {
         rng = new RNG(lap = new LapRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
+        working2 = new GreasedRegion(mapWidth, mapHeight);
         pieces = new OrderedMap<>(16 + mapHeight * mapWidth >>> 4);
         moveTargets = new OrderedSet<>(16 + mapHeight * mapWidth >>> 4);
         Coord pt;
         ObjectSet<String> names = new ObjectSet<>(16 + mapHeight * mapWidth >>> 4);
         int temp;
         for (int x = mapWidth - 1; x >= 0; x--) {
-            CELL_WISE:
             for (int y = mapHeight - 1; y >= 0; y--) {
                 if(lap.next(6) < 5) {
                     temp = rng.nextIntHasty(pieceCount);
@@ -50,7 +51,6 @@ public class BattleState {
                         pieces.put(pt, p);
                         names.add(p.name);
                         moveTargets.add(pt);
-                        continue CELL_WISE;
                     }
                 }
             }
@@ -60,7 +60,7 @@ public class BattleState {
         Coord[] cities;
         for (int i = 0; i < factions.length; i++) {
             capital = factions[i].capital;
-            working.remake(factions[i].territory).remove(capital);
+            working.remake(factions[i].territory).andNot(working2.refill(map, 9, 11)).remove(capital);
             cities = working.randomSeparated(0.04, rng, 8);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
@@ -74,7 +74,7 @@ public class BattleState {
                     moveTargets.add(city);
                 }
             }
-            working.surface().and(new GreasedRegion(map, 9).fringe()).remove(capital);
+            working.surface().and(working2.refill(map, 9, 11).fringe()).remove(capital).removeSeveral(cities);
             cities = working.randomSeparated(0.03, rng, 3);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];

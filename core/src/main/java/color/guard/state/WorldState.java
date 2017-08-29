@@ -1,16 +1,11 @@
 package color.guard.state;
 
+import com.badlogic.gdx.math.MathUtils;
 import squidpony.FakeLanguageGen;
 import squidpony.Maker;
 import squidpony.squidgrid.mapping.PoliticalMapper;
 import squidpony.squidgrid.mapping.WorldMapGenerator;
-import squidpony.squidmath.Arrangement;
-import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.Noise;
-import squidpony.squidmath.NumberTools;
-import squidpony.squidmath.OrderedMap;
-import squidpony.squidmath.StatefulRNG;
-import squidpony.squidmath.WhirlingNoise;
+import squidpony.squidmath.*;
 
 /**
  * Really important class that calculates and stores a world map and the factions it holds.
@@ -90,7 +85,7 @@ public class WorldState {
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
                 WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
-        mapGen.generate(1.391, 1.15, seed);
+        mapGen.generate(1.091, 1.15, seed);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -137,7 +132,7 @@ public class WorldState {
     }
     public static class StandardMap extends WorldMapGenerator {
         //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
-        protected static final double terrainFreq = 1.75, terrainRidgedFreq = 1.9, heatFreq = 2.1, moistureFreq = 2.5, otherFreq = 3.5;
+        protected static final double terrainFreq = 1.6, terrainRidgedFreq = 2.0, heatFreq = 2.2, moistureFreq = 2.5, otherFreq = 4.5;
         private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -279,8 +274,10 @@ public class WorldState {
                             q, seedA);
                     h -= Math.max(
                             Math.max(Math.max(-(xPos - (width >>> 3)), 0), Math.max(xPos - (width * 7 >>> 3), 0)),
-                            Math.max(Math.max(-(yPos - (height >>> 3)), 0), Math.max(yPos - (height * 7 >>> 3), 0))) * subtle;
+                            Math.max(Math.max(-(yPos - (height >>> 3)), 0), Math.max(yPos - (height * 7 >>> 3), 0)))
+                            * subtle;
                     h *= waterModifier;
+                    h = MathUtils.clamp(h, -1.0, 1.0);
                     heightData[x][y] = h;
                     heatData[x][y] = (pc = heat.getNoiseWithSeed(p, q
                                     + otherRidged.getNoiseWithSeed(p, q, seedB + seedC)
@@ -390,9 +387,12 @@ public class WorldState {
                 if (fresh) {
                     addRivers();
                     riverData.connect8way().thin().thin();
+                    riverData.or(riverData.copy().removeIsolated().xor(riverData).expand());
                     lakeData.connect8way().thin();
                     partialRiverData.remake(riverData);
                     partialLakeData.remake(lakeData);
+                    System.out.println("FRESH RIVER UPDATE");
+                    System.out.println(lakeData.copy().or(riverData));
                 } else {
                     partialRiverData.remake(riverData);
                     partialLakeData.remake(lakeData);
@@ -500,13 +500,11 @@ public class WorldState {
             GreasedRegion shores = world.landData.copy().not().fringe8way();
             for (int x = 0; x < world.width; x++) {
                 for (int y = 0; y < world.height; y++) {
-                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y],
-                            high = world.heightData[x][y] + NumberTools.bounce(10 + world.heightData[x][y] * 40);
+                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y];
                     final int heightCode = world.heightCodeData[x][y];
                     int hc, mc;
                     boolean isLake = world.generateRivers && world.partialLakeData.contains(x, y) && heightCode >= 4,
-                            isRiver =
-                                    (world.generateRivers && world.partialRiverData.contains(x, y) && heightCode >= 4);
+                            isRiver = world.generateRivers && world.partialRiverData.contains(x, y) && heightCode >= 4;
                     if (moist > wetterValueUpper) {
                         mc = 5;
                     } else if (moist > wetValueUpper) {
@@ -540,14 +538,14 @@ public class WorldState {
                     biomeCodeData[x][y] =
                             heightCode <= 3
                             ? Ocean
-                            : heightCode == 8
-                            ? Mountain
-                            : hc == 0
-                            ? Ice
                             : isLake
                             ? biomeTable[hc + 48]
                             : isRiver
                             ? biomeTable[hc + 42]
+                            : heightCode == 8
+                            ? Mountain
+                            : hc == 0
+                            ? Ice
                             : shores.contains(x, y)
                             ? biomeTable[hc + 36]
                             : biomeTable[hc + mc * 6];
