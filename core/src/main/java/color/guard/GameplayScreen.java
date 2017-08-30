@@ -5,10 +5,7 @@ import color.guard.state.BattleState;
 import color.guard.state.GameState;
 import color.guard.state.Piece;
 import color.guard.state.WorldState;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -20,6 +17,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
+import squidpony.squidgrid.Direction;
 import squidpony.squidmath.*;
 
 /**
@@ -30,6 +28,7 @@ public class GameplayScreen implements Screen {
     public ShaderProgram indexShader;
     public TextureAtlas atlas;
     public GameState state;
+    public Direction lastArrow = Direction.NONE;
     private SpriteBatch batch;
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
@@ -71,9 +70,9 @@ public class GameplayScreen implements Screen {
         guiRandom = new RNG(new LapRNG(0x1337BEEF));
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
+        tempVector3 = new Vector3();
         viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
-        tempVector3 = new Vector3();
         prevCameraPosition = viewport.getCamera().position.cpy();
         nextCameraPosition = viewport.getCamera().position.cpy();
         palettes = new Texture("palettes.png");
@@ -155,6 +154,13 @@ public class GameplayScreen implements Screen {
         //GLProfiler.enable();
         state.world.startBattle(state.world.factions);
 
+        Coord playerPos = state.world.battle.pieces.firstKey();
+
+        viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
+        viewport.getCamera().update();
+        prevCameraPosition = viewport.getCamera().position.cpy();
+        nextCameraPosition = viewport.getCamera().position.cpy();
+
         /*pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
         for (int x = mapWidth - 1; x >= 0; x--) {
@@ -218,10 +224,27 @@ public class GameplayScreen implements Screen {
         proc = new InputAdapter(){
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-                prevCameraPosition.set(viewport.getCamera().position);
-                nextCameraPosition.set(screenX, screenY, 0);
-                cameraTraversed = 0f;
-                viewport.unproject(nextCameraPosition);
+//                prevCameraPosition.set(viewport.getCamera().position);
+//                nextCameraPosition.set(screenX, screenY, 0);
+//                cameraTraversed = 0f;
+//                viewport.unproject(nextCameraPosition);
+                return true;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                switch (keycode)
+                {
+                    case Input.Keys.RIGHT: lastArrow = Direction.LEFT;
+                        break;
+                    case Input.Keys.LEFT: lastArrow = Direction.RIGHT;
+                        break;
+                    case Input.Keys.UP: lastArrow = Direction.DOWN;
+                        break;
+                    case Input.Keys.DOWN: lastArrow = Direction.RIGHT;
+                        break;
+                    default: lastArrow = Direction.NONE;
+                }
                 return true;
             }
         };
@@ -244,18 +267,44 @@ public class GameplayScreen implements Screen {
         //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
-        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
-        viewport.getCamera().position.set(tempVector3);
-        if((turnTime += delta) >= 1.5f && cameraTraversed == 1f)
+//        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
+//        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
+//        viewport.getCamera().position.set(tempVector3);
+        if((turnTime += delta) >= 1.5f)// && cameraTraversed == 1f)
         {
             turnTime = 0f;
+            Coord pt = state.world.battle.moveTargets.first();
+            Piece p = state.world.battle.pieces.alterAt(0, pt);
+            p.faceDirection(lastArrow);
+            Coord next = pt.translateCapped(lastArrow.deltaX, lastArrow.deltaY, map.length, map[0].length);
+            if (!state.world.battle.pieces.containsKey(next)
+                    && !state.world.battle.moveTargets.contains(next))
+//                    && (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0)
+            {
+                state.world.battle.moveTargets.alter(pt, next);
+                lastArrow = Direction.NONE;
+            }
             state.world.battle.advanceTurn();
         }
 
         //displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);
         Gdx.gl.glClearColor(0.45F, 0.7F, 1f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        int currentKind;
+        Piece currentPiece;
+        Sprite sprite;
+        Coord c, n;
+        BattleState battle = state.world.battle;
+        OrderedMap<Coord, Piece> pieces = battle.pieces;
+        float offX, offY;
+        int idx;
+        c = pieces.keyAt(0);
+        n = battle.moveTargets.getAt(0);
+        offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+        offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+        Vector3 position = viewport.getCamera().position.set(32 * (c.y - c.x) + offX + 9f, 16 * (c.y + c.x) + offY + 13f, 0f);
+        viewport.getCamera().update();
+
         viewport.apply(false);
 
         batch.setProjectionMatrix(viewport.getCamera().combined);
@@ -272,10 +321,6 @@ public class GameplayScreen implements Screen {
         //textures.first().bind(1);
 //        indexShader.setUniformi("u_texture", 1);
 
-        int currentKind;
-        Piece currentPiece;
-
-        Vector3 position = viewport.getCamera().position;
         int centerX = -(int)((position.x) - 2 * (position.y)) >> 6,
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 14, mapWidth - 1),
@@ -302,21 +347,13 @@ public class GameplayScreen implements Screen {
             }
         }
         */
-        Sprite sprite;
-        Coord c, n;
-        BattleState battle = state.world.battle;
-        OrderedMap<Coord, Piece> pieces = battle.pieces;
-        float offX, offY;
-        int idx;
-
         for (int y = maxY; y >= minY; y--) {
             for (int x = maxX; x >= minX; x--) {
-                if((currentPiece = pieces.get(c = Coord.get(x, y))) != null) {
+                if ((currentPiece = pieces.get(c = Coord.get(x, y))) != null) {
                     idx = pieces.indexOf(c);
                     n = battle.moveTargets.getAt(idx);
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
-
-                    if(c.equals(n)) {
+                    if (c.equals(n) && idx != 0) {
                         switch (currentPiece.pieceKind.weapons) {
                             case 2:
                                 sprite = (Sprite) acting0[currentKind].getKeyFrame(turnTime, false);
@@ -346,8 +383,7 @@ public class GameplayScreen implements Screen {
                         batch.setColor(Math.max(1, currentPiece.paint) / 255f, 1f, 1f, 1f);
                         font.draw(batch, currentPiece.stats, 32 * (y - x) + 9f, 16 * (y + x) + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
-                    }
-                    else {
+                    } else {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);

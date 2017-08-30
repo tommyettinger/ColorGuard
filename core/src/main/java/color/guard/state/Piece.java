@@ -91,6 +91,19 @@ public class Piece {
         }
     }
 
+    public void faceDirection(final Direction face) {
+        switch (face) {
+            case UP: facing = 1;
+                break;
+            case LEFT: facing = 0;
+                break;
+            case DOWN: facing = 3;
+                break;
+            case RIGHT: facing = 2;
+                break;
+        }
+    }
+
     public int turnLeft() {
 
         switch (facing) {

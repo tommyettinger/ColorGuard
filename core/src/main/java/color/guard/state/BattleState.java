@@ -38,6 +38,12 @@ public class BattleState {
         Coord pt;
         ObjectSet<String> names = new ObjectSet<>(16 + mapHeight * mapWidth >>> 4);
         int temp;
+        //Fighter Jet is 17
+        Piece player = new Piece(17, factions[3]);
+        pt = rng.nextCoord(mapWidth, mapHeight);
+        pieces.put(pt, player);
+        names.add(player.name);
+        moveTargets.add(pt);
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
                 if(lap.next(6) < 5) {
@@ -108,7 +114,7 @@ public class BattleState {
         Direction dir;
         Coord pt, next;
         Piece p;
-        for (int i = 0; i < ct; i++) {
+        for (int i = 1; i < ct; i++) {
             pt = moveTargets.getAt(i);
             p = pieces.alterAt(i, pt);
             r = lap.next(3);
@@ -119,7 +125,7 @@ public class BattleState {
                 if(pieces.containsKey(next) || moveTargets.contains(next)
                         || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
                 {
-                    if(lap.nextInt() < 0)
+                    if(lap.nextLong() < 0)
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -132,7 +138,7 @@ public class BattleState {
             }
             else
             {
-                if(lap.nextInt() < 0)
+                if(lap.nextLong() < 0)
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();
