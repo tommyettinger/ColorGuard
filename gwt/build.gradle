@@ -1,13 +1,13 @@
 apply plugin: 'gwt'
 apply plugin: 'war'
 apply plugin: 'jetty'
-
 gwt {
     gwtVersion = gwtFrameworkVersion // Should match the version used for building the GWT backend. See gradle.properties.
     maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
     minHeapSize = '1G'
 
     src = files(file('src/main/java')) // Needs to be in front of "modules" below.
+
     modules 'color.guard.GdxDefinition'
     devModules 'color.guard.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
@@ -65,7 +65,6 @@ task dist(dependsOn: [clean, compileGwt]) {
 draftWar {
     from "war"
 }
-
 task addSource << {
     sourceSets.main.compileClasspath += files(project(':core').sourceSets.main.allJava.srcDirs)
 }

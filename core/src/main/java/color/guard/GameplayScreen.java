@@ -241,7 +241,7 @@ public class GameplayScreen implements Screen {
                         break;
                     case Input.Keys.UP: lastArrow = Direction.DOWN;
                         break;
-                    case Input.Keys.DOWN: lastArrow = Direction.RIGHT;
+                    case Input.Keys.DOWN: lastArrow = Direction.UP;
                         break;
                     default: lastArrow = Direction.NONE;
                 }

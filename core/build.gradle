@@ -1,5 +1,13 @@
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 eclipse.project.name = appName + '-core'
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            exclude 'src/main/java/super/color/guard/*'
+        }
+    }
+}
 
 dependencies {
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
