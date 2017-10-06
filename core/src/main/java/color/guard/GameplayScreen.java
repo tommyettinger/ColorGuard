@@ -49,14 +49,14 @@ public class GameplayScreen implements Screen {
     private int[][] map;
     //private TextureAtlas.AtlasSprite[][] spriteMap;
     private int mapWidth, mapHeight;
-    private float currentTime = 0f, turnTime = 0f, cameraTraversed = 0f;
+    private float currentTime = 0f, turnTime = 0f;//, cameraTraversed = 0f;
     private RNG guiRandom;
     //private String displayString;
     //private InputMultiplexer input;
     private InputProcessor proc;
-    private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
+    //private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
-    private StringBuilder tempSB;
+    //private StringBuilder tempSB;
     //private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
@@ -70,13 +70,13 @@ public class GameplayScreen implements Screen {
         guiRandom = new RNG(new LapRNG(0x1337BEEF));
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
-        tempVector3 = new Vector3();
+        //tempVector3 = new Vector3();
         viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
-        prevCameraPosition = viewport.getCamera().position.cpy();
-        nextCameraPosition = viewport.getCamera().position.cpy();
+        //prevCameraPosition = viewport.getCamera().position.cpy();
+        //nextCameraPosition = viewport.getCamera().position.cpy();
         palettes = new Texture("palettes.png");
-        tempSB = new StringBuilder(50);
+        //tempSB = new StringBuilder(50);
 
         atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
@@ -158,8 +158,8 @@ public class GameplayScreen implements Screen {
 
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();
-        prevCameraPosition = viewport.getCamera().position.cpy();
-        nextCameraPosition = viewport.getCamera().position.cpy();
+        //prevCameraPosition = viewport.getCamera().position.cpy();
+        //nextCameraPosition = viewport.getCamera().position.cpy();
 
         /*pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
@@ -243,7 +243,7 @@ public class GameplayScreen implements Screen {
                         break;
                     case Input.Keys.DOWN: lastArrow = Direction.UP;
                         break;
-                    default: lastArrow = Direction.NONE;
+                    //default: lastArrow = Direction.NONE;
                 }
                 return true;
             }

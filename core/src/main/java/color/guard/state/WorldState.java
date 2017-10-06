@@ -21,6 +21,7 @@ public class WorldState {
     public Faction[] factions;
     public StatefulRNG worldRandom;
     public BattleState battle = null;
+    public GreasedRegion riverData;
     public static final Arrangement<String> terrains = new Arrangement<>(
             new String[]{
             "Road",
@@ -86,6 +87,7 @@ public class WorldState {
                 WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.091, 1.15, seed);
+        mapGen.zoomIn(3, worldWidth >> 1, worldHeight >> 1);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -115,6 +117,7 @@ public class WorldState {
         politicalMap = polGen.generate(land, languageAtlas, 0.97);
         bioGen = new CGBiomeMapper();
         bioGen.makeBiomes(mapGen);
+        riverData = bioGen.riverData;
         worldMap = bioGen.biomeCodeData;
 
         factions = new Faction[24];
@@ -123,7 +126,7 @@ public class WorldState {
             tempNation = polGen.atlas.get(i);
             System.out.println(tempNation + " (" + polGen.briefAtlas.get(i) + ')');
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
-            factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory);
+            factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory, this);
         }
     }
     public void startBattle(Faction... belligerents)
@@ -132,12 +135,12 @@ public class WorldState {
     }
     public static class StandardMap extends WorldMapGenerator {
         //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
-        protected static final double terrainFreq = 1.6, terrainRidgedFreq = 2.0, heatFreq = 2.2, moistureFreq = 2.5, otherFreq = 4.5;
+        protected static final double terrainFreq = 1.6, terrainRidgedFreq = 2.0, heatFreq = 2.2, moistureFreq = 2.5, otherFreq = 4.5, riverRidgedFreq = 42.1;
         private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
 
-        public final Noise.Noise2D terrain, terrainRidged, heat, moisture, otherRidged;
+        public final Noise.Noise2D terrain, terrainRidged, heat, moisture, otherRidged, riverRidged;
 
         /**
          * Constructs a concrete WorldMapGenerator for a map does not tile. Always makes a 256x256 map.
@@ -228,6 +231,7 @@ public class WorldState {
             heat = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 3), heatFreq);
             moisture = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 4), moistureFreq);
             otherRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 6), otherFreq);
+            riverRidged = new Noise.Ridged2D(noiseGenerator, (int)(0.5 + octaveMultiplier * 2), riverRidgedFreq);
         }
 
         protected void regenerate(int startX, int startY, int usedWidth, int usedHeight,
@@ -285,6 +289,8 @@ public class WorldState {
                     moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p, q
                                     + otherRidged.getNoiseWithSeed(p, q, seedC + seedA)
                             , seedC));
+                    freshwaterData[x][y] = (ps = riverRidged.getNoiseWithSeed(p,// * (temp + 1.5) * 0.25
+                            q, seedC - seedA - seedB) + 0.015) * ps * ps * 7.42;
                     minHeightActual = Math.min(minHeightActual, h);
                     maxHeightActual = Math.max(maxHeightActual, h);
                     if(fresh) {
@@ -383,36 +389,34 @@ public class WorldState {
                 maxWet = pc;
             }
             landData.refill(heightCodeData, 4, 999);
-            if(generateRivers) {
-                if (fresh) {
-                    addRivers();
-                    riverData.connect8way().thin().thin();
-                    riverData.or(riverData.copy().removeIsolated().xor(riverData).expand());
-                    lakeData.connect8way().thin();
-                    partialRiverData.remake(riverData);
-                    partialLakeData.remake(lakeData);
-                    System.out.println("FRESH RIVER UPDATE");
-                    System.out.println(lakeData.copy().or(riverData));
-                } else {
-                    partialRiverData.remake(riverData);
-                    partialLakeData.remake(lakeData);
-                    for (int i = 1; i <= zoom; i++) {
-                        int stx = (startCacheX.get(i) - startCacheX.get(i - 1)) << (i - 1),
-                                sty = (startCacheY.get(i) - startCacheY.get(i - 1)) << (i - 1);
-                        if ((i & 3) == 3) {
-                            partialRiverData.zoom(stx, sty).connect8way();
-                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.4));
-                            partialLakeData.zoom(stx, sty).connect8way();
-                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.55));
-                        } else {
-                            partialRiverData.zoom(stx, sty).connect8way().thin();
-                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.5));
-                            partialLakeData.zoom(stx, sty).connect8way().thin();
-                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.7));
-                        }
-                    }
-                }
-            }
+//            if(generateRivers) {
+//                if (fresh) {
+//                    addRivers();
+//                    riverData.connect8way().thin().thin();
+//                    riverData.or(riverData.copy().removeIsolated().xor(riverData).expand());
+//                    lakeData.connect8way().thin();
+//                    partialRiverData.remake(riverData);
+//                    partialLakeData.remake(lakeData);
+//                } else {
+//                    partialRiverData.remake(riverData);
+//                    partialLakeData.remake(lakeData);
+//                    for (int i = 1; i <= zoom; i++) {
+//                        int stx = (startCacheX.get(i) - startCacheX.get(i - 1)) << (i - 1),
+//                                sty = (startCacheY.get(i) - startCacheY.get(i - 1)) << (i - 1);
+//                        if ((i & 3) == 3) {
+//                            partialRiverData.zoom(stx, sty).connect8way();
+//                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.4));
+//                            partialLakeData.zoom(stx, sty).connect8way();
+//                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.55));
+//                        } else {
+//                            partialRiverData.zoom(stx, sty).connect8way().thin();
+//                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.5));
+//                            partialLakeData.zoom(stx, sty).connect8way().thin();
+//                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.7));
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 
@@ -430,7 +434,7 @@ public class WorldState {
          * The biome codes for the analyzed map, corresponding to shown terrain types.
          */
         biomeCodeData;
-
+        public GreasedRegion riverData;
         public static final double
                 coldestValueLower = 0.0,   coldestValueUpper = 0.15, // 0
                 colderValueLower = 0.15,   colderValueUpper = 0.3,   // 1
@@ -498,13 +502,18 @@ public class WorldState {
                 biomeCodeData = new int[world.width][world.height];
             final double i_hot = (world.maxHeat == 0.0) ? 1.0 : 1.0 / world.maxHeat;
             GreasedRegion shores = world.landData.copy().not().fringe8way();
+            if(world.generateRivers)
+                riverData = new GreasedRegion(world.freshwaterData, 0.78, 10000.0)
+                        .thin().expand(2).thin8way().thin8way().thin8way().and(world.landData);
+            else
+                riverData = world.landData;
             for (int x = 0; x < world.width; x++) {
                 for (int y = 0; y < world.height; y++) {
-                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y];
+                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y], fresh = world.freshwaterData[x][y];
                     final int heightCode = world.heightCodeData[x][y];
                     int hc, mc;
-                    boolean isLake = world.generateRivers && world.partialLakeData.contains(x, y) && heightCode >= 4,
-                            isRiver = world.generateRivers && world.partialRiverData.contains(x, y) && heightCode >= 4;
+                    boolean //isLake = world.generateRivers && heightCode >= 4 && fresh > 0.85 && fresh + moist * 2.35 > 2.75,
+                            isRiver = world.generateRivers && riverData.contains(x,y);//!isLake && heightCode >= 4 && fresh > 0.75 && fresh + moist * 2.2 > 2.15;
                     if (moist > wetterValueUpper) {
                         mc = 5;
                     } else if (moist > wetValueUpper) {
@@ -538,9 +547,7 @@ public class WorldState {
                     biomeCodeData[x][y] =
                             heightCode <= 3
                             ? Ocean
-                            : isLake
-                            ? biomeTable[hc + 48]
-                            : isRiver
+                            : isRiver // || isLake
                             ? biomeTable[hc + 42]
                             : heightCode == 8
                             ? Mountain

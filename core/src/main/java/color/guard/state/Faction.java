@@ -124,13 +124,13 @@ public class Faction {
     public Faction()
     {
     }
-    public Faction(int index, String name, List<FakeLanguageGen> languages, GreasedRegion territory)
+    public Faction(int index, String name, List<FakeLanguageGen> languages, GreasedRegion territory, WorldState world)
     {
         this(index, name,
                 languages.size() == 1 ? languages.get(0) : languages.get(0).mix(languages.get(1), 0.5),
-                territory);
+                territory, world);
     }
-    public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory)
+    public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory, WorldState world)
     {
         rng = new StatefulRNG(CrossHash.Wisp.hash64(name));
         this.index = index;
@@ -166,7 +166,7 @@ public class Faction {
             cities = new Coord[0];
         }
         else {
-            GreasedRegion[] retractions = territory.retractSeries(4);
+            GreasedRegion[] retractions = territory.copy().andNot(world.riverData).retractSeries(4);
             for (int i = 3; i >= -1; i--) {
                 if (i == -1) { // should never happen; only possible when territory is empty
                     capital = territory.singleRandom(rng);

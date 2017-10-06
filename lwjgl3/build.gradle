@@ -1,6 +1,6 @@
 apply plugin: 'application'
 
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').absolutePath ]
+//sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 mainClassName = 'color.guard.lwjgl3.Lwjgl3Launcher'
 eclipse.project.name = appName + '-lwjgl3'
 sourceCompatibility = 1.7

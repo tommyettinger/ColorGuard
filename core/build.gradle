@@ -1,6 +1,8 @@
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 eclipse.project.name = appName + '-core'
 
+sourceSets.main.resources.srcDirs += [ project.file('../assets').path ]
+
 dependencies {
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
     //compile "$squidLibUtilSnap"
