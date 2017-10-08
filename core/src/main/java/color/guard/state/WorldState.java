@@ -3,6 +3,7 @@ package color.guard.state;
 import com.badlogic.gdx.math.MathUtils;
 import squidpony.FakeLanguageGen;
 import squidpony.Maker;
+import squidpony.StringKit;
 import squidpony.squidgrid.mapping.PoliticalMapper;
 import squidpony.squidgrid.mapping.WorldMapGenerator;
 import squidpony.squidmath.*;
@@ -22,8 +23,7 @@ public class WorldState {
     public StatefulRNG worldRandom;
     public BattleState battle = null;
     public GreasedRegion riverData;
-    public static final Arrangement<String> terrains = new Arrangement<>(
-            new String[]{
+    public static final String[] terrains = {
             "Road",
             "Plains",
             "Forest",
@@ -39,8 +39,14 @@ public class WorldState {
             "Volcano",
             "Poison",
             "Warning"
-            });
-/*
+            },
+    codes = {
+          // 0     1     2     3     4     5     6     7     8     9     10    11    12    13    14
+            "Ro", "Pl", "Fo", "Ju", "Hi", "Mo", "Ru", "Sa", "Ic", "Ri", "Oc", "Pi", "Vo", "Po", "Wa"
+    };
+
+
+    /*
             "Road", "Road",
             "Plains", "Plains",
             "Forest", "Forest",
@@ -53,8 +59,6 @@ public class WorldState {
             "River", "River",
             "Ocean", "Ocean"
  */
-
-
     public static final int[] heights = {
             0, //road
             0, //plains
@@ -87,7 +91,7 @@ public class WorldState {
                 WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.091, 1.15, seed);
-        mapGen.zoomIn(3, worldWidth >> 1, worldHeight >> 1);
+        mapGen.zoomIn(0, worldWidth >> 1, worldHeight >> 1);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -132,6 +136,7 @@ public class WorldState {
     public void startBattle(Faction... belligerents)
     {
         battle = new BattleState(worldRandom.nextLong(), worldMap, belligerents);
+        //System.out.println(saveMap());
     }
     public static class StandardMap extends WorldMapGenerator {
         //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
@@ -290,7 +295,7 @@ public class WorldState {
                                     + otherRidged.getNoiseWithSeed(p, q, seedC + seedA)
                             , seedC));
                     freshwaterData[x][y] = (ps = riverRidged.getNoiseWithSeed(p,// * (temp + 1.5) * 0.25
-                            q, seedC - seedA - seedB) + 0.015) * ps * ps * 7.42;
+                            q, seedC - seedA - seedB) + 0.015) * ps * ps * (1.11 * (zoom + 1.342));
                     minHeightActual = Math.min(minHeightActual, h);
                     maxHeightActual = Math.max(maxHeightActual, h);
                     if(fresh) {
@@ -389,34 +394,6 @@ public class WorldState {
                 maxWet = pc;
             }
             landData.refill(heightCodeData, 4, 999);
-//            if(generateRivers) {
-//                if (fresh) {
-//                    addRivers();
-//                    riverData.connect8way().thin().thin();
-//                    riverData.or(riverData.copy().removeIsolated().xor(riverData).expand());
-//                    lakeData.connect8way().thin();
-//                    partialRiverData.remake(riverData);
-//                    partialLakeData.remake(lakeData);
-//                } else {
-//                    partialRiverData.remake(riverData);
-//                    partialLakeData.remake(lakeData);
-//                    for (int i = 1; i <= zoom; i++) {
-//                        int stx = (startCacheX.get(i) - startCacheX.get(i - 1)) << (i - 1),
-//                                sty = (startCacheY.get(i) - startCacheY.get(i - 1)) << (i - 1);
-//                        if ((i & 3) == 3) {
-//                            partialRiverData.zoom(stx, sty).connect8way();
-//                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.4));
-//                            partialLakeData.zoom(stx, sty).connect8way();
-//                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.55));
-//                        } else {
-//                            partialRiverData.zoom(stx, sty).connect8way().thin();
-//                            partialRiverData.or(workingData.remake(partialRiverData).fringe().separatedRegionZCurve(0.5));
-//                            partialLakeData.zoom(stx, sty).connect8way().thin();
-//                            partialLakeData.or(workingData.remake(partialLakeData).fringe().separatedRegionZCurve(0.7));
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 
@@ -504,7 +481,7 @@ public class WorldState {
             GreasedRegion shores = world.landData.copy().not().fringe8way();
             if(world.generateRivers)
                 riverData = new GreasedRegion(world.freshwaterData, 0.78, 10000.0)
-                        .thin().expand(2).thin8way().thin8way().thin8way().and(world.landData);
+                        .thin().expand8way().expand().thinFully8way().and(world.landData);
             else
                 riverData = world.landData;
             for (int x = 0; x < world.width; x++) {
@@ -560,126 +537,32 @@ public class WorldState {
             }
         }
     }
-
-    /*
-public WorldState(int width, int height, long seed) {
-        worldWidth = Math.max(20, width);
-        worldHeight = Math.max(20, height);
-        worldRandom = new StatefulRNG(seed);
-        worldName = FakeLanguageGen.FANTASY_NAME.word(worldRandom, true);
-        mapGen = new SpillWorldMap(worldWidth, worldHeight, worldName);
-        politicalMap = mapGen.generate(24, false);
-        GreasedRegion land = new GreasedRegion(worldWidth, worldHeight),//.not(),
-                water = new GreasedRegion(politicalMap, '~'), //.or(new GreasedRegion(politicalMap, '%'))
-                tempCon;
-        //water.spill(land, water.size() * 67 >>> 6, worldRandom);
-        land.remake(water).not();
-
-        politicalMap = land.mask(politicalMap, '~');
-
-        //DungeonUtility.debugPrint(politicalMap);
-
-        mapGen.atlas.clear();
-        mapGen.atlas.put('~', "Water");
-        mapGen.atlas.put('%', "Wilderness");
-        Thesaurus th = new Thesaurus(worldRandom.nextLong());
-        th.addKnownCategories();
-        factions = new Faction[24];
-        String tempNation;
-
-        worldMap = ArrayTools.fill(10, worldWidth, worldHeight);
-        worldMap = land.writeInts(worldMap, 1);
-        ArrayList<GreasedRegion> continents = land.split(), tempRings;
-        int cc = continents.size(), ringCount, continentSize;
-        int wmax = Math.max(worldWidth, worldHeight), polarLimit = wmax * 2 / 3, tropicLimit = wmax >>> 2;
-        GreasedRegion tempRegion = new GreasedRegion(worldWidth, worldHeight);
-        Coord starter;
-        for (int i = 0; i < cc; i++) {
-            tempCon = continents.get(i);
-            tempRings = tempCon.surfaceSeriesToLimit8way();
-            ringCount = tempRings.size();
-            if (ringCount <= 1) {
-                worldMap = tempCon.writeInts(worldMap, 7);
-            } else {
-                continentSize = tempCon.size();
-                worldMap = tempRings.get(0).writeInts(worldMap, 7);
-                for (int j = 1; j < ringCount; j++) {
-                    worldMap = tempRings.get(j).writeInts(worldMap, 1);
+    public StringBuilder saveMap()
+    {
+        StringBuilder sb = new StringBuilder(worldWidth * 5 + worldHeight);
+        if(battle == null) {
+            for (int y = 0; y < worldHeight; y++) {
+                for (int x = 0; x < worldWidth; x++) {
+                    sb.append(politicalMap[x][y]).append(codes[worldMap[x][y]]).append("  ");
                 }
-                tempRegion.clear();
-                tempRegion.insertSeveral(tempCon.randomPortion(worldRandom, continentSize / worldRandom.between(16, 20)));
-                tempRegion.spill(tempCon, tempRegion.size() + continentSize / worldRandom.between(3, 6), worldRandom).expand8way().retract(2);
-                if(worldRandom.next(3) > 4)
-                {
-                    starter = tempRegion.first();
-                    if(Math.abs(starter.x + starter.y - wmax) < tropicLimit && worldRandom.next(3) < 5)
-                        worldMap = tempRegion.writeInts(worldMap, 2);
-                    else
-                        worldMap = tempRegion.writeInts(worldMap, 7);
-                }else
-                    worldMap = tempRegion.writeInts(worldMap, 2);
-                tempRegion.clear();
-                tempRegion.insertSeveral(tempCon.randomPortion(worldRandom, continentSize / worldRandom.between(20, 25)));
-                worldMap = tempRegion.writeInts(worldMap, 5);
-                tempRegion.xor(tempRegion.copy().spill(tempCon, tempRegion.size() + continentSize / worldRandom.between(12, 16), worldRandom));
-                worldMap = tempRegion.writeInts(worldMap, 4);
+                sb.append('\n');
             }
         }
-        continents = water.split();
-        cc = continents.size();
-        for (int i = 0; i < cc; i++) {
-            tempCon = continents.get(i);
-            continentSize = tempCon.size();
-            if(continentSize < 9) {
-                if (worldRandom.next(4) < 11) {
-                    water.andNot(tempCon);
-                    land.or(tempCon);
-                    if(worldRandom.next(3) > 4)
-                        worldMap = tempCon.writeInts(worldMap, 7);
+        else
+        {
+            Piece piece;
+            for (int y = 0; y < worldHeight; y++) {
+                for (int x = 0; x < worldWidth; x++) {
+                    sb.append(politicalMap[x][y]).append(codes[worldMap[x][y]]);
+                    if((piece = battle.pieces.get(Coord.get(x, y))) == null)
+                        sb.append("  ");
                     else
-                        worldMap = tempCon.writeInts(worldMap, 2);
-                    worldMap = tempCon.fringe8way().writeInts(worldMap, 1);
-                    starter = tempCon.singleRandom(worldRandom);
-                    tempCon.not().mask(politicalMap, politicalMap[starter.x][starter.y]);
-                } else {
-                    worldMap = tempCon.writeInts(worldMap, 9);
-                    starter = tempCon.singleRandom(worldRandom);
-                    char glyph = politicalMap[starter.x][starter.y];
-                    tempCon.not().mask(politicalMap, '~');
-                    worldMap = tempCon.not().fringe8way().writeInts(worldMap, 1);
-                    //tempCon.not().mask(politicalMap, glyph);
+                        sb.append((char) ('A' + piece.group)).append(StringKit.ENGLISH_LETTERS.charAt(piece.pieceKind.code));
+                }
+                sb.append('\n');
+            }
 
-                    if(worldRandom.next(3) > 4)
-                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 7);
-                    else
-                        worldMap = tempCon.removeSeveral(tempCon.randomPortion(worldRandom, tempCon.size() >>> 1)).writeInts(worldMap, 2);
-                }
-            }
         }
-        for (int x = 1; x < worldWidth - 1; x++) {
-            for (int y = 1; y < worldHeight - 1; y++) {
-                if ((worldMap[x][y] < 4 || worldMap[x][y] == 7) && Math.abs(x + y - wmax) > polarLimit)
-                    worldMap[x][y] = 8;
-                else if(worldMap[x][y] == 10 && Math.abs(x + y - wmax) > polarLimit && worldRandom.next(5) < 3) {
-                    worldMap[x][y] = 8;
-                    politicalMap[x][y] = '%';
-                }
-                else if (worldMap[x][y] == 2 && Math.abs(x + y - wmax) < tropicLimit)
-                    worldMap[x][y] = 3;
-            }
-        }
-        worldMap = land.fringe8way().writeInts(worldMap, 9);
-        for (char i = 'A'; i <= 'X'; i++) {
-            tempNation = th.makeNationName();
-            mapGen.atlas.put(i, tempNation);
-            GreasedRegion territory = new GreasedRegion(politicalMap, i);
-            if (th.randomLanguages.isEmpty()) {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, FakeLanguageGen.randomLanguage(worldRandom.nextLong()), territory);
-            } else {
-                factions[i - 'A'] = new Faction(i - 'A', tempNation, th.randomLanguages.get(0), territory);
-            }
-        }
+        return sb;
     }
-
- */
 }

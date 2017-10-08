@@ -32,9 +32,10 @@ public class PieceKind {
             "Immobile", new String[]{"Shielded"}
             );
 
+    private static int registered = 0;
     public String name, visual, abbreviation, group, description, motion;
     public String[] ammo, show;
-    public int category, weapons, wounds, permits;
+    public int category, weapons, wounds, permits, code;
     public int[] stats, minimumRanges, maximumRanges, powers, mobilities, shownStrengths;
     public OrderedSet<String> features;
     public PieceKind()
@@ -80,6 +81,11 @@ public class PieceKind {
         permits = (aquatic)
                 ? 512
                 : 1 | 2 | 4 | 16 | 128 | 256;
+        PieceKind check;
+        if(all != null && (check = PieceKind.all.get(name)) != null)
+            code = check.code;
+        else
+            code = registered++;
     }
 
     public PieceKind(String name, String visual, String group, String abbreviation, int category, String description,
@@ -150,6 +156,12 @@ public class PieceKind {
                 permits |= 1024;
             }
         }
+        PieceKind check;
+        if(all != null && (check = PieceKind.all.get(name)) != null)
+            code = check.code;
+        else
+            code = registered++;
+
     }
 
     /*

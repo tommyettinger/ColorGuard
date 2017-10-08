@@ -14,6 +14,7 @@ public class Piece {
     public int facing;
     public int currentHealth;
     public final int paint;
+    public final int group;
 
     public Piece() {
         kind = 0;
@@ -22,6 +23,7 @@ public class Piece {
         pieceKind = PieceKind.all.getAt(0);
         currentHealth = 1;
         paint = 0;
+        group = 0;
         stats = statsString();
         facing = 0;
     }
@@ -37,6 +39,7 @@ public class Piece {
         pieceKind = PieceKind.all.getAt(kind);
         currentHealth = pieceKind.wounds;
         paint = faction.paint;
+        group = faction.index;
         stats = statsString();
         name = faction.language.word(faction.rng, true, faction.rng.nextIntHasty(3) + 1);
         /*

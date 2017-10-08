@@ -84,12 +84,12 @@ public class GameplayScreen implements Screen {
         font.setColor(1f / 255f, 1f, 1f, 1f);
         //displayString = state.world.mapGen.atlas.getAt(0);
         String s, r;
-        terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.size() * 4];
+        terrains = new TextureAtlas.AtlasRegion[WorldState.terrains.length << 2];
         for (int i = 0; i < terrains.length >> 2; i++) {
-            terrains[i * 4]     = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face0", 0);
-            terrains[i * 4 + 1] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face1", 0);
-            terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face2", 0);
-            terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains.keyAt(i) + "_Huge_face3", 0);
+            terrains[i * 4]     = atlas.findRegion(WorldState.terrains[i] + "_Huge_face0", 0);
+            terrains[i * 4 + 1] = atlas.findRegion(WorldState.terrains[i] + "_Huge_face1", 0);
+            terrains[i * 4 + 2] = atlas.findRegion(WorldState.terrains[i] + "_Huge_face2", 0);
+            terrains[i * 4 + 3] = atlas.findRegion(WorldState.terrains[i] + "_Huge_face3", 0);
         };
         int pieceCount = PieceKind.kinds.size(),
                 facilityCount = PieceKind.facilities.size(),
