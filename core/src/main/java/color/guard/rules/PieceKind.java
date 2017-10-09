@@ -17,17 +17,17 @@ public class PieceKind {
     TOU=0, EVA=1, AMR=2, PRC=3, STR=4, HLP=5, REF=6, MOV=7, ASP=8;
     public static final OrderedMap<String, String[]> motionFeatures = Maker.makeOM(
             //0
-            "Foot", new String[] {"Traverse,", "Hike,", "Ford,", "Responsive,", "Irreparable"},
+            "Foot", new String[] {"Traverse", "Hike", "Ford", "Responsive", "Irreparable"},
             //1
-            "Wheels", new String[] {"Road-Home,", "Responsive,", "Carrier"},
+            "Wheels", new String[] {"Road-Home", "Responsive", "Carrier"},
             //2
-            "Treads", new String[] {"Traverse,", "Reliable,", "Shielded"},
+            "Treads", new String[] {"Traverse", "Reliable", "Shielded"},
             //3
-            "Flying", new String[] {"Fly,", "Reliable"},
+            "Flying", new String[] {"Fly", "Reliable"},
             //4
-            "Soaring", new String[] {"Fly,", "Unassailable,",  "Irreparable"},
+            "Soaring", new String[] {"Fly", "Unassailable",  "Irreparable"},
             //5
-            "Naval", new String[] {"Unassailable,", "Reliable,", "Carrier,", "Shielded,", "Aquatic"},
+            "Naval", new String[] {"Unassailable", "Reliable", "Carrier", "Shielded", "Aquatic"},
             //6
             "Immobile", new String[]{"Shielded"}
             );
@@ -116,7 +116,8 @@ public class PieceKind {
         mobilities = new int[]{
                 1,   1,     2,     3,     3,    4,       3,    1,   1,  4,    4
         };
-        permits = 1 | 2 | 4 | 8 | 16 | 64 | 128 | 256;
+        //permits = 1 | 2 | 4 | 8 | 16 | 64 | 128 | 256;
+        permits = 1 | 2 | 4 | 128 | 256;
         if(this.features.contains("Fly"))
         {
             Arrays.fill(mobilities, 1);
@@ -138,12 +139,13 @@ public class PieceKind {
                 mobilities[4]--;
                 mobilities[5]--;
                 mobilities[6]--;
+                permits |= 8 | 16 | 64;
             }
             if(this.features.contains("Hike"))
             {
                 mobilities[4]--;
                 mobilities[5]--;
-                permits |= 48;
+                permits |= 16 | 32;
             }
             if(this.features.contains("Ford"))
             {
