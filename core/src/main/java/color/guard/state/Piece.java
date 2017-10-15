@@ -32,6 +32,14 @@ public class Piece {
         this(kind, faction, faction.rng.next(2));
     }
 
+    public Piece(String kind, Faction faction) {
+        this(PieceKind.all.getOrDefault(kind, PieceKind.all.getAt(0)).code, faction, faction.rng.next(2));
+    }
+
+    public Piece(String kind, Faction faction, int facing) {
+        this(PieceKind.all.getOrDefault(kind, PieceKind.all.getAt(0)).code, faction, facing);
+    }
+
     public Piece(int kind, Faction faction, int facing) {
         this.kind = kind;
         palette = faction.palettes[faction.rng.nextIntHasty(faction.palettes.length)] / 255f;

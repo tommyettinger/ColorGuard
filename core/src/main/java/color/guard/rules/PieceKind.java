@@ -242,13 +242,26 @@ public class PieceKind {
             "Battleship", new PieceKind("Battleship", "Boat_P", "BT", "BTSP", NAVA, "A long-range boat with a set of huge anti-armor cannons.", "Naval", new int[]{9, 1, 6, 1, 9, 4, 2, 4, 1}, new String[]{"Juggernaut", "Structure-Focus", "Heavy-Focus"}, 2, new String[]{"Cannon", "Cannon"}, new int[]{1, 1}, new int[]{5, 5}, new int[]{2, 2}, new String[]{"Long_Cannon", "Long_Cannon"}, new int[]{4, 4})
     ),
     facilities = Maker.makeOM(
-            //33
-            "City", new PieceKind("City", "City", "CITY", "A medium-sized city that can give troops to its favored army.", 8, 60, false),
-            //34
-            "Dock", new PieceKind("Dock", "Dock", "DOCK", "A port town that can sometimes give boats to its favored army.", 8, 60, true),
-            //35
-            "Castle", new PieceKind("Castle", "Castle", "CASL", "A vital fortress that serves as a command center for an army.", 12, 100, false)
-    ),
+//33
+            "Factory", new PieceKind("Factory", "Factory", "CO", "FTRY", STRU, "A structure that produces a wide variety of ground vehicles.", "Immobile", new int[]{21, 0, 6, 0, 0, 3, 0, 0, 0}, new String[]{"Light-Build", "Heavy-Build", "Fire-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//34
+            "Dock", new PieceKind("Dock", "Dock", "CO", "DOCK", STRU, "A structure that produces and repairs naval units.", "Immobile", new int[]{19, 0, 4, 0, 0, 7, 0, 0, 0}, new String[]{"Naval-Build", "Naval-Restore", "Weather-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//35
+            "Airport", new PieceKind("Airport", "Airport", "CO", "ARPT", STRU, "A structure that produces and repairs aerial units.", "Immobile", new int[]{19, 0, 3, 0, 0, 8, 0, 0, 0}, new String[]{"Aerial-Build", "Aerial-Restore", "Weather-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//36
+            "Laboratory", new PieceKind("Laboratory", "Laboratory", "AS", "LABO", STRU, "A structure that disrupts foes and coordinates allies.", "Immobile", new int[]{10, 0, 1, 0, 0, 9, 0, 0, 0}, new String[]{"Coordinator", "Disruptor", "Consumer"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//37
+            "Oil Well", new PieceKind("Oil Well", "Oil_Well", "AS", "OILW", STRU, "A structure that produces loot and can restore some vehicles.", "Immobile", new int[]{15, 0, 2, 0, 0, 3, 0, 0, 0}, new String[]{"Producer", "Heavy-Restore", "Fire-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//38
+            "Farm", new PieceKind("Farm", "Farm", "AS", "FARM", STRU, "A structure that raises your command limit.", "Immobile", new int[]{9, 0, 2, 0, 0, 9, 0, 0, 0}, new String[]{"Producer", "Broadener", "Poison-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//39
+            "City", new PieceKind("City", "City", "IN", "CITY", STRU, "A structure that produces troops and can restore some vehicles.", "Immobile", new int[]{19, 0, 4, 0, 0, 7, 0, 0, 0}, new String[]{"Troop-Build", "Light-Restore", "Consumer"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//40
+            "Hospital", new PieceKind("Hospital", "Hospital", "IN", "HOSP", STRU, "A structure that heals troops and raises your command limit.", "Immobile", new int[]{17, 0, 4, 0, 0, 9, 0, 0, 0}, new String[]{"Troop-Restore", "Broadener", "Consumer"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//41
+            "Castle", new PieceKind("Castle", "Castle", "IN", "CASL", STRU, "A headquarters structure with formidable defenses.", "Immobile", new int[]{36, 0, 9, 0, 0, 5, 0, 0, 0}, new String[]{"Zip", "Zilch", "Nada"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
+//42
+            "Estate", new PieceKind("Estate", "Estate", "IN", "ESTA", STRU, "A headquarters structure that improves coordination.", "Immobile", new int[]{30, 0, 5, 0, 0, 9, 0, 0, 0}, new String[]{"Coordinator", "Disruptor", "Broadener"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0})),
     all = new OrderedMap<String, PieceKind>(kinds);
     static {
         all.putAll(facilities);

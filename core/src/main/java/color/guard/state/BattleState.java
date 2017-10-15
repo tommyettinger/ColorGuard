@@ -70,7 +70,35 @@ public class BattleState {
             cities = working.randomSeparated(0.04, rng, 8);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
-                Piece p = new Piece(pieceCount, factions[i]);
+                Piece p;
+                switch (rng.next(4))
+                {
+                    case 0:
+                        p = new Piece("Oil Well", factions[i]);
+                        break;
+                    case 1:
+                    case 2:
+                        p = new Piece("Farm", factions[i]);
+                        break;
+                    case 3:
+                        p = new Piece("Laboratory", factions[i]);
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                        p = new Piece("Factory", factions[i]);
+                        break;
+                    case 8:
+                    case 9:
+                        p = new Piece("Airport", factions[i]);
+                        break;
+                    case 10:
+                        p = new Piece("Hospital", factions[i]);
+                        break;
+                    default:
+                        p = new Piece("City", factions[i]);
+                }
                 p.cityName(factions[i]);
                 while(names.contains(p.name))
                     p.resetName(factions[i]);
@@ -84,7 +112,7 @@ public class BattleState {
             cities = working.randomSeparated(0.03, rng, 3);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
-                Piece p = new Piece(pieceCount + 1, factions[i]);
+                Piece p = new Piece("Dock", factions[i]);
                 p.cityName(factions[i]);
                 while(names.contains(p.name))
                     p.resetName(factions[i]);
@@ -95,7 +123,7 @@ public class BattleState {
                 }
             }
             city = capital;
-            Piece p = new Piece(pieceCount + 2, factions[i]);
+            Piece p = new Piece("Castle", factions[i]);
             p.cityName(factions[i]);
             while(names.contains(p.name))
                 p.resetName(factions[i]);
