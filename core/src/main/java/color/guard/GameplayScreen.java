@@ -68,6 +68,7 @@ public class GameplayScreen implements Screen {
     @Override
     public void show() {
         guiRandom = new RNG(new LapRNG(0x1337BEEF));
+        Gdx.gl.glDisable(GL20.GL_BLEND);
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         //tempVector3 = new Vector3();
@@ -75,10 +76,10 @@ public class GameplayScreen implements Screen {
         viewport.getCamera().update();
         //prevCameraPosition = viewport.getCamera().position.cpy();
         //nextCameraPosition = viewport.getCamera().position.cpy();
+        atlas = new TextureAtlas("Iso_Mini.atlas");
         palettes = new Texture("palettes.png");
         //tempSB = new StringBuilder(50);
 
-        atlas = new TextureAtlas("Iso_Mini.atlas");
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
         //font.getData().setScale(2f);
         font.setColor(1f / 255f, 1f, 1f, 1f);

@@ -67,7 +67,7 @@ public class BattleState {
         for (int i = 0; i < factions.length; i++) {
             capital = factions[i].capital;
             working.remake(factions[i].territory).andNot(working2.refill(map, 9, 11)).remove(capital);
-            cities = working.randomSeparated(0.04, rng, 8);
+            cities = working.randomSeparated(0.04, rng, 10 + rng.next(3));
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
                 Piece p;
@@ -109,7 +109,7 @@ public class BattleState {
                 }
             }
             working.surface().and(working2.refill(map, 9, 11).fringe()).remove(capital).removeSeveral(cities);
-            cities = working.randomSeparated(0.03, rng, 3);
+            cities = working.randomSeparated(0.03, rng, 2);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
                 Piece p = new Piece("Dock", factions[i]);
@@ -123,7 +123,7 @@ public class BattleState {
                 }
             }
             city = capital;
-            Piece p = new Piece("Castle", factions[i]);
+            Piece p = new Piece(rng.nextBoolean() ? "Estate" : "Castle", factions[i]);
             p.cityName(factions[i]);
             while(names.contains(p.name))
                 p.resetName(factions[i]);

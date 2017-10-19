@@ -1,13 +1,25 @@
 package color.guard.desktop;
 
+import color.guard.ColorGuardGame;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import color.guard.ColorGuardGame;
 
 /** Launches the desktop (LWJGL) application. */
 public class DesktopLauncher {
     public static void main(String[] args) {
+//        TexturePacker.Settings settings = new TexturePacker.Settings();
+//        settings.format = Pixmap.Format.Alpha;
+//        settings.combineSubdirectories = true;
+//        settings.stripWhitespaceX = true;
+//        settings.stripWhitespaceY = true;
+//        settings.filterMag = Texture.TextureFilter.Nearest;
+//        settings.filterMin = Texture.TextureFilter.Nearest;
+//        settings.maxHeight = 4096;
+//        settings.maxWidth = 4096;
+//        settings.flattenPaths = true;
+//        settings.fast = true;
+//        TexturePacker.process(settings, "../../ColorGuardAssets/Blank_Wargame_Iso_Mini_Packable", "../assets", "Iso_Mini_Alpha");
         createApplication();
     }
 
