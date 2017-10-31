@@ -13,7 +13,7 @@ public class BattleState {
     public int moverLimit;
     public OrderedSet<Coord> moveTargets;
     public RNG rng;
-    public LapRNG lap;
+    public ThrustRNG thrust;
     private transient GreasedRegion working, working2;
     public int[][] map;
     public BattleState()
@@ -21,7 +21,7 @@ public class BattleState {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new RNG(lap = new LapRNG());
+        rng = new RNG(thrust = new ThrustRNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
         working2 = new GreasedRegion(64, 64);
@@ -29,7 +29,7 @@ public class BattleState {
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new RNG(lap = new LapRNG(seed));
+        rng = new RNG(thrust = new ThrustRNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         working2 = new GreasedRegion(mapWidth, mapHeight);
@@ -46,7 +46,7 @@ public class BattleState {
         moveTargets.add(pt);
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(lap.next(6) < 5) {
+                if(thrust.next(6) < 5) {
                     temp = rng.nextIntHasty(pieceCount);
                     if((PieceKind.kinds.getAt(temp).permits & 1 << map[x][y]) != 0) {
                         Faction fact = Faction.whoOwns(x, y, rng, factions);
@@ -145,7 +145,7 @@ public class BattleState {
         for (int i = 1; i < ct; i++) {
             pt = moveTargets.getAt(i);
             p = pieces.alterAt(i, pt);
-            r = lap.next(3);
+            r = thrust.next(3);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
@@ -153,7 +153,7 @@ public class BattleState {
                 if(pieces.containsKey(next) || moveTargets.contains(next)
                         || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
                 {
-                    if(lap.nextLong() < 0)
+                    if(thrust.nextLong() < 0)
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -166,7 +166,7 @@ public class BattleState {
             }
             else
             {
-                if(lap.nextLong() < 0)
+                if(thrust.nextLong() < 0)
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();

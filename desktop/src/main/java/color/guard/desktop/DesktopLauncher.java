@@ -34,9 +34,10 @@ public class DesktopLauncher {
         configuration.height = 450;
         configuration.vSyncEnabled = false;
         configuration.foregroundFPS = 0;
-        for (int size : new int[] { 128, 64, 32, 16 }) {
-            configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
-        }
+        configuration.addIcon("libgdx" + 128 + ".png", FileType.Internal);
+        configuration.addIcon("libgdx" + 64  + ".png", FileType.Internal);
+        configuration.addIcon("libgdx" + 32  + ".png", FileType.Internal);
+        configuration.addIcon("libgdx" + 16  + ".png", FileType.Internal);
         return configuration;
     }
 }

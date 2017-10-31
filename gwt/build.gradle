@@ -1,18 +1,13 @@
-apply plugin: "java"
-apply plugin: "gwt"
-apply plugin: "war"
-
-import org.wisepersist.gradle.plugins.gwt.GwtSuperDev
-
-def HttpFileServer server = null
-def httpFilePort = 9090
+apply plugin: 'gwt'
+apply plugin: 'war'
+apply plugin: "jetty"
 
 gwt {
-    gwtVersion = gwtFrameworkVersion // Should match the version used for building the GWT backend. See gradle.properties.
-    maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
-    minHeapSize = '1G'
+    gwtVersion='2.8.0' // Should match the gwt version used for building the gwt backend
+    maxHeapSize="1G" // Default 256m is not enough for gwt compiler. GWT is HUNGRY
+    minHeapSize="1G"
 
-    src = files(file('src/main/java')) // Needs to be in front of "modules" below.
+    src = files(file("src/main/java")) // Needs to be in front of "modules" below.
     modules 'color.guard.GdxDefinition'
     devModules 'color.guard.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
@@ -31,33 +26,17 @@ dependencies {
     compile "com.github.tommyettinger:regexodus:$regExodusVersion:sources"
     compile "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion:sources"
     compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion:sources"
-
 }
 
-task startHttpServer() {
-    dependsOn draftCompileGwt
-
-    String output = project.buildDir.path + "/gwt/draftOut";
-
-    doLast {
-        copy {
-            from "webapp"
-            into output
-        }
-
-        copy {
-            from "war"
-            into output
-        }
-
-        server = new SimpleHttpFileServerFactory().start(new File(output), httpFilePort)
-
-        println "Server started in directory " + server.getContentRoot() + ", port " + server.getPort()
-    }
+task draftRun(type: JettyRunWar) {
+    dependsOn draftWar
+    dependsOn.remove('war')
+    webApp=draftWar.archivePath
+    daemon=true
 }
 
-task superDev(type: GwtSuperDev) {
-    dependsOn startHttpServer
+task superDev(type: de.richsource.gradle.plugins.gwt.GwtSuperDev) {
+    dependsOn draftRun
     doFirst {
         gwt.modules = gwt.devModules
     }
@@ -80,14 +59,24 @@ task dist(dependsOn: [clean, compileGwt]) {
         }
     }
 }
+
+draftWar {
+    from "war"
+}
+
 task addSource {
     doLast {
         sourceSets.main.compileClasspath += files(project(':core').sourceSets.main.allJava.srcDirs)
-
     }
 }
 
 tasks.compileGwt.dependsOn(addSource)
 tasks.draftCompileGwt.dependsOn(addSource)
 
-eclipse.project.name = appName + "-gwt"
+sourceCompatibility = 1.7
+sourceSets.main.java.srcDirs = [ "src/main/java/" ]
+
+
+eclipse.project {
+    name = appName + "-gwt"
+}
