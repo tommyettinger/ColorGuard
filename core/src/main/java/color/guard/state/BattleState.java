@@ -48,15 +48,19 @@ public class BattleState {
             for (int y = mapHeight - 1; y >= 0; y--) {
                 if(thrust.next(6) < 5) {
                     temp = rng.nextIntHasty(pieceCount);
-                    if((PieceKind.kinds.getAt(temp).permits & 1 << map[x][y]) != 0) {
+                    if((PieceKind.kinds.getAt(temp).permits & (1 << map[x][y])) != 0) {
                         Faction fact = Faction.whoOwns(x, y, rng, factions);
                         Piece p = new Piece(temp, fact);
                         while (names.contains(p.name))
+                        {
+                            //Gdx.app.log("RESET", p.name);
                             p.resetName(fact);
+                        }
                         pt = Coord.get(x, y);
                         pieces.put(pt, p);
                         names.add(p.name);
                         moveTargets.add(pt);
+                        //Gdx.app.log("UNIT", p.name + " placed at " + pt + " with kind " + temp + " and part of faction " + fact.index);
                     }
                 }
             }
@@ -67,9 +71,10 @@ public class BattleState {
         for (int i = 0; i < factions.length; i++) {
             capital = factions[i].capital;
             working.remake(factions[i].territory).andNot(working2.refill(map, 9, 11)).remove(capital);
-            cities = working.randomSeparated(0.04, rng, 10 + rng.next(3));
+            cities = working.quasiRandomSeparated(0.04, 10 + rng.nextIntHasty(8));
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
+                //Gdx.app.log("CITY", "City " + j + ": " + city);
                 Piece p;
                 switch (rng.next(4))
                 {
@@ -109,9 +114,10 @@ public class BattleState {
                 }
             }
             working.surface().and(working2.refill(map, 9, 11).fringe()).remove(capital).removeSeveral(cities);
-            cities = working.randomSeparated(0.03, rng, 2);
+            cities = working.quasiRandomSeparated(0.03, 2);
             for (int j = 0; j < cities.length; j++) {
                 city = cities[j];
+                //Gdx.app.log("CITY", "Dock " + j + ": " + city);
                 Piece p = new Piece("Dock", factions[i]);
                 p.cityName(factions[i]);
                 while(names.contains(p.name))
@@ -133,6 +139,7 @@ public class BattleState {
             pieces.put(city, p);
             names.add(p.name);
             moveTargets.add(city);
+            //Gdx.app.log("CITY", "Capital: " + city);
         }
     }
 

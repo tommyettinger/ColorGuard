@@ -3,4 +3,5 @@
 <module>
     <source path="" />
     <extend-configuration-property name="gdx.reflect.include" value="color.guard.state" />
+    <!--<extend-configuration-property name="gdx.reflect.include" value="com.badlogic.gdx.graphics.g2d.Sprite" />-->
 </module>

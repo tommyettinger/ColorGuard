@@ -1,11 +1,7 @@
 package color.guard.state;
 
 import squidpony.FakeLanguageGen;
-import squidpony.squidmath.Coord;
-import squidpony.squidmath.CrossHash;
-import squidpony.squidmath.GreasedRegion;
-import squidpony.squidmath.RNG;
-import squidpony.squidmath.StatefulRNG;
+import squidpony.squidmath.*;
 
 import java.util.List;
 

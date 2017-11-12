@@ -56,7 +56,7 @@ public class GameplayScreen implements Screen {
     private InputProcessor proc;
     //private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
-    //private StringBuilder tempSB;
+    private StringBuilder tempSB;
     //private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
@@ -78,7 +78,7 @@ public class GameplayScreen implements Screen {
         //nextCameraPosition = viewport.getCamera().position.cpy();
         atlas = new TextureAtlas("Iso_Mini.atlas");
         palettes = new Texture("palettes.png");
-        //tempSB = new StringBuilder(50);
+        tempSB = new StringBuilder(16);
 
         font = new BitmapFont(Gdx.files.internal("NanoOKExtended.fnt"), atlas.findRegion("NanoOKExtended"));
         //font.getData().setScale(2f);
@@ -400,8 +400,9 @@ public class GameplayScreen implements Screen {
         }
         //batch.setColor(1f / 255f, 1f, 1f, 1f);
         //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
-
-        //font.draw(batch, String.valueOf(Gdx.graphics.getFramesPerSecond()), position.x, position.y + 80);
+        tempSB.setLength(0);
+        tempSB.append(Gdx.graphics.getFramesPerSecond());
+        font.draw(batch, tempSB, position.x + 10f - visualWidth * 0.5f, position.y + visualHeight * 0.5f);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         //batch.setColor(-0x1.fffffep126f); // white as a packed float
         batch.end();

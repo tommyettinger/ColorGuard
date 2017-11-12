@@ -85,13 +85,13 @@ public class WorldState {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
         worldRandom = new StatefulRNG(seed);
-        worldName = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57)
-                .word(worldRandom, true);
+        FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
+        worldName = lang.word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
                 WhirlingNoise.instance, 1.0);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.091, 1.15, seed);
-        mapGen.zoomIn(0, worldWidth >> 1, worldHeight >> 1);
+        //mapGen.zoomIn(0, worldWidth >> 1, worldHeight >> 1);
         GreasedRegion land = new GreasedRegion(mapGen.heightCodeData, 4, 999);
         OrderedMap<Character, FakeLanguageGen> languageAtlas = Maker.<Character, FakeLanguageGen>makeOM(
                 'A', FakeLanguageGen.INFERNAL,                                                          // dark
@@ -128,7 +128,7 @@ public class WorldState {
         String tempNation;
         for (char i = 'A'; i <= 'X'; i++) {
             tempNation = polGen.atlas.get(i);
-            System.out.println(tempNation + " (" + polGen.briefAtlas.get(i) + ')');
+            //Gdx.app.log("FACTIONS", tempNation + " (" + polGen.briefAtlas.get(i) + ')');
             GreasedRegion territory = new GreasedRegion(politicalMap, i);
             factions[i - 'A'] = new Faction(i - 'A', tempNation, languageAtlas.get(i), territory, this);
         }
@@ -231,10 +231,10 @@ public class WorldState {
          */
         public StandardMap(long initialSeed, int mapWidth, int mapHeight, final Noise.Noise2D noiseGenerator, double octaveMultiplier) {
             super(initialSeed, mapWidth, mapHeight);
-            terrain = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 8), terrainFreq);
+            terrain = new Noise.InverseLayered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 8), terrainFreq);
             terrainRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 10), terrainRidgedFreq);
-            heat = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 3), heatFreq);
-            moisture = new Noise.Layered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 4), moistureFreq);
+            heat = new Noise.InverseLayered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 3), heatFreq);
+            moisture = new Noise.InverseLayered2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 4), moistureFreq);
             otherRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 6), otherFreq);
             riverRidged = new Noise.Ridged2D(noiseGenerator, (int)(0.5 + octaveMultiplier * 2), riverRidgedFreq);
         }
@@ -261,7 +261,8 @@ public class WorldState {
                 fresh = true;
             }
             rng.setState(state);
-            int seedA = rng.nextInt(), seedB = rng.nextInt(), seedC = rng.nextInt(), t;
+            long seedA = rng.nextLong(), seedB = rng.nextLong(), seedC = rng.nextLong();
+            int t;
 
             waterModifier = (waterMod <= 0) ? rng.nextDouble(0.29) + 0.91 : waterMod;
             coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.3) * (rng.nextDouble()-0.5) + 1.0 : coolMod;
@@ -294,8 +295,12 @@ public class WorldState {
                     moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p, q
                                     + otherRidged.getNoiseWithSeed(p, q, seedC + seedA)
                             , seedC));
-                    freshwaterData[x][y] = (ps = riverRidged.getNoiseWithSeed(p,// * (temp + 1.5) * 0.25
-                            q, seedC - seedA - seedB) + 0.015) * ps * ps * (1.11 * (zoom + 1.342));
+                    freshwaterData[x][y] = (ps = Math.min(
+                            NumberTools.sway(riverRidged.getNoiseWithSeed(p * 0.46, q * 0.46, seedC - seedA - seedB) + 0.38),
+                            NumberTools.sway( riverRidged.getNoiseWithSeed(p, q, seedC - seedA - seedB) + 0.5))) * ps * ps * (1.11 * (zoom + 1.342));
+
+                    //freshwaterData[x][y] = (ps = riverRidged.getNoiseWithSeed(p,// * (temp + 1.5) * 0.25
+                    //        q, seedC - seedA - seedB) + 0.015) * ps * ps * (1.11 * (zoom + 1.342));
                     minHeightActual = Math.min(minHeightActual, h);
                     maxHeightActual = Math.max(maxHeightActual, h);
                     if(fresh) {
