@@ -12,8 +12,7 @@ public class BattleState {
     public OrderedMap<Coord, Piece> pieces;
     public int moverLimit;
     public OrderedSet<Coord> moveTargets;
-    public RNG rng;
-    public ThrustRNG thrust;
+    public StatefulRNG rng;
     private transient GreasedRegion working, working2;
     public int[][] map;
     public BattleState()
@@ -21,7 +20,7 @@ public class BattleState {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new RNG(thrust = new ThrustRNG());
+        rng = new StatefulRNG();
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
         working2 = new GreasedRegion(64, 64);
@@ -29,7 +28,7 @@ public class BattleState {
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new RNG(thrust = new ThrustRNG(seed));
+        rng = new StatefulRNG(seed);
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         working2 = new GreasedRegion(mapWidth, mapHeight);
@@ -46,7 +45,7 @@ public class BattleState {
         moveTargets.add(pt);
         for (int x = mapWidth - 1; x >= 0; x--) {
             for (int y = mapHeight - 1; y >= 0; y--) {
-                if(thrust.next(6) < 5) {
+                if(rng.nextIntHasty(64) < 5) {
                     temp = rng.nextIntHasty(pieceCount);
                     if((PieceKind.kinds.getAt(temp).permits & (1 << map[x][y])) != 0) {
                         Faction fact = Faction.whoOwns(x, y, rng, factions);
@@ -76,7 +75,7 @@ public class BattleState {
                 city = cities[j];
                 //Gdx.app.log("CITY", "City " + j + ": " + city);
                 Piece p;
-                switch (rng.next(4))
+                switch (rng.nextIntHasty(16))
                 {
                     case 0:
                         p = new Piece("Oil Well", factions[i]);
@@ -145,14 +144,15 @@ public class BattleState {
 
     public void advanceTurn()
     {
-        int ct = moverLimit, r;
+        int ct = moverLimit;
+        int r;
         Direction dir;
         Coord pt, next;
         Piece p;
         for (int i = 1; i < ct; i++) {
             pt = moveTargets.getAt(i);
             p = pieces.alterAt(i, pt);
-            r = thrust.next(3);
+            r = rng.nextIntHasty(8);
             if(r < 5)
             {
                 dir = Piece.facingDirection(p.facing);
@@ -160,7 +160,7 @@ public class BattleState {
                 if(pieces.containsKey(next) || moveTargets.contains(next)
                         || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
                 {
-                    if(thrust.nextLong() < 0)
+                    if(rng.nextBoolean())
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
@@ -173,7 +173,7 @@ public class BattleState {
             }
             else
             {
-                if(thrust.nextLong() < 0)
+                if(rng.nextBoolean())
                     p.facing = p.turnLeft();
                 else
                     p.facing = p.turnRight();
