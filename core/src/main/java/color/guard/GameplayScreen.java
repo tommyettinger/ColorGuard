@@ -57,6 +57,7 @@ public class GameplayScreen implements Screen {
     //private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
+    private Noise.Noise3D fog;
     //private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
@@ -162,6 +163,8 @@ public class GameplayScreen implements Screen {
         //prevCameraPosition = viewport.getCamera().position.cpy();
         //nextCameraPosition = viewport.getCamera().position.cpy();
 
+        fog = new Noise.Layered3D(SeededNoise.instance, 2, 0.015);
+
         /*pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
         for (int x = mapWidth - 1; x >= 0; x--) {
@@ -208,9 +211,8 @@ public class GameplayScreen implements Screen {
                 //Jim Hejl and Richard Burgess-Dawson's tone mapping formula
                 "vec3 tone(vec3 texColor, LOWP float change)\n" +
                 "{\n" +
-                "// Hardcoded Exposure Adjustment\n" +
                 "vec3 x = clamp((texColor * 0.666) - 0.004, 0.0, 100.0);\n" +
-                "return mix(texColor, (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06), 0.37 * step(0.5, change));\n" +
+                "return mix(texColor, (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06), change);\n" +
                 "}\n" +
                 "void main()\n" +
                 "{\n" +
@@ -275,7 +277,7 @@ public class GameplayScreen implements Screen {
         //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        float swap = NumberTools.swayTight(currentTime);
+        //float swap = NumberTools.swayTight(currentTime);
 //        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
 //        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
 //        viewport.getCamera().position.set(tempVector3);
@@ -322,7 +324,7 @@ public class GameplayScreen implements Screen {
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE1);
         palettes.bind();
         batch.begin();
-        batch.setColor(208f / 255f, swap, 1f, 1f);
+        //batch.setColor(208f / 255f, 0f, 1f, 1f);
 
         //indexShader.setUniformi("u_texPalette", 2);
         indexShader.setUniformi("u_texPalette", 1);
@@ -334,10 +336,11 @@ public class GameplayScreen implements Screen {
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 14, mapWidth - 1),
                 minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 13, mapHeight - 1);
-        batch.setColor(208f / 255f, swap, 1f, 1f);
+        //batch.setColor(208f / 255f, swap, 1f, 1f);
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
+                batch.setColor(208f / 255f, MathUtils.clamp((float) fog.getNoise(32 * y - 32 * x, 16 * y + 16 * x, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
                 batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
 //                tempSB.setLength(0);
 //                font.draw(batch, tempSB.append(state.world.bioGen.heatCodeData[x][y]),
@@ -385,21 +388,21 @@ public class GameplayScreen implements Screen {
                                 offY = 0f;
                                 break;
                         }
-                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        sprite.setColor(currentPiece.palette, MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
 
-                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, swap, 1f, 1f);
+                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, 0, 1, 1);
                         font.draw(batch, currentPiece.stats, 32 * (y - x) + 9f, 16 * (y + x) + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
                     } else {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
-                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        sprite.setColor(currentPiece.palette, MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
-                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, swap, 1f, 1f);
+                        batch.setColor(Math.max(1, currentPiece.paint) / 255f, 0, 1, 1);
                         font.draw(batch, currentPiece.stats, 32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
                     }
