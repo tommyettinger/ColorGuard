@@ -208,6 +208,48 @@ public class GameplayScreen implements Screen {
                 "varying vec2 v_texCoords;\n" +
                 "uniform sampler2D u_texture;\n" +
                 "uniform sampler2D u_texPalette;\n" +
+//                "vec3 hash( vec3 p )\n" +
+//                "{\n" +
+//                "    p = p * 15.718281828459045;\n" +
+//                "    // Randomness/hash is seeded here in the first three elements.\n" +
+//                "    // Seeds should be between 0 and 1, both exclusive.\n" +
+//                "    vec3 seeds = vec3(0.123, 0.456, 0.789);\n" +
+//                "    seeds = fract((p.x + 0.5718281828459045 + seeds) * ((seeds + mod(p.x, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
+//                "    seeds = fract((p.y + 0.5718281828459045 + seeds) * ((seeds + mod(p.y, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
+//                "    return -1.0 + 2.0 * fract((p.z + 0.5718281828459045 + seeds) * ((seeds + mod(p.z, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
+//                "}\n" +
+                "// The MIT License\n" +
+                "// Copyright © 2013 Inigo Quilez\n" +
+                "// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
+                "// Gradient Noise 3D             : https://www.shadertoy.com/view/Xsl3Dl\n" +
+                "//===============================================================================================\n" +
+                "vec3 hash( vec3 p ) // replace this by something better\n" +
+                "{\n" +
+                "    p = vec3( dot(p,vec3(127.1,311.7, 74.7)),\n" +
+                "        dot(p,vec3(269.5,183.3,246.1)),\n" +
+                "        dot(p,vec3(113.5,271.9,124.6)));\n" +
+                "    return -1.0 + 2.0*fract(sin(p)*43758.5453123);\n" +
+                "}\n" +
+                "float noise(vec3 p)\n" +
+                "{\n" +
+                "    vec3 i = floor(p);\n" +
+                "    vec3 f = fract(p);\n" +
+                "    vec3 u = f*f*(3.0-2.0*f);\n" +
+                "    return " +
+                        "   mix( mix( mix( dot( hash( i + vec3(0.0,0.0,0.0) ), f - vec3(0.0,0.0,0.0) ), \n" +
+                "                          dot( hash( i + vec3(1.0,0.0,0.0) ), f - vec3(1.0,0.0,0.0) ), u.x),\n" +
+                "                     mix( dot( hash( i + vec3(0.0,1.0,0.0) ), f - vec3(0.0,1.0,0.0) ), \n" +
+                "                          dot( hash( i + vec3(1.0,1.0,0.0) ), f - vec3(1.0,1.0,0.0) ), u.x), u.y),\n" +
+                "                mix( mix( dot( hash( i + vec3(0.0,0.0,1.0) ), f - vec3(0.0,0.0,1.0) ), \n" +
+                "                          dot( hash( i + vec3(1.0,0.0,1.0) ), f - vec3(1.0,0.0,1.0) ), u.x),\n" +
+                "                     mix( dot( hash( i + vec3(0.0,1.0,1.0) ), f - vec3(0.0,1.0,1.0) ), \n" +
+                "                          dot( hash( i + vec3(1.0,1.0,1.0) ), f - vec3(1.0,1.0,1.0) ), u.x), u.y), u.z)" +
+                        ";\n" +
+                "}\n" +
+                "const mat3 m = mat3( 0.00,  0.80,  0.60,\n" +
+                "                    -0.80,  0.36, -0.48,\n" +
+                "                    -0.60, -0.48,  0.64 );\n"+
+                "// End of MIT-licensed code\n"+
                 //Jim Hejl and Richard Burgess-Dawson's tone mapping formula
                 "vec3 tone(vec3 texColor, LOWP float change)\n" +
                 "{\n" +
@@ -218,7 +260,12 @@ public class GameplayScreen implements Screen {
                 "{\n" +
                 "vec4 color = texture2D(u_texture, v_texCoords);\n" +
                 "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
-                "gl_FragColor = vec4(tone(texture2D(u_texPalette, index).rgb, v_color.g), color.a);\n" +
+                "vec3 q = vec3(0.01125 * gl_FragCoord.xy, v_color.g * 2.75);\n" +
+//                "float f = 0.5000*noise( q ); q = m*q*2.01;\n" +
+//                "f      += 0.3125*noise( q ); q = m*q*2.02;\n" +
+//                "f      += 0.1875*noise( q );\n" +
+//                "f      += 0.0625*noise( q ); q = m*q*2.01;\n" +
+                "gl_FragColor = vec4(tone(texture2D(u_texPalette, index).rgb, 0.65 - noise(q) * 0.75), color.a);\n" +
                 "}\n";
         indexShader = new ShaderProgram(vertex, fragment);
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
@@ -277,7 +324,10 @@ public class GameplayScreen implements Screen {
         //GLProfiler.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        //float swap = NumberTools.swayTight(currentTime);
+        float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
+                + NumberTools.zigzag(currentTime * 1.218281828459045f)
+                + NumberTools.zigzag(currentTime * 0.718281828459045f)
+                + NumberTools.sway(currentTime * 0.141592653589793f)) * 0.125f + 0.5f;
 //        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
 //        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
 //        viewport.getCamera().position.set(tempVector3);
@@ -324,7 +374,6 @@ public class GameplayScreen implements Screen {
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE1);
         palettes.bind();
         batch.begin();
-        //batch.setColor(208f / 255f, 0f, 1f, 1f);
 
         //indexShader.setUniformi("u_texPalette", 2);
         indexShader.setUniformi("u_texPalette", 1);
@@ -336,11 +385,11 @@ public class GameplayScreen implements Screen {
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 14, mapWidth - 1),
                 minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 13, mapHeight - 1);
-        //batch.setColor(208f / 255f, swap, 1f, 1f);
+        batch.setColor(208f / 255f, swap, 1f, 1f);
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
-                batch.setColor(208f / 255f, MathUtils.clamp((float) fog.getNoise(32 * y - 32 * x, 16 * y + 16 * x, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
+                //batch.setColor(208f / 255f, MathUtils.clamp((float) fog.getNoise(32 * y - 32 * x, 16 * y + 16 * x, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
                 batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
 //                tempSB.setLength(0);
 //                font.draw(batch, tempSB.append(state.world.bioGen.heatCodeData[x][y]),
@@ -388,7 +437,8 @@ public class GameplayScreen implements Screen {
                                 offY = 0f;
                                 break;
                         }
-                        sprite.setColor(currentPiece.palette, MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
+                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
 
@@ -399,7 +449,8 @@ public class GameplayScreen implements Screen {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
-                        sprite.setColor(currentPiece.palette, MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
+                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
                         batch.setColor(Math.max(1, currentPiece.paint) / 255f, 0, 1, 1);
