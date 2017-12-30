@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -44,7 +46,8 @@ public class GameplayScreen implements Screen {
     
     //private OrthographicCamera camera;
     private Viewport viewport;
-    BitmapFont font;
+    private Vector2 screenPosition = new Vector2(20, 20);
+    private BitmapFont font;
 
     private int[][] map;
     //private TextureAtlas.AtlasSprite[][] spriteMap;
@@ -58,7 +61,8 @@ public class GameplayScreen implements Screen {
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
     private Noise.Noise3D fog;
-    //private int drawCalls = 0, textureBindings = 0;
+    GLProfiler GLP;
+    private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -153,7 +157,8 @@ public class GameplayScreen implements Screen {
             dying[pieceCount + i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"));
         }
 
-        //GLProfiler.enable();
+        GLP = new GLProfiler(Gdx.graphics);
+        GLP.enable();
         state.world.startBattle(state.world.factions);
 
         Coord playerPos = state.world.battle.pieces.firstKey();
@@ -199,77 +204,83 @@ public class GameplayScreen implements Screen {
                 "}\n";
         String fragment =
                 "#ifdef GL_ES\n" +
-                "#define LOWP lowp\n" +
-                "precision mediump float;\n" +
-                "#else\n" +
-                "#define LOWP\n" +
-                "#endif\n" +
-                "varying LOWP vec4 v_color;\n" +
-                "varying vec2 v_texCoords;\n" +
-                "uniform sampler2D u_texture;\n" +
-                "uniform sampler2D u_texPalette;\n" +
-//                "vec3 hash( vec3 p )\n" +
+                        "#define LOWP lowp\n" +
+                        "precision mediump float;\n" +
+                        "#else\n" +
+                        "#define LOWP\n" +
+                        "#endif\n" +
+                        "varying LOWP vec4 v_color;\n" +
+                        "varying vec2 v_texCoords;\n" +
+                        "uniform sampler2D u_texture;\n" +
+                        "uniform sampler2D u_texPalette;\n" +
+                        "void main()\n" +
+                        "{\n" +
+                        "vec4 color = texture2D(u_texture, v_texCoords);\n" +
+                        "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
+                        "gl_FragColor = vec4(texture2D(u_texPalette, index).rgb, color.a);\n" +
+                        "}\n";
+//        String fragment =
+//                "#ifdef GL_ES\n" +
+//                "#define LOWP lowp\n" +
+//                "precision mediump float;\n" +
+//                "#else\n" +
+//                "#define LOWP\n" +
+//                "#endif\n" +
+//                "varying LOWP vec4 v_color;\n" +
+//                "varying vec2 v_texCoords;\n" +
+//                "uniform sampler2D u_texture;\n" +
+//                "uniform sampler2D u_texPalette;\n" +
+//                "// The MIT License\n" +
+//                "// Copyright © 2013 Inigo Quilez\n" +
+//                "// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
+//                "// Gradient Noise 3D             : https://www.shadertoy.com/view/Xsl3Dl\n" +
+//                "//===============================================================================================\n" +
+//                "vec3 hash( vec3 p ) // replace this by something better\n" +
 //                "{\n" +
-//                "    p = p * 15.718281828459045;\n" +
-//                "    // Randomness/hash is seeded here in the first three elements.\n" +
-//                "    // Seeds should be between 0 and 1, both exclusive.\n" +
-//                "    vec3 seeds = vec3(0.123, 0.456, 0.789);\n" +
-//                "    seeds = fract((p.x + 0.5718281828459045 + seeds) * ((seeds + mod(p.x, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
-//                "    seeds = fract((p.y + 0.5718281828459045 + seeds) * ((seeds + mod(p.y, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
-//                "    return -1.0 + 2.0 * fract((p.z + 0.5718281828459045 + seeds) * ((seeds + mod(p.z, 0.141592653589793)) * 27.61803398875 + 4.718281828459045));\n" +
+//                "    p = vec3( dot(p,vec3(127.1,311.7, 74.7)),\n" +
+//                "        dot(p,vec3(269.5,183.3,246.1)),\n" +
+//                "        dot(p,vec3(113.5,271.9,124.6)));\n" +
+//                "    return -1.0 + 2.0*fract(sin(p)*43758.5453123);\n" +
 //                "}\n" +
-                "// The MIT License\n" +
-                "// Copyright © 2013 Inigo Quilez\n" +
-                "// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
-                "// Gradient Noise 3D             : https://www.shadertoy.com/view/Xsl3Dl\n" +
-                "//===============================================================================================\n" +
-                "vec3 hash( vec3 p ) // replace this by something better\n" +
-                "{\n" +
-                "    p = vec3( dot(p,vec3(127.1,311.7, 74.7)),\n" +
-                "        dot(p,vec3(269.5,183.3,246.1)),\n" +
-                "        dot(p,vec3(113.5,271.9,124.6)));\n" +
-                "    return -1.0 + 2.0*fract(sin(p)*43758.5453123);\n" +
-                "}\n" +
-                "float noise(vec3 p)\n" +
-                "{\n" +
-                "    vec3 i = floor(p);\n" +
-                "    vec3 f = fract(p);\n" +
-                "    vec3 u = f*f*(3.0-2.0*f);\n" +
-                "    return " +
-                        "   mix( mix( mix( dot( hash( i + vec3(0.0,0.0,0.0) ), f - vec3(0.0,0.0,0.0) ), \n" +
-                "                          dot( hash( i + vec3(1.0,0.0,0.0) ), f - vec3(1.0,0.0,0.0) ), u.x),\n" +
-                "                     mix( dot( hash( i + vec3(0.0,1.0,0.0) ), f - vec3(0.0,1.0,0.0) ), \n" +
-                "                          dot( hash( i + vec3(1.0,1.0,0.0) ), f - vec3(1.0,1.0,0.0) ), u.x), u.y),\n" +
-                "                mix( mix( dot( hash( i + vec3(0.0,0.0,1.0) ), f - vec3(0.0,0.0,1.0) ), \n" +
-                "                          dot( hash( i + vec3(1.0,0.0,1.0) ), f - vec3(1.0,0.0,1.0) ), u.x),\n" +
-                "                     mix( dot( hash( i + vec3(0.0,1.0,1.0) ), f - vec3(0.0,1.0,1.0) ), \n" +
-                "                          dot( hash( i + vec3(1.0,1.0,1.0) ), f - vec3(1.0,1.0,1.0) ), u.x), u.y), u.z)" +
-                        ";\n" +
-                "}\n" +
-                "const mat3 m = mat3( 0.00,  0.80,  0.60,\n" +
-                "                    -0.80,  0.36, -0.48,\n" +
-                "                    -0.60, -0.48,  0.64 );\n"+
-                "// End of MIT-licensed code\n"+
-                //Jim Hejl and Richard Burgess-Dawson's tone mapping formula
-                "vec3 tone(vec3 texColor, LOWP float change)\n" +
-                "{\n" +
-                "vec3 x = clamp((texColor * 0.666) - 0.004, 0.0, 100.0);\n" +
-                "return mix(texColor, (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06), change);\n" +
-                "}\n" +
-                "void main()\n" +
-                "{\n" +
-                "vec4 color = texture2D(u_texture, v_texCoords);\n" +
-                "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
-                "vec3 q = vec3(0.01125 * gl_FragCoord.xy, v_color.g * 2.75);\n" +
-//                "float f = 0.5000*noise( q ); q = m*q*2.01;\n" +
-//                "f      += 0.3125*noise( q ); q = m*q*2.02;\n" +
-//                "f      += 0.1875*noise( q );\n" +
-//                "f      += 0.0625*noise( q ); q = m*q*2.01;\n" +
-                "gl_FragColor = vec4(tone(texture2D(u_texPalette, index).rgb, 0.65 - noise(q) * 0.75), color.a);\n" +
-                "}\n";
+//                "float noise(vec3 p)\n" +
+//                "{\n" +
+//                "    vec3 i = floor(p);\n" +
+//                "    vec3 f = fract(p);\n" +
+//                "    vec3 u = f*f*(3.0-2.0*f);\n" +
+//                "    return " +
+//                        "   mix( mix( mix( dot( hash( i + vec3(0.0,0.0,0.0) ), f - vec3(0.0,0.0,0.0) ), \n" +
+//                "                          dot( hash( i + vec3(1.0,0.0,0.0) ), f - vec3(1.0,0.0,0.0) ), u.x),\n" +
+//                "                     mix( dot( hash( i + vec3(0.0,1.0,0.0) ), f - vec3(0.0,1.0,0.0) ), \n" +
+//                "                          dot( hash( i + vec3(1.0,1.0,0.0) ), f - vec3(1.0,1.0,0.0) ), u.x), u.y),\n" +
+//                "                mix( mix( dot( hash( i + vec3(0.0,0.0,1.0) ), f - vec3(0.0,0.0,1.0) ), \n" +
+//                "                          dot( hash( i + vec3(1.0,0.0,1.0) ), f - vec3(1.0,0.0,1.0) ), u.x),\n" +
+//                "                     mix( dot( hash( i + vec3(0.0,1.0,1.0) ), f - vec3(0.0,1.0,1.0) ), \n" +
+//                "                          dot( hash( i + vec3(1.0,1.0,1.0) ), f - vec3(1.0,1.0,1.0) ), u.x), u.y), u.z)" +
+//                        ";\n" +
+//                "}\n" +
+//                "const mat3 m = mat3( 0.00,  0.80,  0.60,\n" +
+//                "                    -0.80,  0.36, -0.48,\n" +
+//                "                    -0.60, -0.48,  0.64 );\n"+
+//                "// End of MIT-licensed code\n"+
+//                //Jim Hejl and Richard Burgess-Dawson's tone mapping formula
+//                "vec3 tone(vec3 texColor, LOWP float change)\n" +
+//                "{\n" +
+//                "vec3 x = clamp((texColor * 0.666) - 0.004, 0.0, 100.0);\n" +
+//                "return mix(texColor, (x*(6.2*x+.5))/(x*(6.2*x+1.7)+0.06), change);\n" +
+//                "}\n" +
+//                "void main()\n" +
+//                "{\n" +
+//                "vec4 color = texture2D(u_texture, v_texCoords);\n" +
+//                "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
+//                "vec3 q = vec3(0.01125 * gl_FragCoord.xy, v_color.g * 2.75);\n" +
+////                "float f = 0.5000*noise( q ); q = m*q*2.01;\n" +
+////                "f      += 0.3125*noise( q ); q = m*q*2.02;\n" +
+////                "f      += 0.1875*noise( q );\n" +
+////                "f      += 0.0625*noise( q ); q = m*q*2.01;\n" +
+//                "gl_FragColor = vec4(tone(texture2D(u_texPalette, index).rgb, 0.65 - noise(q) * 0.75), color.a);\n" +
+//                "}\n";
         indexShader = new ShaderProgram(vertex, fragment);
         if (!indexShader.isCompiled()) throw new GdxRuntimeException("Error compiling shader: " + indexShader.getLog());
-        //spriteMap = new TextureAtlas.AtlasSprite[mapWidth][mapHeight];
 
         map = ArrayTools.copy(state.world.worldMap);
         for (int x = 0; x < mapWidth; x++) {
@@ -322,6 +333,7 @@ public class GameplayScreen implements Screen {
     @Override
     public void render(float delta) {
         //GLProfiler.reset();
+        GLP.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
         float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
@@ -462,9 +474,13 @@ public class GameplayScreen implements Screen {
         }
         //batch.setColor(1f / 255f, 1f, 1f, 1f);
         //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
+        drawCalls = GLP.getDrawCalls();
+        textureBindings = GLP.getTextureBindings();
         tempSB.setLength(0);
-        tempSB.append(Gdx.graphics.getFramesPerSecond());
-        font.draw(batch, tempSB, position.x + 10f - visualWidth * 0.5f, position.y + visualHeight * 0.5f);
+        tempSB.append(Gdx.graphics.getFramesPerSecond()).append(" FPS, Draw Calls: ").append(drawCalls).append(", Texture Binds: ").append(textureBindings);
+        screenPosition.set(16, 8);
+        viewport.unproject(screenPosition);
+        font.draw(batch, tempSB, screenPosition.x, screenPosition.y);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         //batch.setColor(-0x1.fffffep126f); // white as a packed float
         batch.end();
