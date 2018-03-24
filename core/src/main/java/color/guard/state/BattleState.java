@@ -15,12 +15,13 @@ public class BattleState {
     public StatefulRNG rng;
     private transient GreasedRegion working, working2;
     public int[][] map;
+    public double[][][] resistances;
     public BattleState()
     {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new StatefulRNG();
+        rng = new StatefulRNG(new Zag32RNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
         working2 = new GreasedRegion(64, 64);
@@ -28,7 +29,7 @@ public class BattleState {
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new StatefulRNG(seed);
+        rng = new StatefulRNG(new Zag32RNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         working2 = new GreasedRegion(mapWidth, mapHeight);
@@ -179,5 +180,20 @@ public class BattleState {
                     p.facing = p.turnRight();
             }
         }
+    }
+    public double[][][] resistanceMaps()
+    {
+        int[][] map = this.map, m = PieceKind.possibleMobilities;
+        int width = map.length, height = map[0].length, mobs = m.length;
+        resistances = new double[mobs][width][height];
+        for (int i = 0; i < mobs; i++) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if((resistances[i][x][y] = m[i][map[x][y]]) >= 4)
+                        resistances[i][x][y] = 999500.0;
+                }
+            }
+        }
+        return resistances;
     }
 }

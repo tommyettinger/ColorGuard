@@ -84,7 +84,7 @@ public class WorldState {
     public WorldState(int width, int height, long seed) {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
-        worldRandom = new StatefulRNG(seed);
+        worldRandom = new StatefulRNG(new Zag32RNG(seed));
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
@@ -529,8 +529,8 @@ public class WorldState {
                     biomeCodeData[x][y] =
                             heightCode <= 3
                             ? Ocean
-                            : isRiver // || isLake
-                            ? biomeTable[hc + 42]
+                            //: isRiver // || isLake
+                            //? biomeTable[hc + 42]
                             : heightCode == 8
                             ? Mountain
                             : hc == 0

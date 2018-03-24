@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
+import squidpony.squidai.DijkstraMap;
 import squidpony.squidgrid.Direction;
 import squidpony.squidmath.*;
 
@@ -31,6 +32,12 @@ public class GameplayScreen implements Screen {
     public TextureAtlas atlas;
     public GameState state;
     public Direction lastArrow = Direction.NONE;
+    public static final int INPUT_LOCKED = 0, INPUT_ALLOWED = 1;
+    public int inputMode = INPUT_ALLOWED;
+
+    private Piece playerPiece;
+    private DijkstraMap dijkstra;
+
     private SpriteBatch batch;
     private TextureAtlas.AtlasRegion[] terrains;
     private Texture palettes;
@@ -47,6 +54,7 @@ public class GameplayScreen implements Screen {
     //private OrthographicCamera camera;
     private Viewport viewport;
     private Vector2 screenPosition = new Vector2(20, 20);
+    private Coord targetCell;
     private BitmapFont font;
 
     private int[][] map;
@@ -57,10 +65,10 @@ public class GameplayScreen implements Screen {
     //private String displayString;
     //private InputMultiplexer input;
     private InputProcessor proc;
-    //private Vector3 tempVector3, prevCameraPosition, nextCameraPosition;
+    private Vector3 tempVector3, nextCameraPosition; //prevCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
-    private Noise.Noise3D fog;
+    //private Noise.Noise3D fog;
     GLProfiler GLP;
     private int drawCalls = 0, textureBindings = 0;
     public GameplayScreen(GameState state)
@@ -72,7 +80,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new RNG(new ThrustRNG(0x1337BEEFFEEDL));
+        guiRandom = new RNG(new Zag32RNG(0x1337BEEFFEEDL));
         Gdx.gl.glDisable(GL20.GL_BLEND);
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
@@ -80,7 +88,7 @@ public class GameplayScreen implements Screen {
         viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
         //prevCameraPosition = viewport.getCamera().position.cpy();
-        //nextCameraPosition = viewport.getCamera().position.cpy();
+        nextCameraPosition = viewport.getCamera().position.cpy();
         atlas = new TextureAtlas("Iso_Mini.atlas");
         palettes = new Texture("palettes.png");
         tempSB = new StringBuilder(16);
@@ -156,19 +164,21 @@ public class GameplayScreen implements Screen {
             dying[pieceCount + i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death"));
             dying[pieceCount + i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"));
         }
-
         GLP = new GLProfiler(Gdx.graphics);
         GLP.enable();
         state.world.startBattle(state.world.factions);
-
+        state.world.battle.resistanceMaps();
         Coord playerPos = state.world.battle.pieces.firstKey();
-
+        targetCell = playerPos;
+        playerPiece = state.world.battle.pieces.getAt(0);
+        dijkstra = new DijkstraMap(state.world.battle.resistances[playerPiece.pieceKind.mobility], DijkstraMap.Measurement.MANHATTAN);
+        dijkstra.rng = new StatefulRNG(new Zag32RNG(123456789, 987654321));
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();
         //prevCameraPosition = viewport.getCamera().position.cpy();
-        //nextCameraPosition = viewport.getCamera().position.cpy();
+        nextCameraPosition = viewport.getCamera().position.cpy();
 
-        fog = new Noise.Layered3D(SeededNoise.instance, 2, 0.015);
+        //fog = new Noise.Layered3D(SeededNoise.instance, 2, 0.015);
 
         /*pieces = new int[mapWidth][mapHeight];
         int[] tempOrdering = new int[pieceCount];
@@ -292,15 +302,23 @@ public class GameplayScreen implements Screen {
         proc = new InputAdapter(){
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+                if(inputMode == INPUT_LOCKED)
+                    return false;
+                inputMode = INPUT_LOCKED;
+                
 //                prevCameraPosition.set(viewport.getCamera().position);
-//                nextCameraPosition.set(screenX, screenY, 0);
+                nextCameraPosition.set(screenX, screenY, 0);
 //                cameraTraversed = 0f;
-//                viewport.unproject(nextCameraPosition);
+                viewport.unproject(nextCameraPosition);
+                //32 * y - 32 * x, 16 * y + 16 * x
+                targetCell = Coord.get(MathUtils.round((nextCameraPosition.y - nextCameraPosition.x) * 0x1p-5f), MathUtils.round((nextCameraPosition.y + nextCameraPosition.x) * 0x1p-4f));
                 return true;
             }
 
             @Override
             public boolean keyDown(int keycode) {
+                if(inputMode == INPUT_LOCKED)
+                    return false;
                 switch (keycode)
                 {
                     case Input.Keys.RIGHT: lastArrow = Direction.LEFT;
@@ -312,7 +330,10 @@ public class GameplayScreen implements Screen {
                     case Input.Keys.DOWN: lastArrow = Direction.UP;
                         break;
                     //default: lastArrow = Direction.NONE;
+                    default: return false;
                 }
+                targetCell.translate(lastArrow);
+                inputMode = INPUT_LOCKED;
                 return true;
             }
         };
@@ -336,14 +357,20 @@ public class GameplayScreen implements Screen {
         GLP.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
-        float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
-                + NumberTools.zigzag(currentTime * 1.218281828459045f)
-                + NumberTools.zigzag(currentTime * 0.718281828459045f)
-                + NumberTools.sway(currentTime * 0.141592653589793f)) * 0.125f + 0.5f;
+//        float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
+//                + NumberTools.zigzag(currentTime * 1.218281828459045f)
+//                + NumberTools.zigzag(currentTime * 0.718281828459045f)
+//                + NumberTools.sway(currentTime * 0.141592653589793f)) * 0.125f + 0.5f;
+        
 //        cameraTraversed = Math.min(1f, cameraTraversed + delta * 8);
 //        tempVector3.set(prevCameraPosition).lerp(nextCameraPosition, cameraTraversed);
 //        viewport.getCamera().position.set(tempVector3);
-        if((turnTime += delta) >= 1.5f)
+        if(inputMode == INPUT_LOCKED)
+        {
+            
+            inputMode = INPUT_ALLOWED;
+        }
+        else if((turnTime += delta) >= 1.5f)
         {
             turnTime = 0f;
             Coord pt = state.world.battle.moveTargets.first();
@@ -397,7 +424,7 @@ public class GameplayScreen implements Screen {
                 centerY = (int)((position.x) + 2 * (position.y)) >> 6,
                 minX = Math.max(0, centerX - 13), maxX = Math.min(centerX + 14, mapWidth - 1),
                 minY = Math.max(0, centerY - 14), maxY = Math.min(centerY + 13, mapHeight - 1);
-        batch.setColor(208f / 255f, swap, 1f, 1f);
+        batch.setColor(208f / 255f, 1f, 1f, 1f);
         for (int x = maxX; x >= minX; x--) {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
@@ -449,7 +476,7 @@ public class GameplayScreen implements Screen {
                                 offY = 0f;
                                 break;
                         }
-                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);
@@ -461,7 +488,7 @@ public class GameplayScreen implements Screen {
                         offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
                         sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
-                        sprite.setColor(currentPiece.palette, swap, 1f, 1f);
+                        sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
                         sprite.setPosition(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f);
                         sprite.draw(batch);

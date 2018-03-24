@@ -31,11 +31,36 @@ public class PieceKind {
             //6
             "Immobile", new String[]{"Shielded"}
             );
+    
+    public static final int[][] possibleMobilities = {
+            //      Road Plains Forest Jungle Rocky Mountain Ruins Sand Ice River Ocean
+            //      0    1      2      3      4     5        6     7    8   9     10
+            {1, 1, 2, 3, 3, 4, 3, 1, 1, 4, 4}, // no features
+            {1, 1, 2, 3, 3, 4, 3, 1, 1, 4, 2}, // float
+            {1, 1, 2, 3, 3, 4, 3, 1, 1, 2, 4}, // ford
+            {1, 1, 2, 3, 3, 4, 3, 1, 1, 2, 2}, // ford float
+            {1, 1, 2, 3, 2, 3, 3, 1, 1, 4, 4}, // hike
+            {1, 1, 2, 3, 2, 3, 3, 1, 1, 4, 2}, // hike float
+            {1, 1, 2, 3, 2, 3, 3, 1, 1, 2, 4}, // hike ford
+            {1, 1, 2, 3, 2, 3, 3, 1, 1, 2, 2}, // hike ford float
+            {1, 1, 1, 2, 2, 3, 2, 1, 1, 4, 4}, // traverse
+            {1, 1, 1, 2, 2, 3, 2, 1, 1, 4, 2}, // traverse float
+            {1, 1, 1, 2, 2, 3, 2, 1, 1, 2, 4}, // traverse ford
+            {1, 1, 1, 2, 2, 3, 2, 1, 1, 2, 2}, // traverse ford float
+            {1, 1, 1, 2, 1, 2, 2, 1, 1, 4, 4}, // traverse hike
+            {1, 1, 1, 2, 1, 2, 2, 1, 1, 4, 2}, // traverse hike float
+            {1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 4}, // traverse hike ford
+            {1, 1, 1, 2, 1, 2, 2, 1, 1, 2, 2}, // traverse hike ford float
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // fly
+            {9, 9, 9, 9, 9, 9, 9, 9, 9, 1, 1}, // aquatic
+            {1, 2, 4, 6, 4, 8, 8, 4, 4, 8, 8}, // normal structure
+            {8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8}, // aquatic structure
+    };
 
     private static int registered = 0;
     public String name, visual, abbreviation, group, description, motion;
     public String[] ammo, show;
-    public int category, weapons, wounds, permits, code;
+    public int category, weapons, wounds, permits, code, mobility;
     public int[] stats, minimumRanges, maximumRanges, powers, mobilities, shownStrengths;
     public OrderedSet<String> features;
     public PieceKind()
@@ -78,6 +103,7 @@ public class PieceKind {
         mobilities = (aquatic)
                 ? new int[]{8, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8,}
                 : new int[]{1, 2, 4, 6, 4, 8, 8, 4, 4, 8, 8,};
+        mobility = (aquatic) ? 19 : 18;
         permits = (aquatic)
                 ? 512
                 : 1 | 2 | 4 | 16 | 128 | 256;
@@ -118,21 +144,27 @@ public class PieceKind {
         };
         //permits = 1 | 2 | 4 | 8 | 16 | 64 | 128 | 256;
         permits = 1 | 2 | 4 | 128 | 256;
-        if(this.features.contains("Fly"))
+        boolean fly = this.features.contains("Fly"), aquatic = this.features.contains("Aquatic"),
+                traverse = this.features.contains("Traverse"), hike = this.features.contains("Hike"),
+                ford = this.features.contains("Ford"), floating = this.features.contains("Float");
+        if(fly)
         {
             Arrays.fill(mobilities, 1);
             permits = 2047;
+            mobility = 16;
         }
-        else if(this.features.contains("Aquatic"))
+        else if(aquatic)
         {
             Arrays.fill(mobilities,9);
             mobilities[9] = 1;
             mobilities[10] = 1;
             permits = 512 | 1024;
+            mobility = 17;
         }
         else
         {
-            if(this.features.contains("Traverse"))
+            mobility = 0;
+            if(traverse)
             {
                 mobilities[2]--;
                 mobilities[3]--;
@@ -140,22 +172,26 @@ public class PieceKind {
                 mobilities[5]--;
                 mobilities[6]--;
                 permits |= 8 | 16 | 64;
+                mobility |= 8;
             }
             if(this.features.contains("Hike"))
             {
                 mobilities[4]--;
                 mobilities[5]--;
                 permits |= 16 | 32;
+                mobility |= 4;
             }
             if(this.features.contains("Ford"))
             {
                 mobilities[9] -= 2;
                 permits |= 512;
+                mobility |= 2;
             }
             if(this.features.contains("Float"))
             {
                 mobilities[10] -= 2;
                 permits |= 1024;
+                mobility |= 1;
             }
         }
         PieceKind check;

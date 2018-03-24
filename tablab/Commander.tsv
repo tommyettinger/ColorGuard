@@ -1,0 +1,39 @@
+name^	description	features:s[, ]	aspects:s[, ]	favorites:s{ }i
+Hangman	The undisputed leader of Noose, who has united the worst of humanity under one creed: Take it all.	Raider, Shielded	Bandit, Barbarian, Samurai	BZKA 1 AAGN 1 BTSP 1
+Tarpit	A hitman who follows his own strange rules; he killed his commander on Hangman's orders, then surprisingly assumed control.	Ambush, Seek	Assassin, Skirmisher, Veteran	MISN 1 SBMR 1 STJT 1
+Wrath	An outlaw-biker-turned-cult-leader who tells his followers that only Noose will survive the End Times.	Vengeful, Incinerator	Bandit, Chaplain, Skirmisher	BIKE 3
+Scurvy	A pirate who terrorized the seas just outside Snow's control; now he exploits the rising tide to raid further inland in the name of Noose.	Ford, Raider	Dragoon, Hunter, Pirate	PTBT 2 MTNK 1
+Jackal	A genocidal maniac who wants to exterminate the people of Gem, and has fought in numerous wars to further her aims.	Troop-Focus, Sand-Strike	Hermit, Paladin, Veteran	LTNK 2 FLMT 1
+Hitch	A twisted artist, exiled from Sun, who joined Noose to see his horrible visions come to life.	Aerial-Focus, Swarm	Alchemist, Dragoon, Sage	RFSN 1 LPLN 1 JTPK 1
+Crusher	A hugely obese “Queen of the Illegal” and leader of a crime family that merged with Noose, tricking Coin in the process.	Pin, Juggernaut	Bandit, Pirate, Shaman	HCNN 2 WTNK 1
+Blight	A horrid researcher tasked with destroying the environment in the parts of Leaf that Noose doesn't consider worth capturing.	Venomous, Ruins-Strike	Alchemist, Assassin, Skirmisher	SART 1 HBMR 1 MTNK 1
+Screech	A mad scientist from the ex-nation of Stone (now Wave) who didn't like how they paid him, so he built a superweapon to wipe them out.	Vengeful, Structure-Focus	Alchemist, Hermit, Pirate	MRSN 1 JAMR 1 CRSR 1
+Fang	Noose's main mouthpiece; he blames his own group's atrocities on Pit, thinking they don't have the strength to fight back.	Swarm, Light-Focus	Chaplain, Dancer, Hunter	RECN 1 CMCP 2
+Hyunna	The eccentric dictator who inherited Snow from her father, Hyunso; she wants absolute control over her subjects.	Benefactor, Ice-Home	Dancer, Paladin, Sage	FIJT 3
+Laiseng	A strange mix of researcher, commander, and propagandist, Laiseng alters scientific findings to suit Hyunna's whims.	Shielded, Gather	Alchemist, Sage, Samurai	JTPK 3
+Gwol	One of Laiseng's subjects, Gwol was a normal general who was force-grown to twice his height; he and his troops also have venomous fangs.	Venomous, Juggernaut	Barbarian, Dragoon, Hermit	BZKA 3
+Kanul	A brutal spymaster who seeks to manipulate Noose into fighting other nations while he quells potential uprisings at home.	Stealthy, Ice-Strike	Assassin, Veteran, Warden	SART 3
+Tashuin	The leader of Gem and a veteran of countless wars, Tashuin wants to personally kill his sworn nemesis, Noose commander Jackal.	Reliable, Sand-Home	Paladin, Skirmisher, Veteran	MRSN 1 HBMR 1 TRCP 1
+Jalnez	The woman who keeps the faith alive in Gem territory; her soldiers are especially brave and routinely take on stronger units.	Lucky, Benefactor	Chaplain, Dragoon, Warden	INFY 2 SPTR 1
+Halwahi	A driven woman bent on revenge against Noose for killing much of her family; good at fighting with and against planes.	Aerial-Focus, Vengeful	Hunter, Samurai, Veteran	LPLN 2 AART 1
+Morazuk	Leader of an ancient group of desert wanderers respected as much for their nimble feet as their keen eyes.	Sand-Strike, Seek	Assassin, Nomad, Skirmisher	RFSN 2 LART 1
+Ray	The Patriot Lord of Sun, beloved by his people and despised by his enemies; he favors arming his many troops with incendiary weapons.	Incinerator, Reliable	Dragoon, Samurai, Warden	WTNK 1 STJT 1 BTSP 1
+Matt	A headbanging military man who pipes loud, furious music from speakers on his helicopters.	Juggernaut, Heavy-Focus	Barbarian, Dancer, Skirmisher	GNCP 3
+Loshandra	A bodybuilder who pumps steroids into her troops' drinks to ensure her foot soldiers are unparalleled in strength.	Shielded, Light-Focus	Barbarian, Dragoon, Pirate	INFY 1 BZKA 1 MRSN 1
+Johnny	A veteran of many campaigns who repeatedly argued against hiring mercenaries, and is determined to stop Noose now.	Gather, Pin	Nomad, Samurai, Veteran	LTNK 1 AAGN 1 LPLN 1
+Saffron	A brave commander who acts overconfident to fool her enemies, especially her old acquaintances at Noose.	Lucky, Raider	Bandit, Dancer, Sage	BIKE 1 AAGN 1 BLCP 1
+Duster	The mysterious second-in-command at Coin who sabotaged Noose's superweapons from inside; he seems to have been trained as a spy.	Responsive, Structure-Focus	Alchemist, Assassin, Samurai	MISN 1 JAMR 2
+Fatback	A commander who claims he left Noose because the food was lousy; he has more of a conscience than he lets on.	Gather, Carrier	Hunter, Paladin, Warden	SPTR 1 AMTR 1 HBMR 1
+Swatter	A peculiar older woman who joined Coin 20 years after the last battle she had commanded; she hasn't skipped a beat.	Reliable, Aerial-Focus	Hermit, Shaman, Veteran	RFSN 1 LTNK 1 LART 1
+Thorn	The teenage inheritor to Leaf's royal throne; while knowledgeable about all of the lands she rules, she lacks combat experience.	Forest-Home, Traverse	Paladin, Hunter, Warden	SART 2 SPTR 1
+Seed	A precocious child from the barren grasslands who shows remarkable tactical skill, and is beloved by her soldiers.	Plains-Home, Benefactor	Nomad, Sage, Skirmisher	BZKA 1 BIKE 1 LART 1
+Root	A warrior from forests that have been flooded by Noose's superweapon, who has adapted to fighting in now-ubiquitous swamps.	Ford, Traverse	Barbarian, Pirate, Warden	MTNK 2 PTBT 1
+Bark	A gruff medicine woman from jungle-covered mountains who seems to always be accompanied by fierce winds.	Hike, Mountain-Home	Chaplain, Hermit, Shaman	MISN 3
+Oddmund	A commander who once fought against Stone, then graciously gave them a home after theirs was destroyed.	Benefactor, Heavy-Focus	Paladin, Pirate, Samurai	BTSP 2 TRCP 1
+Olga	One of the highest-ranking commanders in Stone, she is now the tough-as-nails second-in-command in Wave's army.	Reliable, Naval-Focus	Dragoon, Sage, Skirmisher	LART 1 MRSN 1 WTNK 1
+Nevsky	Stone's trench-warfare specialist who has since become Wave's expert on breaching Noose's land defenses.	Structure-Focus, Pin	Alchemist, Samurai, Warden	MTNK 1 HCNN 1 AMTR 1
+Eska	A hardy lady of the sea who has long served in Wave's navy, and deeply believes in Oddmund.	Reliable, Ford	Barbarian, Chaplain, Paladin	SBMR 3
+Willum	A frontiersman who has, through various unlikely events, been thrust into the leadership of Pit; his humble beginnings are why many trust him.	Lucky, Radioactive	Barbarian, Hunter, Skirmisher	RFSN 2 JTPK 1
+Zoku	A larger-than-life ex-gangster who entered Pit territory to establish a paradise for the cultural fringe, and now fights to defend his home.	Road-Strike, Radioactive	Bandit, Dragoon, Shaman	BIKE 1 SPTR 1 RECN 1
+Anahit	A young woman born in Pit with significant mutations, including super-human memory and calculation, and these aid her tactical skill.	Seek, Radioactive	Hermit, Nomad, Sage	JAMR 2 AART 1
+Trang	A revolutionary whose homeland was annihilated by nuclear war; as one of the few survivors, she seeks to form Pit into a stable nation.	Ruins-Home, Radioactive	Samurai, Veteran, Warden	BLDR 2 LTNK 1
