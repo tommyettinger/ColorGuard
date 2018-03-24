@@ -168,7 +168,6 @@ public class BattleState {
                 }
                 else
                 {
-
                     moveTargets.alter(pt, next);
                 }
             }

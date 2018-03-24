@@ -85,7 +85,6 @@ public class GameplayScreen implements Screen {
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
         //tempVector3 = new Vector3();
-        viewport.getCamera().translate(1080, 1080f, 0f);
         viewport.getCamera().update();
         //prevCameraPosition = viewport.getCamera().position.cpy();
         nextCameraPosition = viewport.getCamera().position.cpy();
@@ -168,11 +167,11 @@ public class GameplayScreen implements Screen {
         GLP.enable();
         state.world.startBattle(state.world.factions);
         state.world.battle.resistanceMaps();
-        Coord playerPos = state.world.battle.pieces.firstKey();
+        final Coord playerPos = state.world.battle.pieces.firstKey();
         targetCell = playerPos;
         playerPiece = state.world.battle.pieces.getAt(0);
-        dijkstra = new DijkstraMap(state.world.battle.resistances[playerPiece.pieceKind.mobility], DijkstraMap.Measurement.MANHATTAN);
-        dijkstra.rng = new StatefulRNG(new Zag32RNG(123456789, 987654321));
+        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), DijkstraMap.Measurement.MANHATTAN, new StatefulRNG(new Zag32RNG(123456789, 987654321)));
+        dijkstra.initializeCost(state.world.battle.resistances[playerPiece.pieceKind.mobility]);
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();
         //prevCameraPosition = viewport.getCamera().position.cpy();
@@ -306,12 +305,20 @@ public class GameplayScreen implements Screen {
                     return false;
                 inputMode = INPUT_LOCKED;
                 
-//                prevCameraPosition.set(viewport.getCamera().position);
                 nextCameraPosition.set(screenX, screenY, 0);
-//                cameraTraversed = 0f;
                 viewport.unproject(nextCameraPosition);
                 //32 * y - 32 * x, 16 * y + 16 * x
-                targetCell = Coord.get(MathUtils.round((nextCameraPosition.y - nextCameraPosition.x) * 0x1p-5f), MathUtils.round((nextCameraPosition.y + nextCameraPosition.x) * 0x1p-4f));
+                /*
+                nx = 32 * y - 32 * x
+                ny = 16 * y + 16 * x
+                nx + 2ny = 64y
+                nx - 2ny = -64x  
+                */
+                targetCell = Coord.get(MathUtils.round((nextCameraPosition.x - nextCameraPosition.y * 2f) / -64f), MathUtils.round((nextCameraPosition.x + nextCameraPosition.y * 2f) / 64f));
+                dijkstra.clearGoals();
+                dijkstra.findPath(playerPiece.pieceKind.stats[PieceKind.MOV], 20,
+                        state.world.battle.pieces.keySet(), null,
+                        state.world.battle.pieces.firstKey(), targetCell);
                 return true;
             }
 
@@ -332,7 +339,11 @@ public class GameplayScreen implements Screen {
                     //default: lastArrow = Direction.NONE;
                     default: return false;
                 }
-                targetCell.translate(lastArrow);
+                targetCell = playerPos.translate(lastArrow);
+                dijkstra.clearGoals();
+                dijkstra.findPath(playerPiece.pieceKind.stats[PieceKind.MOV], 20,
+                        state.world.battle.pieces.keySet(), null,
+                        state.world.battle.pieces.firstKey(), targetCell);
                 inputMode = INPUT_LOCKED;
                 return true;
             }
@@ -367,13 +378,34 @@ public class GameplayScreen implements Screen {
 //        viewport.getCamera().position.set(tempVector3);
         if(inputMode == INPUT_LOCKED)
         {
-            
-            inputMode = INPUT_ALLOWED;
+            if(dijkstra.path.isEmpty())
+                inputMode = INPUT_ALLOWED;
+            else if((turnTime += delta) >= 0.75f)
+            {
+                turnTime = 0f;
+                //dijkstra.path.size() - 1
+                Coord pt = state.world.battle.moveTargets.getAt(0), 
+                        next = dijkstra.path.remove(0), playerPos = state.world.battle.pieces.keyAt(0);
+
+                Piece p = state.world.battle.pieces.alterAt(0, pt);
+
+                lastArrow = Direction.getRoughDirection(next.x - pt.x, next.y - pt.y);
+                p.faceDirection(lastArrow);
+                if (!state.world.battle.pieces.containsKey(next)
+                        && !state.world.battle.moveTargets.contains(next)
+                        //&& (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0
+                        )
+                {
+                    state.world.battle.moveTargets.alter(pt, next);
+                    lastArrow = Direction.NONE;
+                }
+
+            }
         }
         else if((turnTime += delta) >= 1.5f)
         {
             turnTime = 0f;
-            Coord pt = state.world.battle.moveTargets.first();
+            Coord pt = state.world.battle.moveTargets.getAt(0);
             Piece p = state.world.battle.pieces.alterAt(0, pt);
             p.faceDirection(lastArrow);
             Coord next = pt.translateCapped(lastArrow.deltaX, lastArrow.deltaY, map.length, map[0].length);
@@ -429,7 +461,7 @@ public class GameplayScreen implements Screen {
             for (int y = maxY; y >= minY; y--) {
                 currentKind = map[x][y];
                 //batch.setColor(208f / 255f, MathUtils.clamp((float) fog.getNoise(32 * y - 32 * x, 16 * y + 16 * x, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f), 1f, 1f);
-                batch.draw(terrains[currentKind], 32 * y - 32 * x, 16 * y + 16 * x);
+                batch.draw(terrains[currentKind], 32 * (y - x), 16 * (y + x));
 //                tempSB.setLength(0);
 //                font.draw(batch, tempSB.append(state.world.bioGen.heatCodeData[x][y]),
 //                        32 * y - 32 * x, 16 * y + 16 * x + 32, 64f, 1, false);
@@ -454,27 +486,35 @@ public class GameplayScreen implements Screen {
                     n = battle.moveTargets.getAt(idx);
                     currentKind = currentPiece.kind << 2 | currentPiece.facing;
                     if (c.equals(n) && idx != 0) {
-                        switch (currentPiece.pieceKind.weapons) {
-                            case 2:
-                                sprite = (Sprite) acting0[currentKind].getKeyFrame(turnTime, false);
-                                offX = -40f;
-                                offY = -20f;
-                                break;
-                            case 3:
-                                sprite = (Sprite) (((currentKind * (x << 4 | 13) * (y << 4 | 11) & 256) == 0) ? acting0 : acting1)[currentKind].getKeyFrame(turnTime, false);
-                                offX = -40f;
-                                offY = -20f;
-                                break;
-                            case 1:
-                                sprite = (Sprite) acting1[currentKind].getKeyFrame(turnTime, false);
-                                offX = -40f;
-                                offY = -20f;
-                                break;
-                            default:
-                                sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
-                                offX = 0f;
-                                offY = 0f;
-                                break;
+                        if(inputMode == INPUT_LOCKED)
+                        {
+                            sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
+                            offX = 0f;
+                            offY = 0f;
+                        }
+                        else {
+                            switch (currentPiece.pieceKind.weapons) {
+                                case 2:
+                                    sprite = (Sprite) acting0[currentKind].getKeyFrame(turnTime, false);
+                                    offX = -40f;
+                                    offY = -20f;
+                                    break;
+                                case 3:
+                                    sprite = (Sprite) (((currentKind * (x << 4 | 13) * (y << 4 | 11) & 256) == 0) ? acting0 : acting1)[currentKind].getKeyFrame(turnTime, false);
+                                    offX = -40f;
+                                    offY = -20f;
+                                    break;
+                                case 1:
+                                    sprite = (Sprite) acting1[currentKind].getKeyFrame(turnTime, false);
+                                    offX = -40f;
+                                    offY = -20f;
+                                    break;
+                                default:
+                                    sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
+                                    offX = 0f;
+                                    offY = 0f;
+                                    break;
+                            }
                         }
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
@@ -485,8 +525,14 @@ public class GameplayScreen implements Screen {
                         font.draw(batch, currentPiece.stats, 32 * (y - x) + 9f, 16 * (y + x) + 73f, 48f, Align.center, true);
                         //batch.setColor(-0x1.fffffep126f); // white as a packed float
                     } else {
-                        offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
-                        offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+                        boolean isPlayer = currentPiece.equals(playerPiece);
+                        if(inputMode == INPUT_LOCKED && !isPlayer) {
+                            offX = 0;
+                            offY = 0;
+                        } else {
+                            offX = MathUtils.lerp(0f, 32f * ((n.y - c.y) - (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+                            offY = MathUtils.lerp(0f, 16f * ((n.y - c.y) + (n.x - c.x)), Math.min(1f, turnTime * 1.6f));
+                        }
                         sprite = (Sprite) standing[currentKind].getKeyFrame(currentTime, true);
                         sprite.setColor(currentPiece.palette, 1f, 1f, 1f);
                         //MathUtils.clamp((float) fog.getNoise(32 * (y - x) + offX + 9f, 16 * (y + x) + offY + 13f, currentTime * 60) * 0.7f + 0.7f, 0.1f, 1f)
