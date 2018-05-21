@@ -128,7 +128,7 @@ public class Faction {
     }
     public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory, WorldState world)
     {
-        rng = new StatefulRNG(new Zag32RNG(CrossHash.Wisp.hash64(name)));
+        rng = new StatefulRNG(new Lathe32RNG(CrossHash.hash64(name)));
         this.index = index;
         this.name = name;
         this.language = language;

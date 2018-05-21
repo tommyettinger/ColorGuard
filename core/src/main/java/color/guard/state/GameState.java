@@ -1,7 +1,7 @@
 package color.guard.state;
 
+import squidpony.squidmath.Lathe32RNG;
 import squidpony.squidmath.StatefulRNG;
-import squidpony.squidmath.Zag32RNG;
 
 /**
  * Tiny storage for all other parts of state, so this can be handed off to SquidStorage to save.
@@ -15,7 +15,7 @@ public class GameState {
     }
     public GameState(long seed)
     {
-        masterRandom = new StatefulRNG(new Zag32RNG(seed));
+        masterRandom = new StatefulRNG(new Lathe32RNG(seed));
         //Gdx.app.setLogLevel(Application.LOG_INFO);
         seed = masterRandom.nextLong();
         world = new WorldState(128, 128, seed);

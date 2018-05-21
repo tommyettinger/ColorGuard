@@ -3,7 +3,7 @@ eclipse.project.name = appName + '-core'
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 sourceSets.main.java.srcDir(project.file("src/main/java").path)
-dependencies {
+dependencies { 
     compile "com.badlogicgames.gdx:gdx:$gdxVersion"
     //compile "$squidLibUtilSnap"
     //compile "$squidLibExtraSnap"

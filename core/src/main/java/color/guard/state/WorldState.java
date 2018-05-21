@@ -84,7 +84,8 @@ public class WorldState {
     public WorldState(int width, int height, long seed) {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
-        worldRandom = new StatefulRNG(new Zag32RNG(seed));
+        Coord.expandPoolTo(worldWidth, worldHeight);
+        worldRandom = new StatefulRNG(new Lathe32RNG(seed));
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,

@@ -71,3 +71,4 @@ nb-configuration.xml
 *#*.*#
 /target/
 /bin/
+*.tsv#

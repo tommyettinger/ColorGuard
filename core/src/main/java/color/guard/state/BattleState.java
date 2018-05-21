@@ -21,7 +21,7 @@ public class BattleState {
         pieces = new OrderedMap<>(128);
         moverLimit = 0;
         moveTargets = new OrderedSet<>(128);
-        rng = new StatefulRNG(new Zag32RNG());
+        rng = new StatefulRNG(new Lathe32RNG());
         map = new int[64][64];
         working = new GreasedRegion(64, 64);
         working2 = new GreasedRegion(64, 64);
@@ -29,7 +29,7 @@ public class BattleState {
     public BattleState(long seed, int[][] map, Faction[] factions)
     {
         this.map = map;
-        rng = new StatefulRNG(new Zag32RNG(seed));
+        rng = new StatefulRNG(new Lathe32RNG(seed));
         int pieceCount = PieceKind.kinds.size(), mapWidth = map.length, mapHeight = map[0].length;
         working = new GreasedRegion(mapWidth, mapHeight);
         working2 = new GreasedRegion(mapWidth, mapHeight);

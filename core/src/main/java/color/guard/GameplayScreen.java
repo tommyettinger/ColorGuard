@@ -80,7 +80,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new RNG(new Zag32RNG(0x1337BEEFFEEDL));
+        guiRandom = new RNG(new Lathe32RNG(0x1337BEEFFEEDL));
         Gdx.gl.glDisable(GL20.GL_BLEND);
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
         //viewport = new ScreenViewport();
@@ -170,7 +170,7 @@ public class GameplayScreen implements Screen {
         final Coord playerPos = state.world.battle.pieces.firstKey();
         targetCell = playerPos;
         playerPiece = state.world.battle.pieces.getAt(0);
-        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), DijkstraMap.Measurement.MANHATTAN, new StatefulRNG(new Zag32RNG(123456789, 987654321)));
+        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), DijkstraMap.Measurement.MANHATTAN, new StatefulRNG(new Lathe32RNG(123456789, 987654321)));
         dijkstra.initializeCost(state.world.battle.resistances[playerPiece.pieceKind.mobility]);
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();
@@ -314,7 +314,8 @@ public class GameplayScreen implements Screen {
                 nx + 2ny = 64y
                 nx - 2ny = -64x  
                 */
-                targetCell = Coord.get(MathUtils.round((nextCameraPosition.x - nextCameraPosition.y * 2f) / -64f), MathUtils.round((nextCameraPosition.x + nextCameraPosition.y * 2f) / 64f));
+                targetCell = Coord.get(MathUtils.round((nextCameraPosition.x - nextCameraPosition.y * 2f + 32f) / -64f),
+                        MathUtils.round((nextCameraPosition.x + nextCameraPosition.y * 2f - 96f) / 64f));
                 dijkstra.clearGoals();
                 dijkstra.findPath(playerPiece.pieceKind.stats[PieceKind.MOV], 20,
                         state.world.battle.pieces.keySet(), null,
@@ -385,7 +386,8 @@ public class GameplayScreen implements Screen {
                 turnTime = 0f;
                 //dijkstra.path.size() - 1
                 Coord pt = state.world.battle.moveTargets.getAt(0), 
-                        next = dijkstra.path.remove(0), playerPos = state.world.battle.pieces.keyAt(0);
+                        next = dijkstra.path.remove(0);
+                //, playerPos = state.world.battle.pieces.keyAt(0);
 
                 Piece p = state.world.battle.pieces.alterAt(0, pt);
 
