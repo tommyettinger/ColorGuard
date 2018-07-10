@@ -1,6 +1,5 @@
 package color.guard.rules;
 
-import squidpony.Maker;
 import squidpony.squidmath.OrderedMap;
 import squidpony.squidmath.OrderedSet;
 
@@ -15,7 +14,7 @@ public class PieceKind {
     //categories
     TROP=0,LIGH=1,HEAV=2,AERI=3,NAVA=4,STRU=5,
     TOU=0, EVA=1, AMR=2, PRC=3, STR=4, HLP=5, REF=6, MOV=7, ASP=8;
-    public static final OrderedMap<String, String[]> motionFeatures = Maker.makeOM(
+    public static final OrderedMap<String, String[]> motionFeatures = OrderedMap.makeMap(
             //0
             "Foot", new String[] {"Traverse", "Hike", "Ford", "Responsive", "Irreparable"},
             //1
@@ -209,7 +208,7 @@ public class PieceKind {
     replace string:
     //$33\n\"$3\", new PieceKind\(\"$3\", \"$27\", \"$1\", \"$2\", $4, \"$5\", \"$6\", new int\[\]\{$7, $8, $9, $10, $11, $12, $13, $14, $15\}, new String\[\]\{\"$24\", \"$25\", \"$26\"\}, $28, new String\[\]\{\"$16\", \"$20\"\}, new int\[\]\{$17, $21\}, new int\[\]\{$18, $22\}, new int\[\]\{$19, $23\}, new String\[\]\{\"$29\", \"$31\"\}, new int\[\]\{$30, $32\}\),
     */
-    public static final OrderedMap<String, PieceKind> kinds = Maker.makeOM(
+    public static final OrderedMap<String, PieceKind> kinds = OrderedMap.makeMap(
 //0
             "Infantry", new PieceKind("Infantry", "Infantry", "SL", "INFY", TROP, "A brave foot soldier who gets stronger in a team.", "Foot", new int[]{2, 6, 2, 4, 1, 7, 8, 4, 6}, new String[]{"Swarm", "Lucky", "Troop-Focus"}, 2, new String[]{"Assault", "Assault"}, new int[]{1, 1}, new int[]{1, 1}, new int[]{2, 2}, new String[]{"Machine_Gun", "Machine_Gun"}, new int[]{1, 1}),
 //1
@@ -277,7 +276,7 @@ public class PieceKind {
 //32
             "Battleship", new PieceKind("Battleship", "Boat_P", "BT", "BTSP", NAVA, "A long-range boat with a set of huge anti-armor cannons.", "Naval", new int[]{9, 1, 6, 1, 9, 4, 2, 4, 1}, new String[]{"Juggernaut", "Structure-Focus", "Heavy-Focus"}, 2, new String[]{"Cannon", "Cannon"}, new int[]{1, 1}, new int[]{5, 5}, new int[]{2, 2}, new String[]{"Long_Cannon", "Long_Cannon"}, new int[]{4, 4})
     ),
-    facilities = Maker.makeOM(
+    facilities = OrderedMap.makeMap(
 //33
             "Factory", new PieceKind("Factory", "Factory", "CO", "FTRY", STRU, "A structure that produces a wide variety of ground vehicles.", "Immobile", new int[]{21, 0, 6, 0, 0, 3, 0, 0, 0}, new String[]{"Light-Build", "Heavy-Build", "Fire-Weak"}, 0, new String[]{"", ""}, new int[]{0, 0}, new int[]{0, 0}, new int[]{0, 0}, new String[]{"", ""}, new int[]{0, 0}),
 //34

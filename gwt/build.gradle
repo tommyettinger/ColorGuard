@@ -6,7 +6,7 @@ gwt {
     maxHeapSize="1G" // Default 256m is not enough for gwt compiler. GWT is HUNGRY
     minHeapSize="1G"
 
-    src = files(file("src/main/java")) // Needs to be in front of "modules" below.
+    src = files(file('src/main/java')) // Needs to be in front of "modules" below.
     modules 'color.guard.GdxDefinition'
     devModules 'color.guard.GdxDefinitionSuperdev'
     project.webAppDirName = 'webapp'
@@ -15,18 +15,19 @@ gwt {
     compiler.disableCastChecking = true
 }
 
+
 import org.wisepersist.gradle.plugins.gwt.GwtSuperDev
 
 def HttpFileServer server = null
 def httpFilePort = 8080
-task startHttpServer () {     
+task startHttpServer () {
     dependsOn draftCompileGwt
     String output = project.buildDir.path + "/gwt/draftOut"
     doLast {
-        copy { 
+        copy {
             from "webapp"
             into output
-        } 
+        }
         copy {
             from "war"
             into output

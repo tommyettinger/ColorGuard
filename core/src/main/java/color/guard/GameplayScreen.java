@@ -65,7 +65,7 @@ public class GameplayScreen implements Screen {
     //private String displayString;
     //private InputMultiplexer input;
     private InputProcessor proc;
-    private Vector3 tempVector3, nextCameraPosition; //prevCameraPosition;
+    private Vector3 nextCameraPosition; //prevCameraPosition;
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
     //private Noise.Noise3D fog;
@@ -389,36 +389,46 @@ public class GameplayScreen implements Screen {
                         next = dijkstra.path.remove(0);
                 //, playerPos = state.world.battle.pieces.keyAt(0);
 
-                Piece p = state.world.battle.pieces.alterAt(0, pt);
-
-                lastArrow = Direction.getRoughDirection(next.x - pt.x, next.y - pt.y);
-                p.faceDirection(lastArrow);
-                if (!state.world.battle.pieces.containsKey(next)
-                        && !state.world.battle.moveTargets.contains(next)
+                Piece p;
+                if(state.world.battle.pieces.keyAt(0).equals(pt))
+                    p = state.world.battle.pieces.getAt(0);
+                else
+                    p = state.world.battle.pieces.alterAtCarefully(0, pt);
+                if(p != null) {
+                    p = state.world.battle.pieces.getAt(0);
+                    lastArrow = Direction.getRoughDirection(next.x - pt.x, next.y - pt.y);
+                    p.faceDirection(lastArrow);
+                    if (!state.world.battle.pieces.containsKey(next)
+                            && !state.world.battle.moveTargets.contains(next)
                         //&& (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0
-                        )
+                    ) {
+                        state.world.battle.moveTargets.alter(pt, next);
+                        lastArrow = Direction.NONE;
+                    }
+                }
+            }
+        }
+        else if((turnTime += delta) >= 1.5f) {
+            turnTime = 0f;
+            Coord pt = state.world.battle.moveTargets.getAt(0);
+            Piece p;
+            if(state.world.battle.pieces.keyAt(0).equals(pt))
+                p = state.world.battle.pieces.getAt(0);
+            else
+                p = state.world.battle.pieces.alterAtCarefully(0, pt);
+            if (p != null) {
+                p = state.world.battle.pieces.getAt(0);
+                p.faceDirection(lastArrow);
+                Coord next = pt.translateCapped(lastArrow.deltaX, lastArrow.deltaY, map.length, map[0].length);
+                if (!state.world.battle.pieces.containsKey(next)
+                        && !state.world.battle.moveTargets.contains(next))
+//                    && (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0)
                 {
                     state.world.battle.moveTargets.alter(pt, next);
                     lastArrow = Direction.NONE;
                 }
-
+                state.world.battle.advanceTurn();
             }
-        }
-        else if((turnTime += delta) >= 1.5f)
-        {
-            turnTime = 0f;
-            Coord pt = state.world.battle.moveTargets.getAt(0);
-            Piece p = state.world.battle.pieces.alterAt(0, pt);
-            p.faceDirection(lastArrow);
-            Coord next = pt.translateCapped(lastArrow.deltaX, lastArrow.deltaY, map.length, map[0].length);
-            if (!state.world.battle.pieces.containsKey(next)
-                    && !state.world.battle.moveTargets.contains(next))
-//                    && (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0)
-            {
-                state.world.battle.moveTargets.alter(pt, next);
-                lastArrow = Direction.NONE;
-            }
-            state.world.battle.advanceTurn();
         }
 
         //displayString = state.world.mapGen.atlas.getAt(((int)currentTime >>> 2) % 24 + 2);

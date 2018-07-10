@@ -152,31 +152,31 @@ public class BattleState {
         Piece p;
         for (int i = 1; i < ct; i++) {
             pt = moveTargets.getAt(i);
-            p = pieces.alterAt(i, pt);
-            r = rng.nextIntHasty(8);
-            if(r < 5)
-            {
-                dir = Piece.facingDirection(p.facing);
-                next = pt.translateCapped(dir.deltaX, dir.deltaY, map.length, map[0].length);
-                if(pieces.containsKey(next) || moveTargets.contains(next)
-                        || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0)
-                {
-                    if(rng.nextBoolean())
+            if(pieces.keyAt(i).equals(pt))
+                p = pieces.getAt(i);
+            else
+                p = pieces.alterAtCarefully(i, pt);
+            if(p != null) {
+                p = pieces.getAt(i);
+                r = rng.nextIntHasty(8);
+                if (r < 5) {
+                    dir = Piece.facingDirection(p.facing);
+                    next = pt.translateCapped(dir.deltaX, dir.deltaY, map.length, map[0].length);
+                    if (pieces.containsKey(next) || moveTargets.contains(next)
+                            || (p.pieceKind.permits & 1 << map[next.x][next.y]) == 0) {
+                        if (rng.nextBoolean())
+                            p.facing = p.turnLeft();
+                        else
+                            p.facing = p.turnRight();
+                    } else {
+                        moveTargets.alter(pt, next);
+                    }
+                } else {
+                    if (rng.nextBoolean())
                         p.facing = p.turnLeft();
                     else
                         p.facing = p.turnRight();
                 }
-                else
-                {
-                    moveTargets.alter(pt, next);
-                }
-            }
-            else
-            {
-                if(rng.nextBoolean())
-                    p.facing = p.turnLeft();
-                else
-                    p.facing = p.turnRight();
             }
         }
     }

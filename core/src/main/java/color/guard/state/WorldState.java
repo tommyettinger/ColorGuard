@@ -241,10 +241,10 @@ public class WorldState {
         }
 
         protected void regenerate(int startX, int startY, int usedWidth, int usedHeight,
-                                  double waterMod, double coolMod, long state)
+                                  double landMod, double coolMod, long state)
         {
             boolean fresh = false;
-            if(cachedState != state || waterMod != waterModifier || coolMod != coolingModifier)
+            if(cachedState != state || landMod != landModifier || coolMod != coolingModifier)
             {
                 minHeight = Double.POSITIVE_INFINITY;
                 maxHeight = Double.NEGATIVE_INFINITY;
@@ -265,7 +265,7 @@ public class WorldState {
             long seedA = rng.nextLong(), seedB = rng.nextLong(), seedC = rng.nextLong();
             int t;
 
-            waterModifier = (waterMod <= 0) ? rng.nextDouble(0.29) + 0.91 : waterMod;
+            landModifier = (landMod <= 0) ? rng.nextDouble(0.29) + 0.91 : landMod;
             coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.3) * (rng.nextDouble()-0.5) + 1.0 : coolMod;
 
             double p, q,
@@ -287,7 +287,7 @@ public class WorldState {
                             Math.max(Math.max(-(xPos - (width >>> 3)), 0), Math.max(xPos - (width * 7 >>> 3), 0)),
                             Math.max(Math.max(-(yPos - (height >>> 3)), 0), Math.max(yPos - (height * 7 >>> 3), 0)))
                             * subtle;
-                    h *= waterModifier;
+                    h *= landModifier;
                     h = MathUtils.clamp(h, -1.0, 1.0);
                     heightData[x][y] = h;
                     heatData[x][y] = (pc = heat.getNoiseWithSeed(p, q
