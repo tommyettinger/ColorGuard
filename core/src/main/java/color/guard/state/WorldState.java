@@ -89,7 +89,7 @@ public class WorldState {
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
-                WhirlingNoise.instance, 1.0);
+                ClassicNoise.instance, 0.7);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.091, 1.15, seed);
         //mapGen.zoomIn(0, worldWidth >> 1, worldHeight >> 1);
@@ -141,7 +141,8 @@ public class WorldState {
     }
     public static class StandardMap extends WorldMapGenerator {
         //protected static final double terrainFreq = 1.5, terrainRidgedFreq = 1.3, heatFreq = 2.8, moistureFreq = 2.9, otherFreq = 4.5;
-        protected static final double terrainFreq = 1.6, terrainRidgedFreq = 2.0, heatFreq = 2.2, moistureFreq = 2.5, otherFreq = 4.5, riverRidgedFreq = 42.1;
+        //protected static final double terrainFreq = 1.6, terrainRidgedFreq = 2.0, heatFreq = 2.2, moistureFreq = 2.5, otherFreq = 4.5, riverRidgedFreq = 42.1;
+        protected static final double terrainFreq = 1.35, terrainRidgedFreq = 2.8, heatFreq = 2.1, moistureFreq = 2.125, otherFreq = 3.375, riverRidgedFreq = 21.7;
         private double minHeat0 = Double.POSITIVE_INFINITY, maxHeat0 = Double.NEGATIVE_INFINITY,
                 minHeat1 = Double.POSITIVE_INFINITY, maxHeat1 = Double.NEGATIVE_INFINITY,
                 minWet0 = Double.POSITIVE_INFINITY, maxWet0 = Double.NEGATIVE_INFINITY;
@@ -149,18 +150,17 @@ public class WorldState {
         public final Noise.Noise2D terrain, terrainRidged, heat, moisture, otherRidged, riverRidged;
 
         /**
-         * Constructs a concrete WorldMapGenerator for a map does not tile. Always makes a 256x256 map.
+         * Constructs a concrete WorldMapGenerator for a map that does not tile. Always makes a 256x256 map.
          * Uses WhirlingNoise as its noise generator, with 1.0 as the octave multiplier affecting detail.
          * If you were using {@link squidpony.squidgrid.mapping.WorldMapGenerator.TilingMap#TilingMap(long, int, int, squidpony.squidmath.Noise.Noise4D, double)}, then this would be the
          * same as passing the parameters {@code 0x1337BABE1337D00DL, 256, 256, WhirlingNoise.instance, 1.0}.
          */
         public StandardMap() {
-            this(0x1337BABE1337D00DL, 256, 256, WhirlingNoise.instance, 1.0);
+            this(0x1337BABE1337D00DL, 256, 256);
         }
 
         /**
-         * Constructs a concrete WorldMapGenerator for a map that can be used as a tiling, wrapping east-to-west as well
-         * as north-to-south.
+         * Constructs a concrete WorldMapGenerator for a map that does not tile.
          * Takes only the width/height of the map. The initial seed is set to the same large long
          * every time, and it's likely that you would set the seed when you call {@link #generate(long)}. The width and
          * height of the map cannot be changed after the fact, but you can zoom in.
@@ -170,7 +170,7 @@ public class WorldState {
          * @param mapHeight the height of the map(s) to generate; cannot be changed later
          */
         public StandardMap(int mapWidth, int mapHeight) {
-            this(0x1337BABE1337D00DL, mapWidth, mapHeight, WhirlingNoise.instance, 1.0);
+            this(0x1337BABE1337D00DL, mapWidth, mapHeight);
         }
 
         /**
@@ -186,7 +186,7 @@ public class WorldState {
          * @param mapHeight   the height of the map(s) to generate; cannot be changed later
          */
         public StandardMap(long initialSeed, int mapWidth, int mapHeight) {
-            this(initialSeed, mapWidth, mapHeight, WhirlingNoise.instance, 1.0);
+            this(initialSeed, mapWidth, mapHeight, ClassicNoise.instance, 0.7);
         }
 
         /**
@@ -281,21 +281,21 @@ public class WorldState {
                     q = (xPos + yPos - wh) * i_wh;
                     p = (xPos - yPos) * i_wh;
                     h = terrain.getNoiseWithSeed(p +
-                                    terrainRidged.getNoiseWithSeed(p, q, seedA + seedB),
-                            q, seedA);
+                                    terrainRidged.getNoiseWithSeed(p, q, seedB - seedA),
+                            q, seedA) + landModifier - 1.0;
                     h -= Math.max(
                             Math.max(Math.max(-(xPos - (width >>> 3)), 0), Math.max(xPos - (width * 7 >>> 3), 0)),
                             Math.max(Math.max(-(yPos - (height >>> 3)), 0), Math.max(yPos - (height * 7 >>> 3), 0)))
                             * subtle;
                     h *= landModifier;
                     h = MathUtils.clamp(h, -1.0, 1.0);
+
                     heightData[x][y] = h;
-                    heatData[x][y] = (pc = heat.getNoiseWithSeed(p, q
-                                    + otherRidged.getNoiseWithSeed(p, q, seedB + seedC)
+                    heatData[x][y] = (pc = heat.getNoiseWithSeed(p,
+                                    q + otherRidged.getNoiseWithSeed(p, q, seedB + seedC)
                             , seedB));
-                    moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p, q
-                                    + otherRidged.getNoiseWithSeed(p, q, seedC + seedA)
-                            , seedC));
+                    moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p + otherRidged.getNoiseWithSeed(p, q, seedC + seedA),
+                            q, seedC));
                     freshwaterData[x][y] = (ps = Math.min(
                             NumberTools.sway(riverRidged.getNoiseWithSeed(p * 0.46, q * 0.46, seedC - seedA - seedB) + 0.38),
                             NumberTools.sway( riverRidged.getNoiseWithSeed(p, q, seedC - seedA - seedB) + 0.5))) * ps * ps * (1.11 * (zoom + 1.342));

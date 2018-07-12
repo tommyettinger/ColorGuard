@@ -398,10 +398,12 @@ public class GameplayScreen implements Screen {
                     p = state.world.battle.pieces.getAt(0);
                     lastArrow = Direction.getRoughDirection(next.x - pt.x, next.y - pt.y);
                     p.faceDirection(lastArrow);
-                    if (!state.world.battle.pieces.containsKey(next)
-                            && !state.world.battle.moveTargets.contains(next)
+                    int idx = state.world.battle.moveTargets.indexOf(next);
+                    if(idx >= 0)
+                        state.world.battle.moveTargets.alterAt(idx, state.world.battle.pieces.keyAt(idx));
+                    if (!state.world.battle.pieces.containsKey(next))
                         //&& (p.pieceKind.permits & 1 << map[next.x][next.y]) != 0
-                    ) {
+                        {
                         state.world.battle.moveTargets.alter(pt, next);
                         lastArrow = Direction.NONE;
                     }
