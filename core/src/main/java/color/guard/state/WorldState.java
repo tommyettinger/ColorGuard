@@ -8,6 +8,8 @@ import squidpony.squidgrid.mapping.PoliticalMapper;
 import squidpony.squidgrid.mapping.WorldMapGenerator;
 import squidpony.squidmath.*;
 
+import java.util.List;
+
 /**
  * Really important class that calculates and stores a world map and the factions it holds.
  * Created by Tommy Ettinger on 10/3/2016.
@@ -22,7 +24,6 @@ public class WorldState {
     public Faction[] factions;
     public StatefulRNG worldRandom;
     public BattleState battle = null;
-    public GreasedRegion riverData;
     public static final String[] terrains = {
             "Road",
             "Plains",
@@ -122,7 +123,6 @@ public class WorldState {
         politicalMap = polGen.generate(land, languageAtlas, 0.97);
         bioGen = new CGBiomeMapper();
         bioGen.makeBiomes(mapGen);
-        riverData = bioGen.riverData;
         worldMap = bioGen.biomeCodeData;
 
         factions = new Faction[24];
@@ -296,9 +296,6 @@ public class WorldState {
                             , seedB));
                     moistureData[x][y] = (temp = moisture.getNoiseWithSeed(p + otherRidged.getNoiseWithSeed(p, q, seedC + seedA),
                             q, seedC));
-                    freshwaterData[x][y] = (ps = Math.min(
-                            NumberTools.sway(riverRidged.getNoiseWithSeed(p * 0.46, q * 0.46, seedC - seedA - seedB) + 0.38),
-                            NumberTools.sway( riverRidged.getNoiseWithSeed(p, q, seedC - seedA - seedB) + 0.5))) * ps * ps * (1.11 * (zoom + 1.342));
 
                     //freshwaterData[x][y] = (ps = riverRidged.getNoiseWithSeed(p,// * (temp + 1.5) * 0.25
                     //        q, seedC - seedA - seedB) + 0.015) * ps * ps * (1.11 * (zoom + 1.342));
@@ -417,7 +414,6 @@ public class WorldState {
          * The biome codes for the analyzed map, corresponding to shown terrain types.
          */
         biomeCodeData;
-        public GreasedRegion riverData;
         public static final double
                 coldestValueLower = 0.0,   coldestValueUpper = 0.15, // 0
                 colderValueLower = 0.15,   colderValueUpper = 0.3,   // 1
@@ -485,18 +481,43 @@ public class WorldState {
                 biomeCodeData = new int[world.width][world.height];
             final double i_hot = (world.maxHeat == 0.0) ? 1.0 : 1.0 / world.maxHeat;
             GreasedRegion shores = world.landData.copy().not().fringe8way();
-            if(world.generateRivers)
-                riverData = new GreasedRegion(world.freshwaterData, 0.78, 10000.0)
-                        .thin().expand8way().expand().thinFully8way().and(world.landData);
-            else
-                riverData = world.landData;
+            Coord[] riverStarts = new GreasedRegion(world.heightData, world.maxHeightActual * 0.75, Double.POSITIVE_INFINITY)
+                    .randomScatter(world.rng, 8).asCoords();
+            world.rng.shuffleInPlace(riverStarts);
+            final int numRivers = riverStarts.length >> 1;
+            OrderedSet<Coord> rivers = new OrderedSet<>(numRivers << 3),
+                    shoresAndRivers = new OrderedSet<>(shores);
+            Coord start, end;
+            List<Coord> wobble = null, chosenWobble;
+            for (int i = 0; i < numRivers; i++) {
+                start = riverStarts[i];
+                chosenWobble = null;
+                for (int j = 0; j < 5; j++) {
+                    end = shoresAndRivers.randomItem(world.rng);
+                    wobble = WobblyLine.line(start.x, start.y, end.x, end.y, world.width, world.height, 0.8, world.rng);
+                    wobble.add(end.translateCapped(1, 0, world.width, world.height));
+                    wobble.add(end.translateCapped(0, 1, world.width, world.height));
+                    wobble.add(end.translateCapped(-1, 0, world.width, world.height));
+                    wobble.add(end.translateCapped(0, -1, world.width, world.height));
+                    if(chosenWobble == null || chosenWobble.size() > wobble.size())
+                        chosenWobble = wobble;
+                }
+                int len = chosenWobble.size();
+                boolean tryMerge = world.rng.nextBoolean();
+                for (int j = 0; j < len; j++) {
+                    end = wobble.get(j);
+                    if(world.heightCodeData[end.x][end.y] <= 3)
+                        break;
+                    rivers.add(end);
+                    if(tryMerge)
+                        shoresAndRivers.add(end);
+                }
+            }
             for (int x = 0; x < world.width; x++) {
                 for (int y = 0; y < world.height; y++) {
-                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y], fresh = world.freshwaterData[x][y];
+                    final double hot = world.heatData[x][y], moist = world.moistureData[x][y];
                     final int heightCode = world.heightCodeData[x][y];
                     int hc, mc;
-                    boolean //isLake = world.generateRivers && heightCode >= 4 && fresh > 0.85 && fresh + moist * 2.35 > 2.75,
-                            isRiver = world.generateRivers && riverData.contains(x,y);//!isLake && heightCode >= 4 && fresh > 0.75 && fresh + moist * 2.2 > 2.15;
                     if (moist > wetterValueUpper) {
                         mc = 5;
                     } else if (moist > wetValueUpper) {
@@ -530,8 +551,8 @@ public class WorldState {
                     biomeCodeData[x][y] =
                             heightCode <= 3
                             ? Ocean
-                            //: isRiver // || isLake
-                            //? biomeTable[hc + 42]
+                            : rivers.contains(Coord.get(x, y)) // || isLake
+                            ? biomeTable[hc + 42]
                             : heightCode == 8
                             ? Mountain
                             : hc == 0

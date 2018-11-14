@@ -162,7 +162,7 @@ public class Faction {
             cities = new Coord[0];
         }
         else {
-            GreasedRegion[] retractions = territory.copy().andNot(world.riverData).retractSeries(4);
+            GreasedRegion[] retractions = territory.copy().retractSeries(4);
             for (int i = 3; i >= -1; i--) {
                 if (i == -1) { // should never happen; only possible when territory is empty
                     capital = territory.singleRandom(rng);

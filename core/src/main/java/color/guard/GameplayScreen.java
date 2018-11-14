@@ -69,8 +69,8 @@ public class GameplayScreen implements Screen {
     private static final float visualWidth = 800f, visualHeight = 450f;
     private StringBuilder tempSB;
     //private Noise.Noise3D fog;
-    GLProfiler GLP;
-    private int drawCalls = 0, textureBindings = 0;
+    private GLProfiler glp;
+
     public GameplayScreen(GameState state)
     {
         this.state = state;
@@ -163,8 +163,8 @@ public class GameplayScreen implements Screen {
             dying[pieceCount + i << 2 | 2] = new Animation<>(0.10f, atlas.createSprites(s + 2 + "_death"));
             dying[pieceCount + i << 2 | 3] = new Animation<>(0.10f, atlas.createSprites(s + 3 + "_death"));
         }
-        GLP = new GLProfiler(Gdx.graphics);
-        GLP.enable();
+        glp = new GLProfiler(Gdx.graphics);
+        glp.enable();
         state.world.startBattle(state.world.factions);
         state.world.battle.resistanceMaps();
         final Coord playerPos = state.world.battle.pieces.firstKey();
@@ -366,7 +366,7 @@ public class GameplayScreen implements Screen {
     @Override
     public void render(float delta) {
         //GLProfiler.reset();
-        GLP.reset();
+        glp.reset();
         Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
 //        float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
@@ -561,8 +561,8 @@ public class GameplayScreen implements Screen {
         }
         //batch.setColor(1f / 255f, 1f, 1f, 1f);
         //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
-        drawCalls = GLP.getDrawCalls();
-        textureBindings = GLP.getTextureBindings();
+        int drawCalls = glp.getDrawCalls();
+        int textureBindings = glp.getTextureBindings();
         tempSB.setLength(0);
         tempSB.append(Gdx.graphics.getFramesPerSecond()).append(" FPS, Draw Calls: ").append(drawCalls).append(", Texture Binds: ").append(textureBindings);
         screenPosition.set(16, 8);
