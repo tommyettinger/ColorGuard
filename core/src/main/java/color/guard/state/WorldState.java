@@ -239,12 +239,12 @@ public class WorldState {
             otherRidged = new Noise.Ridged2D(noiseGenerator, (int) (0.5 + octaveMultiplier * 6), otherFreq);
             riverRidged = new Noise.Ridged2D(noiseGenerator, (int)(0.5 + octaveMultiplier * 2), riverRidgedFreq);
         }
-
-        protected void regenerate(int startX, int startY, int usedWidth, int usedHeight,
-                                  double landMod, double coolMod, long state)
+        protected void regenerate(int startX, int startY, int usedWidth, int usedHeight, double landMod, double coolMod, int stateA, int stateB)
+//        protected void regenerate(int startX, int startY, int usedWidth, int usedHeight,
+//                                  double landMod, double coolMod, long state)
         {
             boolean fresh = false;
-            if(cachedState != state || landMod != landModifier || coolMod != coolingModifier)
+            if(cacheA != stateA || cacheB != stateB || landMod != landModifier || coolMod != coolingModifier)
             {
                 minHeight = Double.POSITIVE_INFINITY;
                 maxHeight = Double.NEGATIVE_INFINITY;
@@ -258,10 +258,11 @@ public class WorldState {
                 maxWet0 = Double.NEGATIVE_INFINITY;
                 minWet = Double.POSITIVE_INFINITY;
                 maxWet = Double.NEGATIVE_INFINITY;
-                cachedState = state;
+                cacheA = stateA;
+                cacheB = stateB;
                 fresh = true;
             }
-            rng.setState(state);
+            rng.setState(stateA, stateB);
             long seedA = rng.nextLong(), seedB = rng.nextLong(), seedC = rng.nextLong();
             int t;
 

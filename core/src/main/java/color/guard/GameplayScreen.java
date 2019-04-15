@@ -561,11 +561,13 @@ public class GameplayScreen implements Screen {
         }
         //batch.setColor(1f / 255f, 1f, 1f, 1f);
         //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
+        batch.end();
         int drawCalls = glp.getDrawCalls();
         int textureBindings = glp.getTextureBindings();
         tempSB.setLength(0);
         tempSB.append(Gdx.graphics.getFramesPerSecond()).append(" FPS, Draw Calls: ").append(drawCalls).append(", Texture Binds: ").append(textureBindings);
         screenPosition.set(16, 8);
+        batch.begin();
         viewport.unproject(screenPosition);
         font.draw(batch, tempSB, screenPosition.x, screenPosition.y);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))

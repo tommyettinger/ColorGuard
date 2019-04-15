@@ -1,8 +1,8 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
-  buildToolsVersion '25.0.2'
-  compileSdkVersion 23
+  buildToolsVersion '28.0.3'
+  compileSdkVersion 28
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -34,11 +34,20 @@ android {
   defaultConfig {
     applicationId 'color.guard'
     minSdkVersion 8
-    targetSdkVersion 23
+    targetSdkVersion 28
   }
 }
 
 configurations { natives }
+
+repositories {
+  mavenCentral()
+  maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  maven { url 'https://jitpack.io' }
+  mavenLocal()
+  google()
+  jcenter()
+}
 
 dependencies {
   compile project(':core')
