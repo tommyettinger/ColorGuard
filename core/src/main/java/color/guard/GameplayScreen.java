@@ -367,7 +367,7 @@ public class GameplayScreen implements Screen {
     public void render(float delta) {
         //GLProfiler.reset();
         glp.reset();
-        Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
+//        Gdx.graphics.setTitle("Color Guard, running at " + Gdx.graphics.getFramesPerSecond() + " FPS");
         currentTime += delta;
 //        float swap = (NumberTools.zigzag(currentTime * 1.141592653589793f)
 //                + NumberTools.zigzag(currentTime * 1.218281828459045f)
@@ -566,13 +566,14 @@ public class GameplayScreen implements Screen {
         int textureBindings = glp.getTextureBindings();
         tempSB.setLength(0);
         tempSB.append(Gdx.graphics.getFramesPerSecond()).append(" FPS, Draw Calls: ").append(drawCalls).append(", Texture Binds: ").append(textureBindings);
-        screenPosition.set(16, 8);
-        batch.begin();
-        viewport.unproject(screenPosition);
-        font.draw(batch, tempSB, screenPosition.x, screenPosition.y);
+        Gdx.graphics.setTitle(tempSB.toString());
+//        screenPosition.set(16, 8);
+//        viewport.unproject(screenPosition);
+
+        //font.draw(batch, tempSB, screenPosition.x, screenPosition.y);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
         //batch.setColor(-0x1.fffffep126f); // white as a packed float
-        batch.end();
+        //batch.end();
         //drawCalls = GLProfiler.drawCalls;
         //textureBindings = GLProfiler.textureBindings;
     }
