@@ -1,13 +1,12 @@
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-eclipse.project.name = appName + '-core'
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 sourceSets.main.java.srcDir(project.file("src/main/java").path)
 dependencies { 
-    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
     //compile "$squidLibUtilSnap"
     //compile "$squidLibExtraSnap"
-    compile "com.github.tommyettinger:regexodus:$regExodusVersion"
-    compile "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion"
-    compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion"
+    api "com.github.tommyettinger:regexodus:$regExodusVersion"
+    api "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion"
+    api "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion"
 }

@@ -1,10 +1,10 @@
-apply plugin: 'gwt'
-apply plugin: 'war'
+apply plugin: "gwt"
+apply plugin: "war"
 
 gwt {
-    gwtVersion='2.8.0' // Should match the gwt version used for building the gwt backend
-    maxHeapSize="1G" // Default 256m is not enough for gwt compiler. GWT is HUNGRY
-    minHeapSize="1G"
+    gwtVersion = "$gwtFrameworkVersion" // Should match the version used for building the GWT backend. See gradle.properties.
+    maxHeapSize = '1G' // Default 256m is not enough for the GWT compiler. GWT is HUNGRY.
+    minHeapSize = '1G'
 
     src = files(file('src/main/java')) // Needs to be in front of "modules" below.
     modules 'color.guard.GdxDefinition'
@@ -14,7 +14,6 @@ gwt {
     compiler.strict = true
     compiler.disableCastChecking = true
 }
-
 
 import org.wisepersist.gradle.plugins.gwt.GwtSuperDev
 
@@ -33,19 +32,18 @@ task startHttpServer () {
             into output
         }
         server = new SimpleHttpFileServerFactory().start(new File(output), httpFilePort)
-        println "Server started in directory " + server.getContentRoot() + ", http://localhost:" + server.getPort()
+        println "Server started in directory " + server.getContentRoot() + ", http://localhost:" + server.getPort() + "/index.html"
     }
 }
+
 dependencies {
-    compile project(':core')
-    compile "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
-    compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
-    compile "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-    //compile "$squidLibUtilSnap:sources"
-    //compile "$squidLibExtraSnap:sources"
-    compile "com.github.tommyettinger:regexodus:$regExodusVersion:sources"
-    compile "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion:sources"
-    compile "com.github.SquidPony.SquidLib:squidlib-extra:$squidLibVersion:sources"
+    api project(':core')
+    api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+    api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+    api "com.github.SquidPony.SquidLib:squidlib-util:$squidLibVersion:sources"
+    api "com.github.tommyettinger:regexodus:$regExodusVersion:sources"
+
 }
 
 task superDev(type: GwtSuperDev) {
@@ -72,11 +70,10 @@ task dist(dependsOn: [clean, compileGwt]) {
         }
     }
 }
-
-
 task addSource {
     doLast {
         sourceSets.main.compileClasspath += files(project(':core').sourceSets.main.allJava.srcDirs)
+
     }
 }
 
@@ -85,8 +82,3 @@ tasks.draftCompileGwt.dependsOn(addSource)
 
 sourceCompatibility = 1.7
 sourceSets.main.java.srcDirs = [ "src/main/java/" ]
-
-
-eclipse.project {
-    name = appName + "-gwt"
-}

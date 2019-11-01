@@ -90,7 +90,7 @@ public class WorldState {
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
-                ClassicNoise.instance, 0.7);
+                WorldMapGenerator.DEFAULT_NOISE, 0.7);
         polGen = new PoliticalMapper(worldName);
         mapGen.generate(1.091, 1.15, seed);
         //mapGen.zoomIn(0, worldWidth >> 1, worldHeight >> 1);
@@ -186,7 +186,7 @@ public class WorldState {
          * @param mapHeight   the height of the map(s) to generate; cannot be changed later
          */
         public StandardMap(long initialSeed, int mapWidth, int mapHeight) {
-            this(initialSeed, mapWidth, mapHeight, ClassicNoise.instance, 0.7);
+            this(initialSeed, mapWidth, mapHeight, DEFAULT_NOISE, 0.7);
         }
 
         /**
@@ -244,7 +244,7 @@ public class WorldState {
 //                                  double landMod, double coolMod, long state)
         {
             boolean fresh = false;
-            if(cacheA != stateA || cacheB != stateB || landMod != landModifier || coolMod != coolingModifier)
+            if(cacheA != stateA || cacheB != stateB || landMod != landModifier || coolMod != heatModifier)
             {
                 minHeight = Double.POSITIVE_INFINITY;
                 maxHeight = Double.NEGATIVE_INFINITY;
@@ -267,7 +267,7 @@ public class WorldState {
             int t;
 
             landModifier = (landMod <= 0) ? rng.nextDouble(0.29) + 0.91 : landMod;
-            coolingModifier = (coolMod <= 0) ? rng.nextDouble(0.3) * (rng.nextDouble()-0.5) + 1.0 : coolMod;
+            heatModifier = (coolMod <= 0) ? rng.nextDouble(0.3) * (rng.nextDouble()-0.5) + 1.0 : coolMod;
 
             double p, q,
                     ps, pc,
@@ -371,7 +371,7 @@ public class WorldState {
                 minHeat1 = ps;
                 maxHeat1 = pc;
             }
-            heatDiff = coolingModifier / (maxHeat1 - minHeat1);
+            heatDiff = heatModifier / (maxHeat1 - minHeat1);
             qs = Double.POSITIVE_INFINITY;
             qc = Double.NEGATIVE_INFINITY;
             ps = Double.POSITIVE_INFINITY;

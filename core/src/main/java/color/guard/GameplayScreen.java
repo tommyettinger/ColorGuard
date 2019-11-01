@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import squidpony.ArrayTools;
 import squidpony.squidai.DijkstraMap;
 import squidpony.squidgrid.Direction;
+import squidpony.squidgrid.Measurement;
 import squidpony.squidmath.*;
 
 /**
@@ -170,7 +171,7 @@ public class GameplayScreen implements Screen {
         final Coord playerPos = state.world.battle.pieces.firstKey();
         targetCell = playerPos;
         playerPiece = state.world.battle.pieces.getAt(0);
-        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), DijkstraMap.Measurement.MANHATTAN, new StatefulRNG(new Lathe32RNG(123456789, 987654321)));
+        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), Measurement.MANHATTAN, new StatefulRNG(new Lathe32RNG(123456789, 987654321)));
         dijkstra.initializeCost(state.world.battle.resistances[playerPiece.pieceKind.mobility]);
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();

@@ -4,21 +4,21 @@ buildscript {
     mavenCentral()
     jcenter()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    google()
   }
   dependencies {
-    classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
     classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
     classpath "com.android.tools.build:gradle:$androidPluginVersion"
   }
 }
 
 allprojects {
-  apply plugin: 'eclipse'
   apply plugin: 'idea'
 }
 
-configure(subprojects - project(':android')) {
-  apply plugin: 'java'
+configure(subprojects) {
+//configure(subprojects - project(':android')) {
+  apply plugin: 'java-library'
   sourceCompatibility = 1.7
 }
 
@@ -32,11 +32,4 @@ subprojects {
     mavenLocal()
     jcenter()
   }
-}
-
-// Clearing Eclipse project data in root folder:
-tasks.eclipse.doLast {
-  delete '.project'
-  delete '.classpath'
-  delete '.settings/'
 }
