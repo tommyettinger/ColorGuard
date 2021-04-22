@@ -83,7 +83,7 @@ public class GameplayScreen implements Screen {
     public void show() {
         guiRandom = new RNG(new Lathe32RNG(0x1337BEEFFEEDL));
         Gdx.gl.glDisable(GL20.GL_BLEND);
-        viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight);
+        viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight, 1);
         //viewport = new ScreenViewport();
         //tempVector3 = new Vector3();
         viewport.getCamera().update();
@@ -207,10 +207,10 @@ public class GameplayScreen implements Screen {
                 "varying vec2 v_texCoords;\n" +
                 "void main()\n" +
                 "{\n" +
-                "v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
-                "v_color.a = v_color.a * (255.0/254.0);\n" + //* (256.0/255.0)
-                "v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
-                "gl_Position = u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
+                "v_color = a_color;\n" +
+                "v_color.a = v_color.a * (255.0/254.0);\n" +
+                "v_texCoords = a_texCoord0;\n" +
+                "gl_Position = u_projTrans * a_position;\n" +
                 "}\n";
         String fragment =
                 "#ifdef GL_ES\n" +
@@ -226,7 +226,7 @@ public class GameplayScreen implements Screen {
                         "void main()\n" +
                         "{\n" +
                         "vec4 color = texture2D(u_texture, v_texCoords);\n" +
-                        "vec2 index = vec2(color.r * 255.0 / 255.5, v_color.r);\n" +
+                        "vec2 index = vec2(color.r * (255.0 / 256.0), v_color.r);\n" +
                         "gl_FragColor = vec4(texture2D(u_texPalette, index).rgb, color.a);\n" +
                         "}\n";
 //        String fragment =
@@ -461,7 +461,6 @@ public class GameplayScreen implements Screen {
         palettes.bind();
         batch.begin();
 
-        //indexShader.setUniformi("u_texPalette", 2);
         indexShader.setUniformi("u_texPalette", 1);
         Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
         //textures.first().bind(1);
