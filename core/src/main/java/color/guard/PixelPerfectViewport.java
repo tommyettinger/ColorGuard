@@ -78,6 +78,31 @@ public class PixelPerfectViewport extends Viewport {
     }
 
     /**
+     * Creates a new viewport using a new {@link OrthographicCamera}.
+     * This is the same as calling {@link #PixelPerfectViewport(Scaling, float, float, int)} with a
+     * {@code conversion} of 1.
+     * @param scaling which one of the predefined objects in {@link Scaling}; {@link Scaling#fill} is good
+     * @param worldWidth the width of the world in world units
+     * @param worldHeight the height of the world in world units
+     */
+    public PixelPerfectViewport(Scaling scaling, float worldWidth, float worldHeight) {
+        this(scaling, worldWidth, worldHeight, 1, 1, new OrthographicCamera());
+    }
+
+    /**
+     * Creates a new viewport using the given {@code camera}.
+     * This is the same as calling {@link #PixelPerfectViewport(Scaling, float, float, int, int, Camera)}
+     * with {@code conversionX} and {@code conversionX} of 1.
+     * @param scaling which one of the predefined objects in {@link Scaling}; {@link Scaling#fill} is good
+     * @param worldWidth the width of the world in world units
+     * @param worldHeight the height of the world in world units
+     * @param camera an existing Camera to reuse here
+     */
+    public PixelPerfectViewport(Scaling scaling, float worldWidth, float worldHeight, Camera camera) {
+        this(scaling, worldWidth, worldHeight, 1, 1, camera);
+    }
+
+    /**
      * Creates a new viewport using the given {@code camera}.
      * The {@code conversionX} and {@code conversionY} parameters control the size in pixels of a world unit.
      * For a 16x24 pixel world unit, you would use 16 for conversionX and 24 for conversionY.
