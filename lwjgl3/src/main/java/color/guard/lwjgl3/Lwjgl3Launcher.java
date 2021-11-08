@@ -18,7 +18,7 @@ public class Lwjgl3Launcher {
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("ColorGuard");
-        configuration.useVsync(false);
+        configuration.useVsync(true);
         configuration.disableAudio(true);
         configuration.setIdleFPS(60);
         configuration.setForegroundFPS(60);

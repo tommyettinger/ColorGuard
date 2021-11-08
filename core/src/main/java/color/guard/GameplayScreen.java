@@ -298,7 +298,7 @@ public class GameplayScreen implements Screen {
                 map[x][y] = map[x][y] * 4 + guiRandom.next(2);
             }
         }
-        batch = new SpriteBatch();
+        batch = new SpriteBatch(4096);
         proc = new InputAdapter(){
             @Override
             public boolean touchUp(int screenX, int screenY, int pointer, int button) {
@@ -559,16 +559,16 @@ public class GameplayScreen implements Screen {
                 }
             }
         }
-        //batch.setColor(1f / 255f, 1f, 1f, 1f);
-        //font.draw(batch, "DC: " + drawCalls + ", TBINDS: " + textureBindings, position.x, position.y, 100f, Align.center, true);
+        batch.setColor(1f / 255f, 1f, 1f, 1f);
+        screenPosition.set(16, 8);
+        viewport.unproject(screenPosition);
+        font.draw(batch, tempSB, screenPosition.x, screenPosition.y, 300f, Align.left, true);
         batch.end();
         int drawCalls = glp.getDrawCalls();
         int textureBindings = glp.getTextureBindings();
         tempSB.setLength(0);
         tempSB.append(Gdx.graphics.getFramesPerSecond()).append(" FPS, Draw Calls: ").append(drawCalls).append(", Texture Binds: ").append(textureBindings);
         Gdx.graphics.setTitle(tempSB.toString());
-//        screenPosition.set(16, 8);
-//        viewport.unproject(screenPosition);
 
         //font.draw(batch, tempSB, screenPosition.x, screenPosition.y);
         //font.draw(batch, displayString, -300, 1160); //state.world.mapGen.atlas.getAt(guiRandom.between(2, 26))
