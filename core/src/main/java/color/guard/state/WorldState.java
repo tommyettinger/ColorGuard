@@ -1,5 +1,6 @@
 package color.guard.state;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import squidpony.FakeLanguageGen;
 import squidpony.Maker;
@@ -89,6 +90,7 @@ public class WorldState {
         worldRandom = new StatefulRNG(new Lathe32RNG(seed));
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
+        Gdx.app.log("NAME", "World name is " + worldName);
         mapGen = new StandardMap(seed, worldWidth, worldHeight,
                 WorldMapGenerator.DEFAULT_NOISE, 0.7);
         polGen = new PoliticalMapper(worldName);

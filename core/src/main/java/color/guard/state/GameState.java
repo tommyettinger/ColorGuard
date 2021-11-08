@@ -1,5 +1,6 @@
 package color.guard.state;
 
+import com.badlogic.gdx.Gdx;
 import squidpony.squidmath.Lathe32RNG;
 import squidpony.squidmath.StatefulRNG;
 
@@ -18,6 +19,7 @@ public class GameState {
         masterRandom = new StatefulRNG(new Lathe32RNG(seed));
         //Gdx.app.setLogLevel(Application.LOG_INFO);
         seed = masterRandom.nextLong();
+        Gdx.app.log("SEED", "World seed is " + seed);
         world = new WorldState(128, 128, seed);
     }
 }

@@ -2,7 +2,7 @@ apply plugin: 'application'
 
 //sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
 mainClassName = 'color.guard.lwjgl3.Lwjgl3Launcher'
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 
 dependencies {
   api project(':core')
