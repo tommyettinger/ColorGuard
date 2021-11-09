@@ -1,7 +1,7 @@
 package color.guard.state;
 
 import com.badlogic.gdx.Gdx;
-import squidpony.squidmath.SilkRNG;
+import squidpony.squidmath.GWTRNG;
 import squidpony.squidmath.StatefulRNG;
 
 /**
@@ -16,7 +16,7 @@ public class GameState {
     }
     public GameState(long seed)
     {
-        masterRandom = new StatefulRNG(new SilkRNG(seed));
+        masterRandom = new StatefulRNG(new GWTRNG(seed));
         //Gdx.app.setLogLevel(Application.LOG_INFO);
         seed = masterRandom.nextLong();
         Gdx.app.log("SEED", "World seed is " + seed);
