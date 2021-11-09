@@ -81,7 +81,7 @@ public class GameplayScreen implements Screen {
 
     @Override
     public void show() {
-        guiRandom = new RNG(new LightRNG(0x1337BEEFFEEDL));
+        guiRandom = new RNG(new SilkRNG(0x1337BEEF, 0xFEED));
         Gdx.gl.glDisable(GL20.GL_BLEND);
         viewport = new PixelPerfectViewport(Scaling.fill, visualWidth, visualHeight, 1);
         //viewport = new ScreenViewport();
@@ -171,7 +171,7 @@ public class GameplayScreen implements Screen {
         final Coord playerPos = state.world.battle.pieces.firstKey();
         targetCell = playerPos;
         playerPiece = state.world.battle.pieces.getAt(0);
-        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), Measurement.MANHATTAN, new StatefulRNG(new LightRNG(1234567890L)));
+        dijkstra = new DijkstraMap(ArrayTools.fill('.', mapWidth, mapHeight), Measurement.MANHATTAN, new SilkRNG(12345, 67890));
         dijkstra.initializeCost(state.world.battle.resistances[playerPiece.pieceKind.mobility]);
         viewport.getCamera().position.set(32 * (playerPos.y - playerPos.x) + 9f, 16 * (playerPos.y + playerPos.x) + 13f, 0f);
         viewport.getCamera().update();

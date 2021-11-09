@@ -87,7 +87,7 @@ public class WorldState {
         worldWidth = Math.max(20, width);
         worldHeight = Math.max(20, height);
         Coord.expandPoolTo(worldWidth, worldHeight);
-        worldRandom = new StatefulRNG(new LightRNG(seed));
+        worldRandom = new StatefulRNG(new SilkRNG(seed));
         FakeLanguageGen lang = FakeLanguageGen.RUSSIAN_ROMANIZED.mix(FakeLanguageGen.FRENCH.removeAccents(), 0.57);
         worldName = lang.word(worldRandom, true);
         Gdx.app.log("NAME", "World name is " + worldName);

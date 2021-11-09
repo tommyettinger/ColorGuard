@@ -128,7 +128,7 @@ public class Faction {
     }
     public Faction(int index, String name, FakeLanguageGen language, GreasedRegion territory, WorldState world)
     {
-        rng = new StatefulRNG(new LightRNG(CrossHash.hash64(name)));
+        rng = new StatefulRNG(new SilkRNG(CrossHash.hash64(name)));
         this.index = index;
         this.name = name;
         this.language = language;
@@ -181,7 +181,7 @@ public class Faction {
             }
         }
     }
-    public static Faction whoOwns(int x, int y, RNG random, Faction[] factions)
+    public static Faction whoOwns(int x, int y, StatefulRNG random, Faction[] factions)
     {
         for (int i = 0; i < factions.length; i++) {
             if(factions[i].territory.contains(x, y))
